@@ -39,6 +39,11 @@ public class Hardware {
         collect_left = hwMap.get(DcMotor.class, "collect_left");
         collect_right = hwMap.get(DcMotor.class, "collect_right");
 
+        // Odometry Encoders
+        encoder_center = hwMap.get(DcMotor.class, "encoder_center");
+        encoder_left = hwMap.get(DcMotor.class, "encoder_left");
+        encoder_right = hwMap.get(DcMotor.class, "encoder_right");
+
         // Motor Configuration
         rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
