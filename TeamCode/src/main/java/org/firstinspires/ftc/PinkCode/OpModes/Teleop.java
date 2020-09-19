@@ -9,11 +9,16 @@ import org.firstinspires.ftc.PinkCode.Subsystems.PinkNavigate;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Base;
 import org.firstinspires.ftc.PinkCode.Robot.Controls;
+import org.firstinspires.ftc.PinkCode.odometry.WheelTracker;
+
+import java.lang.reflect.Array;
 
 
 // Class for Player-Controlled Period of the Game Which Binds Controls to Subsystems
 @TeleOp(name = "TeleOp", group = "TeleOp")
 public class Teleop extends Controls {
+
+    private WheelTracker tracker;
 
     // Code to Run Once When the Drivers Press Init
     public void init() {
@@ -32,6 +37,8 @@ public class Teleop extends Controls {
         // Telemetry Update to Inform Drivers That the Program is Initialized
         telemetry.addData("Status: ", "Waiting for Driver to Press Play");
         telemetry.update();
+
+        tracker = new WheelTracker();
     }
 
     // Code to Run Constantly After the Drivers Press Play and Before They Press Stop
@@ -54,11 +61,8 @@ public class Teleop extends Controls {
             double v3 = r * Math.sin(robotAngle) - rightX;
             double v4 = r * Math.cos(robotAngle) - rightX;
 
-            telemetry.addData("Encoder_count_right", PinkNavigate.encoder_right_count());
-            telemetry.addData("Encoder_count_left", PinkNavigate.encoder_left_to_count());
-            telemetry.addData("Encoder_pos_right", PinkNavigate.encoder_right_pos());
-            telemetry.addData("Encoder_pos_left", PinkNavigate.encoder_left_pos());
-            telemetry.update();
+            telemetry.addData("Wheel Positions", tracker.getWheelPositions());
+            telemetry.addData("Wheel Velocity's", tracker.getWheelVelocity());
 
             Base.drive_by_command(false,-v1,-v2,-v3,-v4);
         }

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.PinkCode.Robot;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -16,9 +17,9 @@ public class Hardware {
     public DcMotor collect_left;
     public DcMotor collect_right; // Port 1 Expansion Hub
 
-    public DcMotor encoder_left; // Port Unknown
-    public DcMotor encoder_right; // Port Unknown
-    public DcMotor encoder_center; // Port Unknown
+    public DcMotorEx encoder_left; // Port Unknown
+    public DcMotorEx encoder_right; // Port Unknown
+    public DcMotorEx encoder_center; // Port Unknown
 
     // Servos
     //public Servo scorer_rotate;
@@ -40,9 +41,9 @@ public class Hardware {
         collect_right = hwMap.get(DcMotor.class, "collect_right");
 
         // Odometry Encoders
-        encoder_center = hwMap.get(DcMotor.class, "encoder_center");
-        encoder_left = hwMap.get(DcMotor.class, "encoder_left");
-        encoder_right = hwMap.get(DcMotor.class, "encoder_right");
+        encoder_center = hwMap.get(DcMotorEx.class, "encoder_center");
+        encoder_left = hwMap.get(DcMotorEx.class, "encoder_left");
+        encoder_right = hwMap.get(DcMotorEx.class, "encoder_right");
 
         // Motor Configuration
         rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

@@ -18,4 +18,16 @@ public abstract class Presets {
     //Hook Presets
     public static final double HOOK_DOWN = .5;
     public static final double HOOK_UP = 1;
+
+    // Odometry
+    public static double WHEEL_RADIUS = 2; // in
+    public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
+    public static double TICKS_PER_REV = 1; // in
+    public static double LATERAL_DISTANCE = 10; // in; distance between the left and right wheels
+    public static double FORWARD_OFFSET = 4; // in; offset of the lateral wheel
+
+    // Convert Encoder Values to Inch
+    public static double encoderTicksToInches(double ticks) {
+        return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
+    }
 }
