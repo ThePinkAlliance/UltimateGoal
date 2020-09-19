@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
+import org.firstinspires.ftc.PinkCode.Subsystems.PinkNavigate;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Base;
 import org.firstinspires.ftc.PinkCode.Robot.Controls;
@@ -52,6 +53,12 @@ public class Teleop extends Controls {
             double v2 = r * Math.sin(robotAngle) + rightX;
             double v3 = r * Math.sin(robotAngle) - rightX;
             double v4 = r * Math.cos(robotAngle) - rightX;
+
+            telemetry.addData("Encoder_count_right", PinkNavigate.encoder_right_count());
+            telemetry.addData("Encoder_count_left", PinkNavigate.encoder_left_to_count());
+            telemetry.addData("Encoder_pos_right", PinkNavigate.encoder_right_pos());
+            telemetry.addData("Encoder_pos_left", PinkNavigate.encoder_left_pos());
+            telemetry.update();
 
             Base.drive_by_command(false,-v1,-v2,-v3,-v4);
         }
