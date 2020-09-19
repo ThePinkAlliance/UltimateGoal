@@ -14,7 +14,11 @@ public class Hardware {
     public DcMotor leftF_drive; // Port 3 Expansion Hub 2
     public DcMotor leftB_drive; // Port 3 Expansion Hub 2
     public DcMotor collect_left;
-    public DcMotor collect_right; // Port 1 Expansion Hub 1
+    public DcMotor collect_right; // Port 1 Expansion Hub
+
+    public DcMotor encoder_left; // Port Unknown
+    public DcMotor encoder_right; // Port Unknown
+    public DcMotor encoder_center; // Port Unknown
 
     // Servos
     //public Servo scorer_rotate;
@@ -70,6 +74,10 @@ public class Hardware {
         leftB_drive.setPower(0);
         collect_left.setPower(0);
         collect_right.setPower(0);
+
+        encoder_center.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoder_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoder_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Servos
         //scorer_rotate = hwMap.get(Servo.class, "scorer_rotate");
