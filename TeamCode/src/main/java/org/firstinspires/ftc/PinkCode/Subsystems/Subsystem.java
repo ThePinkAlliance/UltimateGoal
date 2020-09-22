@@ -12,6 +12,7 @@ public abstract class Subsystem extends Teleop {
     static double front_right_wheel_command;
     static double back_right_wheel_command;
     static double collect_command;
+    static double conveyor_command;
 
     // Method Which Sends the Motor Powers to the Motors
     public static void set_motor_powers() {
@@ -21,6 +22,7 @@ public abstract class Subsystem extends Teleop {
         robot.leftF_drive.setPower(Subsystem.front_left_wheel_command);
         robot.leftB_drive.setPower(Subsystem.back_left_wheel_command);
 //        robot.collect.setPower(Subsystem.collect_command);
+//        robot.conveyor.setpower(Subsystem.conveyor_command);
     }
 
     // Method Which Sends the Servo Positions to the Servos

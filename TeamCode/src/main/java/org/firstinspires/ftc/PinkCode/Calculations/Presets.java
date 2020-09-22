@@ -6,6 +6,10 @@ public abstract class Presets {
     public static final double COLLECTOR_COLLECT_POWER = .8; // Power Sent to Motor While Collecting
     public static final double COLLECTOR_EJECT_POWER = -.2; // Power Sent to Motor While Ejecting
 
+    //Conveyor Commands
+    public static final double CONVEYOR_COLLECT_POWER = 1;
+    public static final double CONVEYOR_EJECT_POWER = -1;
+
     //Scorer Presets
     public static final double SCORER_STOW = .05;
     public static final double SCORER_HIGH = .65;
