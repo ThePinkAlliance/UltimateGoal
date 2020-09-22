@@ -5,20 +5,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
-import org.firstinspires.ftc.PinkCode.Subsystems.PinkNavigate;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Base;
 import org.firstinspires.ftc.PinkCode.Robot.Controls;
-import org.firstinspires.ftc.PinkCode.odometry.WheelTracker;
-
-import java.lang.reflect.Array;
 
 
 // Class for Player-Controlled Period of the Game Which Binds Controls to Subsystems
 @TeleOp(name = "TeleOp", group = "TeleOp")
 public class Teleop extends Controls {
-
-    private WheelTracker tracker;
 
     // Code to Run Once When the Drivers Press Init
     public void init() {
@@ -37,8 +31,6 @@ public class Teleop extends Controls {
         // Telemetry Update to Inform Drivers That the Program is Initialized
         telemetry.addData("Status: ", "Waiting for Driver to Press Play");
         telemetry.update();
-
-        tracker = new WheelTracker();
     }
 
     // Code to Run Constantly After the Drivers Press Play and Before They Press Stop
@@ -61,9 +53,12 @@ public class Teleop extends Controls {
             double v3 = r * Math.sin(robotAngle) - rightX;
             double v4 = r * Math.cos(robotAngle) - rightX;
 
-            telemetry.addData("Wheel Positions", tracker.getWheelPositions());
-            telemetry.addData("Wheel Velocity's", tracker.getWheelVelocity());
-
+            if(gamepad1.right_stick_x == 0) {
+                v1 += v1/3;
+                v2 += v2/3;
+                v3 += v3/3;
+                v4 += v4/3;
+            }
             Base.drive_by_command(false,-v1,-v2,-v3,-v4);
         }
         else {
@@ -71,21 +66,24 @@ public class Teleop extends Controls {
         }
 
         // Collector Controls
-        if(base_right_bumper(false))
-            Collector.collect();
-        else if(base_left_bumper(false))
-            Collector.eject();
-        else
-            Collector.collect_stop();
+//        if(base_right_bumper(false))
+//            Collector.collect();
+//        else if(base_left_bumper(false))
+//            Collector.eject();
+//        else
+//            Collector.collect_stop();
 
         // Set Motor Powers and Servos to Their Commands
         Subsystem.set_motor_powers();
         Subsystem.set_servo_positions();
 
         // Add Telemetry to Phone for Debugging and Testing if it is Activated
-        if (tower_start(false)) {
+        if (gamepad1.start) {
             telemetry.addData("Status: ", "Running Teleop");
             telemetry.addData("Powers: ", "");
+            telemetry.addData("LYAXIS: ", gamepad1.left_stick_y);
+            telemetry.addData("LXAXIS: ", gamepad1.left_stick_x);
+            telemetry.addData("RXAXIS: ", gamepad1.right_stick_x);
             telemetry.addData("Base RightF Power: ", Subsystem.robot.rightF_drive.getPower());
             telemetry.addData("Base RightB Power: ", Subsystem.robot.rightB_drive.getPower());
             telemetry.addData("Base LeftF Power: ", Subsystem.robot.leftF_drive.getPower());
