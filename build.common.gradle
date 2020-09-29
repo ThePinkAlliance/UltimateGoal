@@ -22,7 +22,10 @@ apply plugin: 'com.android.application'
 android {
 
     compileSdkVersion 28
+<<<<<<< HEAD
     ndkVersion "21.0.6113669"
+=======
+>>>>>>> refs/remotes/origin/master
 
     signingConfigs {
         debug {
@@ -78,19 +81,25 @@ android {
         release {
             // Disable debugging for release versions so it can be uploaded to Google Play.
             //debuggable true
+<<<<<<< HEAD
 //            minifyEnabled true
 //            proguardFiles getDefaultProguardFile('proguard-android.txt'),
 //                    'proguard-rules.pro'
 
+=======
+>>>>>>> refs/remotes/origin/master
             ndk {
                 abiFilters "armeabi-v7a", "arm64-v8a"
             }
         }
         debug {
+<<<<<<< HEAD
 //            minifyEnabled true
 //            proguardFiles getDefaultProguardFile('proguard-android.txt'),
 //                    'proguard-rules.pro'
 
+=======
+>>>>>>> refs/remotes/origin/master
             debuggable true
             jniDebuggable true
             renderscriptDebuggable true
