@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
+import org.firstinspires.ftc.PinkCode.Subsystems.PinkNavigate;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Base;
 import org.firstinspires.ftc.PinkCode.Robot.Controls;
@@ -36,6 +37,11 @@ public class Teleop extends Controls {
     // Code to Run Constantly After the Drivers Press Play and Before They Press Stop
     public void loop() {
 
+        telemetry.addData("left encoder inches", PinkNavigate.getWheelPositions().get(0).toString());
+        telemetry.addData("right encoder inches", PinkNavigate.getWheelPositions().get(1).toString());
+        telemetry.addData("center encode inches", PinkNavigate.getWheelPositions().get(2).toString());
+        telemetry.update();
+
         // Drive Train Control
         if( gamepad1.left_stick_y > .1  ||
                 gamepad1.left_stick_y < -.1 ||
@@ -66,12 +72,12 @@ public class Teleop extends Controls {
         }
 
         // Collector Controls
-//        if(base_right_bumper(false))
-//            Collector.collect();
-//        else if(base_left_bumper(false))
-//            Collector.eject();
-//        else
-//            Collector.collect_stop();
+        if(base_right_bumper(false))
+            Collector.collect();
+        else if(base_left_bumper(false))
+            Collector.eject();
+        else
+            Collector.collect_stop();
 
         // Set Motor Powers and Servos to Their Commands
         Subsystem.set_motor_powers();

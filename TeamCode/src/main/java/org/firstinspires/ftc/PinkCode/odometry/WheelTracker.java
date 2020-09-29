@@ -23,8 +23,11 @@ public class WheelTracker extends ThreeTrackingWheelLocalizer {
     @Override
     public List<Double> getWheelPositions() {
         return Arrays.asList(
+                // Left Encoder
                 Presets.encoderTicksToInches(Subsystem.robot.encoder_left.getCurrentPosition()),
+                // Right Encoder
                 Presets.encoderTicksToInches(Subsystem.robot.encoder_right.getCurrentPosition()),
+                // Center Encoder
                 Presets.encoderTicksToInches(Subsystem.robot.encoder_center.getCurrentPosition())
         );
     }
@@ -32,9 +35,9 @@ public class WheelTracker extends ThreeTrackingWheelLocalizer {
     @NotNull
     public List<Double> getWheelVelocity() {
         return Arrays.asList(
-                Presets.encoderTicksToInches(Subsystem.robot.encoder_left.getVelocity()),
-                Presets.encoderTicksToInches(Subsystem.robot.encoder_right.getVelocity()),
-                Presets.encoderTicksToInches(Subsystem.robot.encoder_center.getVelocity())
+                Presets.encoderTicksToInches(Subsystem.robot.encoder_left.getRawVelocity()),
+                Presets.encoderTicksToInches(Subsystem.robot.encoder_right.getRawVelocity()),
+                Presets.encoderTicksToInches(Subsystem.robot.encoder_center.getRawVelocity())
         );
     }
 }
