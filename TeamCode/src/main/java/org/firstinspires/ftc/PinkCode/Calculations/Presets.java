@@ -37,6 +37,10 @@ public abstract class Presets {
     public static final boolean RUN_USING_ENCODER = true;
     public static final PIDCoefficients MOTOR_VELO_PID = null;
     public static double TRACK_WIDTH = 1; // in
+
+    public static double X_MULTIPLIER = 1; // Multiplier in the X direction
+    public static double Y_MULTIPLIER = 1; // Multiplier in the Y direction
+
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
             30.0, 30.0, 0.0,
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0

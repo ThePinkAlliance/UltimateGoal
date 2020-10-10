@@ -6,11 +6,7 @@
 
 <!-- The package name here determines the package for your R class and your BuildConfig class -->
 <manifest
-<<<<<<< HEAD
     package="org.firstinspires.ftc.PinkCode"
-=======
-    package="org.firstinspires.ftc.teamcode"
->>>>>>> refs/remotes/origin/master
     xmlns:android="http://schemas.android.com/apk/res/android">
     <application/>
 </manifest>

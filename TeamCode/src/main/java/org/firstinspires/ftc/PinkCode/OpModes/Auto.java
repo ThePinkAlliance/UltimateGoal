@@ -1,37 +1,42 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.control.PIDFController;
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
-import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.profile.MotionProfile;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.path.Path;
+import org.firstinspires.ftc.PinkCode.OpModes.OdemetryPresets.*;
+
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.PinkCode.Subsystems.Base;
-import org.firstinspires.ftc.PinkCode.Subsystems.PinkNavigate;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
-import org.firstinspires.ftc.PinkCode.odometry.SampleMecanumDrive;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl;
+import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.internal.vuforia.externalprovider.VuforiaWebcam;
 
-import java.util.List;
+import static org.firstinspires.ftc.PinkCode.OpModes.OdemetryPresets.drive_from_stack;
+import static org.firstinspires.ftc.PinkCode.OpModes.OdemetryPresets.drive_init;
 
 @Autonomous(name = "Auto", group = "Auto")
 public class Auto extends OpMode {
     private VuforiaWebcam webcam;
     private VuforiaLocalizer.Parameters parameters;
-    private int cameraMonitorViewId;
-    private SampleMecanumDrive drive;
+    private PinkNavigate drive;
+
     private enum stages {
         INIT,
-        DRIVE
+        DRIVE_TEST_TWO,
+        STOP,
     }
+
+    private Pose2d poseOne = new Pose2d(0, 0);
+    private Pose2d poseTwo = new Pose2d(0, 0);
+    private Pose2d poseThree = new Pose2d(0, 0);
+    private Pose2d poseFour = new Pose2d(0, 0);
+    private Pose2d poseFive = new Pose2d(0, 0);
+
     private stages stage = stages.INIT;
 
     @Override
@@ -47,15 +52,9 @@ public class Auto extends OpMode {
         Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-//        cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//        parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-        drive = new SampleMecanumDrive(hardwareMap);
+        drive = new PinkNavigate(hardwareMap);
 
         // change webcam from phone to webcam
-//        parameters.cameraName = Subsystem.robot.webcam;
-
-//        Scorer.score_rotate_to_position(Presets.SCORER_STOW);
         // Telemetry Update to Inform Drivers That the Program is Initialized
         telemetry.addData("Status: ", "Waiting for Driver to Press Play");
         telemetry.update();
@@ -63,15 +62,36 @@ public class Auto extends OpMode {
 
     @Override
     public void loop() {
+        drive.update();
         switch (stage) {
             case INIT:
-                Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
-                        .forward(10)
-                        .strafeLeft(5)
+                drive_from_stack = drive.trajectoryBuilder(drive_init.end())
+                        .strafeLeft(1.5)
                         .build();
 
-                drive.followTrajectory(trajectory);
+                telemetry.addData("pos", drive_from_stack.end());
+                telemetry.update();
+
+                drive_init = drive.trajectoryBuilder(new Pose2d())
+                        .forward(1.5)
+                        .addDisplacementMarker(() -> drive.followTrajectoryAsync(drive_from_stack))
+                        .build();
+
+                telemetry.addData("pos", drive_init.end());
+                telemetry.update();
+
+                drive.followTrajectory(drive_init);
+                stage = stages.STOP;
+                break;
+
+            case STOP:
+                telemetry.addData("status", "stop");
+                telemetry.update();
                 break;
         }
+    }
+
+    public String format(OpenGLMatrix transformationMatrix) {
+        return transformationMatrix.formatAsTransform();
     }
 }

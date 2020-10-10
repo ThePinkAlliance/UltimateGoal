@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.PinkCode.odometry;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.drive.DriveSignal;
@@ -17,15 +16,16 @@ import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,8 +40,7 @@ import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kV;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kA;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kStatic;
 
-@Config
-public class SampleMecanumDrive extends MecanumDrive {
+public class PinkNavigate extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
 
@@ -68,11 +67,12 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
+    private List<DcMotorEx> encoders;
     private BNO055IMU imu;
 
     private Pose2d lastPoseOnTurn;
 
-    public SampleMecanumDrive(HardwareMap hardwareMap) {
+    public PinkNavigate(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         clock = NanoClock.system();
@@ -230,6 +230,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
                 if (!follower.isFollowing()) {
                     mode = Mode.IDLE;
+                    // Possible
                     setDriveSignal(new DriveSignal());
                 }
 
@@ -300,6 +301,6 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return imu.getAngularOrientation().firstAngle;
+        return /*imu.getAngularOrientation().firstAngle*/ 0.0 ;
     }
 }

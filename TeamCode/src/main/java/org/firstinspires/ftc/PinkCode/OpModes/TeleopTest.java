@@ -13,6 +13,5 @@ public class TeleopTest extends Controls {
 
     @Override
     public void loop() {
-
     }
 }

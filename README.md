@@ -1,32 +1,18 @@
 ## NOTICE
 
-<<<<<<< HEAD
-This repository contains the public FTC SDK for the SKYSTONE (2019-2020) competition season.
-
-Formerly this software project was hosted [here](https://github.com/ftctechnh/ftc_app).  Teams who are competing in the SKYSTONE Challenge should use this [new SKYSTONE repository](https://github.com/FIRST-Tech-Challenge/SKYSTONE) instead of the older (and no longer updated) ftc_app repository.
-=======
 This repository contains the public FTC SDK for the Ultimate Goal (2020-2021) competition season.
 
 Formerly this software project was hosted [here](https://github.com/FIRST-Tech-Challenge/Skystone).  Teams who are competing in the Ultimate Goal Challenge should use this new [FtcRobotController repository](https://github.com/FIRST-Tech-Challenge/FtcRobotController) instead of last season's (no longer updated) Skystone repository.
->>>>>>> refs/remotes/origin/master
 
 ## Welcome!
 This GitHub repository contains the source code that is used to build an Android app to control a *FIRST* Tech Challenge competition robot.  To use this SDK, download/clone the entire project to your local computer.
 
 ## Getting Started
-<<<<<<< HEAD
-If you are new to robotics or new to the *FIRST* Tech Challenge, then you should consider reviewing the [FTC Blocks Tutorial](https://github.com/FIRST-Tech-Challenge/SKYSTONE/wiki/Blocks-Tutorial) to get familiar with how to use the control system:
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[FTC Blocks Online Tutorial](https://github.com/FIRST-Tech-Challenge/SKYSTONE/wiki/Blocks-Tutorial)
-
-Even if you are an advanced Java programmer, it is helpful to start with the [FTC Blocks tutorial](https://github.com/FIRST-Tech-Challenge/SKYSTONE/wiki/Blocks-Tutorial), and then migrate to the [OnBot Java Tool](https://github.com/FIRST-Tech-Challenge/SKYSTONE/wiki/OnBot-Java-Tutorial) or to [Android Studio](https://github.com/FIRST-Tech-Challenge/SKYSTONE/wiki/Android-Studio-Tutorial) afterwards.
-=======
 If you are new to robotics or new to the *FIRST* Tech Challenge, then you should consider reviewing the [FTC Blocks Tutorial](https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/Blocks-Tutorial) to get familiar with how to use the control system:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[FTC Blocks Online Tutorial](https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/Blocks-Tutorial)
 
 Even if you are an advanced Java programmer, it is helpful to start with the [FTC Blocks tutorial](https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/Blocks-Tutorial), and then migrate to the [OnBot Java Tool](https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/OnBot-Java-Tutorial) or to [Android Studio](https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/Android-Studio-Tutorial) afterwards.
->>>>>>> refs/remotes/origin/master
 
 ## Downloading the Project
 If you are an Android Studio programmer, there are several ways to download this repo.  Note that if you use the Blocks or OnBot Java Tool to program your robot, then you do not need to download this repository.
@@ -50,16 +36,6 @@ Once you have downloaded and uncompressed (if needed) your folder, you can use A
 
 Note that the online documentation is an "evergreen" document that is constantly being updated and edited.  It contains the most current information about the *FIRST* Tech Challenge software and control system.
 
-### Javadoc Reference Material
-The Javadoc reference documentation for the FTC SDK is now available online.  Click on the following link to view the FTC SDK Javadoc documentation as a live website:
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[FTC Javadoc Documentation](https://first-tech-challenge.github.io/SkyStone/)
-
-Documentation for the FTC SDK is also included with this repository.  There is a subfolder called "doc" which contains several subfolders:
-
- * The folder "apk" contains the .apk files for the FTC Driver Station and FTC Robot Controller apps.
- * The folder "javadoc" contains the JavaDoc user documentation for the FTC SDK.
-=======
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git clone https://github.com/FIRST-Tech-Challenge/FtcRobotController.git</p>
 
 * Or, if you prefer, you can use the "Download Zip" button available through the main repository page.  Downloading the project as a .ZIP file will keep the size of the download manageable.
@@ -84,7 +60,7 @@ The Javadoc reference documentation for the FTC SDK is now available online at h
 Documentation is no longer distributed with the repository itself.  See the wiki referenced above for tutorials or the javadoc reference for API documentation.
 
 Prebuilt APK's are available on the releases page.
->>>>>>> refs/remotes/origin/master
+
 
 ### Online User Forum
 For technical questions regarding the Control System or the FTC SDK, please visit the FTC Technology forum:
@@ -92,7 +68,6 @@ For technical questions regarding the Control System or the FTC SDK, please visi
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[FTC Technology Forum](https://ftcforum.usfirst.org/forumdisplay.php?156-FTC-Technology)
 
 # Release Information
-<<<<<<< HEAD
 =======
 
 ## Version 6.0 (20200921-085816)
@@ -140,7 +115,7 @@ For technical questions regarding the Control System or the FTC SDK, please visi
 ### Bug fixes
 * Improved reliability of BNO055IMU IMU initialization to prevent random initialization failures (which manifested as `Problem with 'imu'`).
 
->>>>>>> refs/remotes/origin/master
+
 ## Version 5.5 (20200824-090813)
 
 Version 5.5 requires Android Studio 4.0 or later.
@@ -384,7 +359,7 @@ Version 5.5 requires Android Studio 4.0 or later.
 * Added SKYSTONE Sounds Chooser Sample Program.
 =======
 * Added Skystone Sounds Chooser Sample Program.
->>>>>>> refs/remotes/origin/master
+
 * Switches out startup, connect chimes, and error/warning sounds for Star Wars sounds
 * Updates OnBot Java to use a WebSocket for communication with the robot
     * The OnBot Java page no longer has to do a full refresh when a user switches from editing one file to another
