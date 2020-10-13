@@ -293,10 +293,23 @@ public class PinkNavigate extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftFront.setPower(v);
-        leftRear.setPower(v1);
-        rightRear.setPower(v2);
-        rightFront.setPower(v3);
+        // Possible
+        if (v >= 0.1 && v2 >= 0.1 && v1 >= -0.1 && v3 >= -0.1) {
+            // Im not sure +v will work
+            leftFront.setPower(-v);
+            leftRear.setPower(-v1);
+            rightFront.setPower(+v3);
+            rightRear.setPower(+v2);
+        }
+
+        // Possible
+        if (v >= -0.1 && v2 >= -0.1 && v1 >= 0.1 && v3 >= 0.1) {
+            // Im not sure +v will work
+            leftFront.setPower(+v);
+            leftRear.setPower(+v1);
+            rightFront.setPower(-v3);
+            rightRear.setPower(-v2);
+        }
     }
 
     @Override

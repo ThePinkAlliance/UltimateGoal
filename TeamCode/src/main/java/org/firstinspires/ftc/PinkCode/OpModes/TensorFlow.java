@@ -1,21 +1,44 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
+import org.firstinspires.ftc.PinkCode.Calculations.Presets;
+import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
-@TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
+@TeleOp(name = "TensorFlow Object Detection Webcam", group = "Concept")
 public class TensorFlow extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
+    private PinkNavigate navigate;
+    private enum States {
+        INIT,
+        DRIVE_TO_TARGETS,
+        GO_TO_HOME_POSITION,
+        SHOOT
+    };
+    private enum ALLIANCE {
+        RED,
+        BLUE,
+    };
+    private States current_state = States.INIT;
+    private Trajectory drive_init;
+    private Pose2d init_pose;
+
+    private Trajectory drive_targets;
+    private Pose2d targets_pose;
+
+    private ALLIANCE CurrentAlliance = ALLIANCE.RED;
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -64,10 +87,15 @@ public class TensorFlow extends LinearOpMode {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 1.78 or 16/9).
-
-            // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
-            //tfod.setZoom(2.5, 1.78);
         }
+
+        if (gamepad1.dpad_left) {
+            CurrentAlliance = ALLIANCE.BLUE;
+        } else if (gamepad1.dpad_right) {
+            CurrentAlliance = ALLIANCE.RED;
+        }
+
+//        navigate = new PinkNavigate(hardwareMap);
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
@@ -80,18 +108,41 @@ public class TensorFlow extends LinearOpMode {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
-                        // step through the list of recognitions and display boundary info.
-                        int i = 0;
-                        for (Recognition recognition : updatedRecognitions) {
-                            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                    recognition.getLeft(), recognition.getTop());
-                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                    recognition.getRight(), recognition.getBottom());
+                    if (updatedRecognitions != null && CurrentAlliance == ALLIANCE.RED) {
+                        switch (current_state) {
+                            case INIT:
+                                telemetry.addData("position", Presets.encoderTicksToInches(GetObjectPosition(updatedRecognitions)));
+
+//                                drive_init = navigate.trajectoryBuilder(new Pose2d())
+//                                        .forward(1)
+//                                        .build();
+
+                                telemetry.update();
+
+                                init_pose = drive_init.end();
+                                break;
+
+                            case DRIVE_TO_TARGETS:
+                                GetObjectPosition(updatedRecognitions);
+
+
+
+                                drive_targets = navigate.trajectoryBuilder(init_pose)
+                                        .build();
+                                break;
                         }
-                        telemetry.update();
+                    } else if (updatedRecognitions != null && CurrentAlliance == ALLIANCE.BLUE) {
+                        switch (current_state) {
+                            case INIT:
+                                GetObjectPosition(updatedRecognitions);
+
+                                drive_init = navigate.trajectoryBuilder(new Pose2d())
+                                        .forward(1)
+                                        .build();
+
+                                init_pose = drive_init.end();
+                                break;
+                        }
                     }
                 }
             }
@@ -112,12 +163,36 @@ public class TensorFlow extends LinearOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = Subsystem.robot.webcam;
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
+    }
+
+    private float GetObjectPosition(List<Recognition> updatedRecognitions) {
+        // step through the list of recognitions and display boundary info.
+        float pos = 0.0f;
+        for (Recognition recognition : updatedRecognitions) {
+            telemetry.addData("# Object Angle", recognition.estimateAngleToObject(AngleUnit.DEGREES));
+            pos = recognition.getLeft();
+        }
+        telemetry.update();
+
+        return pos;
+    };
+
+    private double GetObjectAngle(List<Recognition> updatedRecognitions) {
+        double angle = 0.0;
+
+        for (Recognition recognition : updatedRecognitions) {
+            telemetry.addData("Pos left", recognition.getLeft());
+
+            angle = recognition.estimateAngleToObject(AngleUnit.DEGREES);
+        }
+
+        telemetry.update();
+        return angle;
     }
 
     /**

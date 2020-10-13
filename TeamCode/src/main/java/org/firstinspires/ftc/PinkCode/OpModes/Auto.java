@@ -1,11 +1,7 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.path.Path;
-import org.firstinspires.ftc.PinkCode.OpModes.OdemetryPresets.*;
 
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,8 +12,8 @@ import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.internal.vuforia.externalprovider.VuforiaWebcam;
 
-import static org.firstinspires.ftc.PinkCode.OpModes.OdemetryPresets.drive_from_stack;
-import static org.firstinspires.ftc.PinkCode.OpModes.OdemetryPresets.drive_init;
+import static org.firstinspires.ftc.PinkCode.odometry.OdemetryPresets.drive_from_stack;
+import static org.firstinspires.ftc.PinkCode.odometry.OdemetryPresets.drive_init;
 
 @Autonomous(name = "Auto", group = "Auto")
 public class Auto extends OpMode {
@@ -65,17 +61,17 @@ public class Auto extends OpMode {
         drive.update();
         switch (stage) {
             case INIT:
+                drive_init = drive.trajectoryBuilder(new Pose2d())
+                        .forward(1)
+                        .addDisplacementMarker(() -> drive.followTrajectoryAsync(drive_from_stack))
+                        .build();
+
                 drive_from_stack = drive.trajectoryBuilder(drive_init.end())
                         .strafeLeft(1.5)
                         .build();
 
                 telemetry.addData("pos", drive_from_stack.end());
                 telemetry.update();
-
-                drive_init = drive.trajectoryBuilder(new Pose2d())
-                        .forward(1.5)
-                        .addDisplacementMarker(() -> drive.followTrajectoryAsync(drive_from_stack))
-                        .build();
 
                 telemetry.addData("pos", drive_init.end());
                 telemetry.update();
