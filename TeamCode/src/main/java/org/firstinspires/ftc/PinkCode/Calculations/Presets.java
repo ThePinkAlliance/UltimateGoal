@@ -22,6 +22,7 @@ public abstract class Presets {
     public static final double SCORER_EJECT = .3;
     public static final double CAP_EJECT = 1;
     public static final double CAP_STOW = 0;
+    public static final double MAX_SHOOTER_POWER = 0.8;
 
     //Hook Presets
     public static final double HOOK_DOWN = .5;
@@ -40,6 +41,8 @@ public abstract class Presets {
 
     public static double X_MULTIPLIER = 1; // Multiplier in the X direction
     public static double Y_MULTIPLIER = 1; // Multiplier in the Y direction
+
+    public static int COLLECTOR_HOLDER_INIT_POSITION = 80;
 
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
             30.0, 30.0, 0.0,

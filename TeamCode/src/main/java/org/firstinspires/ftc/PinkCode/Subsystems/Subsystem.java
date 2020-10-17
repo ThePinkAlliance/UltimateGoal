@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.PinkCode.Subsystems;
 
+import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.OpModes.Teleop;
 import org.firstinspires.ftc.PinkCode.Robot.Hardware;
 
@@ -13,6 +14,7 @@ public abstract class Subsystem extends Teleop {
     static double back_right_wheel_command;
     static double collect_command;
     static double conveyor_command;
+    static double shoot_command;
 
     // Method Which Sends the Motor Powers to the Motors
     public static void set_motor_powers() {
@@ -29,7 +31,8 @@ public abstract class Subsystem extends Teleop {
     public static void set_servo_positions() {
         // Set Servo Positions
 //        robot.scorer_rotate.setPosition(score_target_position);
-
+        robot.collectorHolder.setPosition(Presets.COLLECTOR_HOLDER_INIT_POSITION);
+        robot.conveyor_regulator.setPosition(0);
     }
 
 }

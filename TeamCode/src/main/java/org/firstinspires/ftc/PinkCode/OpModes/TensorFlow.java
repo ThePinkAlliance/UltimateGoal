@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
+import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
+import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
+import org.firstinspires.ftc.PinkCode.Subsystems.Shooter;
+import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -16,17 +22,21 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.List;
 
 @TeleOp(name = "TensorFlow Object Detection Webcam", group = "Concept")
-public class TensorFlow extends LinearOpMode {
+public class TensorFlow extends OpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
     private PinkNavigate navigate;
+
     private enum States {
         INIT,
         DRIVE_TO_TARGETS,
         GO_TO_HOME_POSITION,
-        SHOOT
+        FIND_TARGETS,
+        SHOOT,
+        STOP
     };
+
     private enum ALLIANCE {
         RED,
         BLUE,
@@ -67,10 +77,13 @@ public class TensorFlow extends LinearOpMode {
      */
     private TFObjectDetector tfod;
 
+
     @Override
-    public void runOpMode() {
-        // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
-        // first.
+    public void init() {
+        navigate = new PinkNavigate(hardwareMap);
+
+        Subsystem.set_servo_positions();
+
         initVuforia();
         initTfod();
 
@@ -100,54 +113,122 @@ public class TensorFlow extends LinearOpMode {
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
-        waitForStart();
+    }
 
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null && CurrentAlliance == ALLIANCE.RED) {
-                        switch (current_state) {
-                            case INIT:
-                                telemetry.addData("position", Presets.encoderTicksToInches(GetObjectPosition(updatedRecognitions)));
+    @Override
+    public void loop() {
+        if (tfod != null) {
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
-//                                drive_init = navigate.trajectoryBuilder(new Pose2d())
-//                                        .forward(1)
-//                                        .build();
+            if (CurrentAlliance == ALLIANCE.RED && updatedRecognitions != null) {
+                switch (current_state) {
+                    case INIT:
+                        telemetry.addData("Status", "Running");
+                        telemetry.update();
+                        drive_init = navigate.trajectoryBuilder(new Pose2d())
+                                .lineTo(new Vector2d(1.5, 0))
+                                .lineTo(new Vector2d(0, 2.5))
+                                .splineTo(new Vector2d(-1.8, 1.5), Math.toRadians(-30))
+                                .build();
 
-                                telemetry.update();
+                        init_pose = drive_init.end();
+                        current_state = States.DRIVE_TO_TARGETS;
+                        break;
 
-                                init_pose = drive_init.end();
-                                break;
-
-                            case DRIVE_TO_TARGETS:
-                                GetObjectPosition(updatedRecognitions);
-
-
-
-                                drive_targets = navigate.trajectoryBuilder(init_pose)
-                                        .build();
-                                break;
+                    case DRIVE_TO_TARGETS:
+                        if (updatedRecognitions.isEmpty()) {
+                            current_state = States.FIND_TARGETS;
+                            return;
                         }
-                    } else if (updatedRecognitions != null && CurrentAlliance == ALLIANCE.BLUE) {
-                        switch (current_state) {
-                            case INIT:
-                                GetObjectPosition(updatedRecognitions);
 
-                                drive_init = navigate.trajectoryBuilder(new Pose2d())
-                                        .forward(1)
-                                        .build();
+                        telemetry.addData("Status", "Running");
+                        telemetry.update();
+                        double pos = GetObjectPosition(updatedRecognitions);
 
-                                init_pose = drive_init.end();
-                                break;
+                        Conveyor.collect();
+                        Collector.collect();
+
+                        drive_targets = navigate.trajectoryBuilder(init_pose)
+                                .forward(pos)
+                                .addSpatialMarker(new Vector2d(0, pos), () -> {
+                                    Trajectory center = navigate.trajectoryBuilder(new Pose2d(0, pos))
+                                            .splineTo(new Vector2d(3, 3), Math.toRadians(0))
+                                            .build();
+
+                                    navigate.followTrajectory(center);
+                                })
+                                .build();
+
+                        navigate.followTrajectory(drive_targets);
+                        break;
+
+                    case FIND_TARGETS:
+                        telemetry.addData("Status", "Searching For Object");
+                        telemetry.update();
+                        Subsystem.robot.leftB_drive.setPower(-0.1);
+                        Subsystem.robot.leftF_drive.setPower(-0.1);
+                        Subsystem.robot.rightF_drive.setPower(0.1);
+                        Subsystem.robot.rightB_drive.setPower(0.1);
+
+                        if (!updatedRecognitions.isEmpty()) {
+                            current_state = States.DRIVE_TO_TARGETS;
                         }
-                    }
+                        break;
+
+                    case STOP:
+                        break;
+                }
+            } else if (updatedRecognitions != null && CurrentAlliance == ALLIANCE.BLUE) {
+                switch (current_state) {
+                    case INIT:
+                        if (updatedRecognitions.isEmpty()) {
+                            current_state = States.FIND_TARGETS;
+                            return;
+                        }
+
+                        telemetry.addData("Status", "Running");
+                        telemetry.update();
+                        drive_init = navigate.trajectoryBuilder(new Pose2d())
+                                .forward(0.5)
+                                .build();
+
+                        init_pose = drive_init.end();
+                        current_state = States.DRIVE_TO_TARGETS;
+                        break;
+
+                    case DRIVE_TO_TARGETS:
+                        telemetry.addData("Status", "Running");
+                        telemetry.update();
+                        double pos = GetObjectPosition(updatedRecognitions);
+
+                        drive_targets = navigate.trajectoryBuilder(init_pose)
+                                .forward(pos)
+                                .build();
+                        break;
+
+
+                    case FIND_TARGETS:
+                        telemetry.addData("Status", "Searching For Object");
+                        telemetry.update();
+                        Subsystem.robot.leftB_drive.setPower(-0.1);
+                        Subsystem.robot.leftF_drive.setPower(-0.1);
+                        Subsystem.robot.rightF_drive.setPower(0.1);
+                        Subsystem.robot.rightB_drive.setPower(0.1);
+
+                        if (!updatedRecognitions.isEmpty()) {
+                            current_state = States.DRIVE_TO_TARGETS;
+                        }
+                        break;
+
+                    case STOP:
+                        break;
                 }
             }
         }
+    }
 
+    @Override
+    public void stop() {
         if (tfod != null) {
             tfod.shutdown();
         }
@@ -170,24 +251,21 @@ public class TensorFlow extends LinearOpMode {
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 
-    private float GetObjectPosition(List<Recognition> updatedRecognitions) {
+    private double GetObjectPosition(List<Recognition> updatedRecognitions) {
         // step through the list of recognitions and display boundary info.
         float pos = 0.0f;
         for (Recognition recognition : updatedRecognitions) {
-            telemetry.addData("# Object Angle", recognition.estimateAngleToObject(AngleUnit.DEGREES));
             pos = recognition.getLeft();
         }
-        telemetry.update();
+        return Presets.encoderTicksToInches(pos);
+    }
 
-        return pos;
-    };
+    ;
 
     private double GetObjectAngle(List<Recognition> updatedRecognitions) {
         double angle = 0.0;
 
         for (Recognition recognition : updatedRecognitions) {
-            telemetry.addData("Pos left", recognition.getLeft());
-
             angle = recognition.estimateAngleToObject(AngleUnit.DEGREES);
         }
 
@@ -202,7 +280,7 @@ public class TensorFlow extends LinearOpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.8f;
+        tfodParameters.minResultConfidence = 0.7f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }

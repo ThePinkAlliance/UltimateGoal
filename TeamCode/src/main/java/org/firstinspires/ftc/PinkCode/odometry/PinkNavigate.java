@@ -22,10 +22,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
-import org.jetbrains.annotations.NotNull;
+import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,8 +65,7 @@ public class PinkNavigate extends MecanumDrive {
 
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
-    private List<DcMotorEx> encoders;
-    private BNO055IMU imu;
+//    private BNO055IMU imu;
 
     private Pose2d lastPoseOnTurn;
 
@@ -107,7 +104,9 @@ public class PinkNavigate extends MecanumDrive {
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
-            motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
+            motorConfigurationType.setAchieveableMaxRPMFraction(Presets.MAX_RPM);
+            motorConfigurationType.setGearing(1.1);
+            motorConfigurationType.setTicksPerRev(1000);
             motor.setMotorType(motorConfigurationType);
         }
 
@@ -122,7 +121,6 @@ public class PinkNavigate extends MecanumDrive {
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
-
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
     }
@@ -230,7 +228,6 @@ public class PinkNavigate extends MecanumDrive {
 
                 if (!follower.isFollowing()) {
                     mode = Mode.IDLE;
-                    // Possible
                     setDriveSignal(new DriveSignal());
                 }
 
@@ -310,6 +307,18 @@ public class PinkNavigate extends MecanumDrive {
             rightFront.setPower(-v3);
             rightRear.setPower(-v2);
         }
+    }
+
+    public double GetMotorPowerOne() {
+        return leftRear.getPower();
+    }
+
+    public double GetMotorPowerTwo() {
+        return leftFront.getPower();
+    }
+
+    public double GetMotorPowerThree() {
+        return rightFront.getPower();
     }
 
     @Override

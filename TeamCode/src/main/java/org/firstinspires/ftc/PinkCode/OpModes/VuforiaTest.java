@@ -1,21 +1,11 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.PinkCode.R;
-import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
-import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -31,10 +21,15 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
-@TeleOp(name = "Vuforia Object Detection Webcam", group = "Concept")
-public class Vuforia extends LinearOpMode {
+@TeleOp(name="ULTIMATEGOAL Vuforia Nav", group ="Concept")
+public class VuforiaTest extends LinearOpMode {
 
-    // IMPORTANT: If you are using a USB WebCam, you must select CAMERA_CHOICE = BACK; and PHONE_IS_PORTRAIT = false;
+    // IMPORTANT:  For Phone Camera, set 1) the camera source and 2) the orientation, based on how your phone is mounted:
+    // 1) Camera Source.  Valid choices are:  BACK (behind screen) or FRONT (selfie side)
+    // 2) Phone Orientation. Choices are: PHONE_IS_PORTRAIT = true (portrait) or PHONE_IS_PORTRAIT = false (landscape)
+    //
+    // NOTE: If you are running on a CONTROL HUB, with only one USB WebCam, you must select CAMERA_CHOICE = BACK; and PHONE_IS_PORTRAIT = false;
+    //
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final boolean PHONE_IS_PORTRAIT = false  ;
 
@@ -65,28 +60,12 @@ public class Vuforia extends LinearOpMode {
     // Class Members
     private OpenGLMatrix lastLocation = null;
     private VuforiaLocalizer vuforia = null;
-
-    // RoadRunner
-    private PinkNavigate nav;
-
-    /**
-     * This is the webcam we are to use. As with other hardware devices such as motors and
-     * servos, this device is identified using the robot configuration tool in the FTC application.
-     */
-    WebcamName webcamName = null;
-
     private boolean targetVisible = false;
     private float phoneXRotate    = 0;
     private float phoneYRotate    = 0;
     private float phoneZRotate    = 0;
 
     @Override public void runOpMode() {
-        /*
-         * Retrieve the camera we are to use.
-         */
-//        webcamName = Subsystem.robot.webcam;
-//        nav = new PinkNavigate(hardwareMap);
-
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
@@ -98,12 +77,7 @@ public class Vuforia extends LinearOpMode {
         // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-
-        /**
-         * We also indicate which camera on the RC we wish to use.
-         */
-//        parameters.cameraName = webcamName;
-        parameters.cameraDirection = BACK;
+        parameters.cameraDirection   = CAMERA_CHOICE;
 
         // Make sure extended tracking is disabled for this example.
         parameters.useExtendedTracking = false;
@@ -167,6 +141,7 @@ public class Vuforia extends LinearOpMode {
                 .translation(halfField, -quadField, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
 
+        //
         // Create a transformation matrix describing where the phone is on the robot.
         //
         // NOTE !!!!  It's very important that you turn OFF your phone's Auto-Screen-Rotation option.
@@ -194,7 +169,7 @@ public class Vuforia extends LinearOpMode {
 
         // Next, translate the camera lens to where it is on the robot.
         // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
-        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot center
         final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
         final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
 
@@ -213,7 +188,7 @@ public class Vuforia extends LinearOpMode {
         // CONSEQUENTLY do not put any driving commands in this loop.
         // To restore the normal opmode structure, just un-comment the following line:
 
-         waitForStart();
+        // waitForStart();
 
         // Note: To use the remote camera preview:
         // AFTER you hit Init on the Driver Station, use the "options menu" to select "Camera Stream"
@@ -243,28 +218,15 @@ public class Vuforia extends LinearOpMode {
             if (targetVisible) {
                 // express position (translation) of robot in inches.
                 VectorF translation = lastLocation.getTranslation();
+                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
                 // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-                Pose2d objPosition = new Pose2d(translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, Math.toRadians(rotation.thirdAngle));
-//
-                telemetry.addData("pos Y", objPosition.getY());
-                telemetry.addData("pos X", objPosition.getX());
-                telemetry.addData("pos Heading", objPosition.getHeading());
-
-//                Trajectory main = nav.trajectoryBuilder(new Pose2d())
-//                        .lineToLinearHeading(objPosition)
-//                        .build();
-
-//                telemetry.addData("path", main.end());
-
-                // Commented so the robot dosent crash
-//                nav.followTrajectory(main);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
             }
             else {
-//                Subsystem.robot.leftB_drive.setPower(-0.1);
-//                Subsystem.robot.leftF_drive.setPower(-0.1);
-//                Subsystem.robot.rightF_drive.setPower(0.1);
-//                Subsystem.robot.rightB_drive.setPower(0.1);
+                telemetry.addData("Visible Target", "none");
             }
             telemetry.update();
         }
@@ -272,4 +234,7 @@ public class Vuforia extends LinearOpMode {
         // Disable Tracking when we are done;
         targetsUltimateGoal.deactivate();
     }
+
+
+
 }

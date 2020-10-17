@@ -19,7 +19,11 @@ public class Hardware {
     public DcMotor collect; //
     public DcMotor conveyor;
     public DcMotor shoot1;
-    public DcMotor shoot2;
+//    public DcMotor shoot2;
+
+    public Servo collectorHolder; // Port 0 Control Hub
+    public Servo scorer_rotate;
+    public Servo conveyor_regulator;
 
     public DcMotorEx encoder_left; // Port Unknown
     public DcMotorEx encoder_right; // Port Unknown
@@ -43,9 +47,9 @@ public class Hardware {
         rightB_drive = hwMap.get(DcMotor.class, "rightB_drive");
         leftF_drive = hwMap.get(DcMotor.class, "leftF_drive");
         leftB_drive = hwMap.get(DcMotor.class, "leftB_drive");
-//        collect = hwMap.get(DcMotor.class, "collect_left");
-//        conveyor = hwMap.get(DcMotor.class, "conveyor");
-//        shoot1 = hwMap.get(DcMotor.class, "shoot1");
+        collect = hwMap.get(DcMotor.class, "collect_left");
+        conveyor = hwMap.get(DcMotor.class, "conveyor");
+        shoot1 = hwMap.get(DcMotor.class, "shoot1");
 //        shoot2 = hwMap.get(DcMotor.class, "shoot2");
 
         // Odometry Encoders
@@ -53,16 +57,16 @@ public class Hardware {
         encoder_left = hwMap.get(DcMotorEx.class, "rightB_drive");
         encoder_right = hwMap.get(DcMotorEx.class, "leftF_drive");
 
-//        webcam = hwMap.get(WebcamName.class, "webcam");
+        webcam = hwMap.get(WebcamName.class, "webcam");
 
         // Motor Configuration
         rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        collect.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        conveyor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        shoot1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        collect.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        conveyor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shoot1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        shoot2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
@@ -70,9 +74,9 @@ public class Hardware {
         rightB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        collect.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        conveyor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        shoot1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        collect.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        conveyor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shoot1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //        shoot2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
@@ -80,30 +84,34 @@ public class Hardware {
         rightB_drive.setDirection(DcMotor.Direction.REVERSE);
         leftF_drive.setDirection(DcMotor.Direction.FORWARD);
         leftB_drive.setDirection(DcMotor.Direction.FORWARD);
-//        collect.setDirection(DcMotor.Direction.FORWARD);
-//        conveyor.setDirection(DcMotor.Direction.FORWARD);
-//        shoot2.setDirection(DcMotor.Direction.FORWARD);
+        collect.setDirection(DcMotor.Direction.FORWARD);
+        conveyor.setDirection(DcMotor.Direction.FORWARD);
+        shoot1.setDirection(DcMotor.Direction.FORWARD);
 //        shoot2.setDirection(DcMotor.Direction.FORWARD);
 
         rightF_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightB_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftF_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftB_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        collect.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        conveyor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        shoot1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        collect.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        conveyor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shoot1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        shoot2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         rightF_drive.setPower(0);
         rightB_drive.setPower(0);
         leftF_drive.setPower(0);
         leftB_drive.setPower(0);
-//        collect.setPower(0);
-//        conveyor.setPower(0);
-//        shoot1.setPower(0);
+        collect.setPower(0);
+        conveyor.setPower(0);
+        shoot1.setPower(0);
 //        shoot2.setPower(0);
 
         // Servos
-        //scorer_rotate = hwMap.get(Servo.class, "scorer_rotate");
+        scorer_rotate = hwMap.get(Servo.class, "scorer_rotate");
+        collectorHolder = hwMap.get(Servo.class, "collector_holder");
+        conveyor_regulator = hwMap.get(Servo.class, "conveyor_regulator");
+
+        conveyor_regulator.setPosition(0);
     }
 }

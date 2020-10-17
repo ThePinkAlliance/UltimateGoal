@@ -3,7 +3,9 @@ package org.firstinspires.ftc.PinkCode.OpModes;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
+import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Base;
 import org.firstinspires.ftc.PinkCode.Robot.Controls;
@@ -71,6 +73,12 @@ public class Teleop extends Controls {
             Collector.eject();
         else
             Collector.collect_stop();
+
+        if (gamepad1.right_trigger > 0.3) {
+            Conveyor.collect();
+        } else {
+            Conveyor.collect_stop();
+        }
 
         // Set Motor Powers and Servos to Their Commands
         Subsystem.set_motor_powers();

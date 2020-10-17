@@ -1,5 +1,13 @@
 ## TeamCode Module
 
+| Type | Name |
+| :---:|:----:|
+| Motor| `rightF_drive` |
+| Motor| `rightB_drive` | 
+| Motor| `leftB_drive` |
+| Motor| `leftF_drive` |
+
+
 Welcome!
 
 This module, TeamCode, is the place where you will write/paste the code for your team's

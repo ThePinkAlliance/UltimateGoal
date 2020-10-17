@@ -2,6 +2,7 @@ package org.firstinspires.ftc.PinkCode.OpModes;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -39,14 +40,15 @@ public class Auto extends OpMode {
     public void init() {
         // Initialization of Each Subsystem's Hardware Map
         Subsystem.robot.init(hardwareMap);
-        Subsystem.robot.rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Subsystem.robot.rightB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Subsystem.robot.rightF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Subsystem.robot.rightB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // Possible That Run Without Encoder is affecting the encoder counts
+//        Subsystem.robot.rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        Subsystem.robot.rightB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        Subsystem.robot.rightF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        Subsystem.robot.rightB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         drive = new PinkNavigate(hardwareMap);
 
@@ -59,24 +61,33 @@ public class Auto extends OpMode {
     @Override
     public void loop() {
         drive.update();
+
+        telemetry.addData("Power One", drive.GetMotorPowerOne());
+        telemetry.addData("Power Two", drive.GetMotorPowerTwo());
+        telemetry.addData("Power Three", drive.GetMotorPowerThree());
+        telemetry.update();
+
         switch (stage) {
             case INIT:
-                drive_init = drive.trajectoryBuilder(new Pose2d())
-                        .forward(1)
-                        .addDisplacementMarker(() -> drive.followTrajectoryAsync(drive_from_stack))
+//                drive_init = drive.trajectoryBuilder(new Pose2d())
+//                        .lineTo(new Vector2d( -3.5, 2))
+//                        .addDisplacementMarker(() -> drive.followTrajectoryAsync(drive_from_stack))
+//
+//                        .build();
+
+                drive_from_stack = drive.trajectoryBuilder(new Pose2d())
+                        .lineTo(new Vector2d(0, 1.5))
                         .build();
 
-                drive_from_stack = drive.trajectoryBuilder(drive_init.end())
-                        .strafeLeft(1.5)
-                        .build();
+                // Put Shooter Code Here
 
                 telemetry.addData("pos", drive_from_stack.end());
                 telemetry.update();
 
-                telemetry.addData("pos", drive_init.end());
-                telemetry.update();
+//                telemetry.addData("pos", drive_init.end());
+//                telemetry.update();
 
-                drive.followTrajectory(drive_init);
+                drive.followTrajectory(drive_from_stack);
                 stage = stages.STOP;
                 break;
 
