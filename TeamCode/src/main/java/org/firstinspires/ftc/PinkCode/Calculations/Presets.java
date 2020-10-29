@@ -7,22 +7,30 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 // Abstract Class to Define Preset Values Used Throughout Subsystems
 public abstract class Presets {
     //Collector Presets
-    public static final double COLLECTOR_COLLECT_POWER = .8; // Power Sent to Motor While Collecting
-    public static final double COLLECTOR_EJECT_POWER = -.2; // Power Sent to Motor While Ejecting
+    public static final double COLLECTOR_COLLECT_POWER = -1; // Power Sent to Motor While Collecting
+    public static final double COLLECTOR_EJECT_POWER = 1; // Power Sent to Motor While Ejecting
+    public static final double COLLECTOR_STOP_POWER = 0;
+    public static final double COLLECTOR_DROP = 1;
 
     //Conveyor Commands
     public static final double CONVEYOR_COLLECT_POWER = 1;
     public static final double CONVEYOR_EJECT_POWER = -1;
+    public static final double CONVEYOR_STOP_POWER = 0;
+    public static final double CONVEYOR_FLAP_OPEN = .5;
+    public static final double CONVEYOR_FLAP_CLOSE = 0;
 
-    //Scorer Presets
-    public static final double SCORER_STOW = .05;
-    public static final double SCORER_HIGH = .65;
-    public static final double SCORER_SCORE_POSITION = 1;
-    public static final double SCORER_COLLECT = .85;
-    public static final double SCORER_EJECT = .3;
-    public static final double CAP_EJECT = 1;
-    public static final double CAP_STOW = 0;
-    public static final double MAX_SHOOTER_POWER = 0.8;
+    //Shooter Commands
+    public static final double SHOOTER_SHOOT_POWER = .8;
+    public static final double SHOOTER_STOP_POWER = 0;
+    public static final double SHOOTER_FLAP_CLOSE = 0.22;
+    public static final double SHOOTER_FLAP_OPEN = .395;
+
+    //Wobble Presets
+    public static final double WOBBLE_UP = 1;
+    public static final double WOBBLE_DOWN = 0;
+    public static final double WOBBLE_GRIP = 1;
+    public static final double WOBBLE_UNGRIP = 0;
+
 
     //Hook Presets
     public static final double HOOK_DOWN = .5;
@@ -31,7 +39,7 @@ public abstract class Presets {
     // Odometry
     public static double WHEEL_RADIUS = 2; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TICKS_PER_REV = 1000; // in
+    public static double TICKS_PER_REV = 1; // in
     public static double LATERAL_DISTANCE = 10; // in; distance between the left and right wheels
     public static double FORWARD_OFFSET = 4; // in; offset of the lateral wheel
     public static final double MAX_RPM = 1;
@@ -41,8 +49,6 @@ public abstract class Presets {
 
     public static double X_MULTIPLIER = 1; // Multiplier in the X direction
     public static double Y_MULTIPLIER = 1; // Multiplier in the Y direction
-
-    public static int COLLECTOR_HOLDER_INIT_POSITION = 80;
 
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
             30.0, 30.0, 0.0,

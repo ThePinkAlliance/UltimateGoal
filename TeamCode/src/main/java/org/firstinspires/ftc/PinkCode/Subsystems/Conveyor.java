@@ -27,8 +27,18 @@ public abstract class Conveyor extends Subsystem{
     }
 
     // Method for Stopping the Collector
-    public static void collect_stop() {
+    public static void conveyor_stop() {
         // Define Commands
-        collect_command = 0;
+        conveyor_command = Presets.CONVEYOR_STOP_POWER;
+    }
+
+    public static void flap_open() {
+        //Define Commands
+        conveyor_flap_command = Presets.CONVEYOR_FLAP_OPEN;
+    }
+
+    public static void flap_close() {
+        //Define Commands
+        conveyor_flap_command = Presets.CONVEYOR_FLAP_CLOSE;
     }
 }
