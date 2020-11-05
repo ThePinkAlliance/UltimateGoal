@@ -16,19 +16,20 @@ public abstract class Presets {
     public static final double CONVEYOR_COLLECT_POWER = 1;
     public static final double CONVEYOR_EJECT_POWER = -1;
     public static final double CONVEYOR_STOP_POWER = 0;
-    public static final double CONVEYOR_FLAP_OPEN = .5;
+    public static final double CONVEYOR_FLAP_OPEN = .22;
     public static final double CONVEYOR_FLAP_CLOSE = 0;
 
     //Shooter Commands
     public static final double SHOOTER_SHOOT_POWER = .8;
     public static final double SHOOTER_STOP_POWER = 0;
     public static final double SHOOTER_FLAP_CLOSE = 0.22;
-    public static final double SHOOTER_FLAP_OPEN = .395;
+    public static final double SHOOTER_FLAP_POWER_SHOT = .41;
+    public static final double SHOOTER_FLAP_OPEN = .395; //increase in numbers is down; decrease in numbers is up.
 
     //Wobble Presets
-    public static final double WOBBLE_UP = 1;
-    public static final double WOBBLE_DOWN = 0;
-    public static final double WOBBLE_GRIP = 1;
+    public static final double WOBBLE_UP = .3;
+    public static final double WOBBLE_DOWN = .7;
+    public static final double WOBBLE_GRIP = .7;
     public static final double WOBBLE_UNGRIP = 0;
 
 
