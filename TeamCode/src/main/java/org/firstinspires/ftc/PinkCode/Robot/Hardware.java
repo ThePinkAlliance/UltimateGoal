@@ -19,7 +19,7 @@ public class Hardware {
     public DcMotor collect; // Port _ Control Hub
     public DcMotor conveyor; // Port _ Control Hub
     public DcMotor shoot1; // Port _ Control Hub
-    public DcMotor shoot2; // Port _ Control Hub
+    public DcMotorEx shoot2; // Port _ Control Hub
 
     public DcMotorEx encoder_left; // unknown
     public DcMotorEx encoder_right; // RB
@@ -50,7 +50,7 @@ public class Hardware {
         collect = hwMap.get(DcMotor.class, "collector");
         conveyor = hwMap.get(DcMotor.class, "conveyor");
         shoot1 = hwMap.get(DcMotor.class, "shoot1");
-        shoot2 = hwMap.get(DcMotor.class, "shoot2");
+        shoot2 = hwMap.get(DcMotorEx.class, "shoot2");
 
         // Odometry Encoders
         encoder_center = hwMap.get(DcMotorEx.class, "rightF_drive");
@@ -85,8 +85,8 @@ public class Hardware {
         leftF_drive.setDirection(DcMotor.Direction.FORWARD);
         leftB_drive.setDirection(DcMotor.Direction.FORWARD);
         collect.setDirection(DcMotor.Direction.FORWARD);
-        conveyor.setDirection(DcMotor.Direction.REVERSE);
-        shoot2.setDirection(DcMotor.Direction.FORWARD);
+        conveyor.setDirection(DcMotor.Direction.FORWARD);
+        shoot1.setDirection(DcMotor.Direction.FORWARD);
         shoot2.setDirection(DcMotor.Direction.FORWARD);
 
         rightF_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -106,6 +106,9 @@ public class Hardware {
         conveyor.setPower(0);
         shoot1.setPower(0);
         shoot2.setPower(0);
+
+        shoot2.setVelocityPIDFCoefficients(1.2,.12,0,12.0);
+
 
         // Servos
         shoot_flap = hwMap.get(Servo.class, "shoot_flap");

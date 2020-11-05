@@ -39,8 +39,9 @@ public class Teleop extends Controls {
     double cosTheta;
     double wheel0Pos, wheel1Pos, wheel2Pos, wheelDisplacePerEncoderCount, Theta;
     double delt_m0, delt_m1, delt_m2, dev_m0, dev_m1, dev_m2, delt_Xr, delt_Yr, delt_Xf, delt_Yf, X, Y,
-            displ_m0, displ_m1, displ_m2, displ_average, lastM0, lastM1, lastM2, lastX, lastY;
+            displ_m0, displ_m1, displ_m2, lastM0, lastM1, lastM2, lastX, lastY, displ_averageY, displ_averageX;
 
+    double previousPos;
 
     private double previousHeading = 0;
     private double integratedHeading = 0;
@@ -105,14 +106,15 @@ public class Teleop extends Controls {
         displ_m1 = delt_m1 * wheelDisplacePerEncoderCount;
         displ_m2 = delt_m2 * wheelDisplacePerEncoderCount;
         //Compute the average displacement in order to untangle rotation from displacement
-        displ_average = (displ_m1 + displ_m2) / 2.0;
+        displ_averageY = (displ_m1 + displ_m2) / 2.0;
+        displ_averageX = (displ_m2 - displ_m1) / 2.0;
         //Compute the component of the wheel displacements that yield robot displacement
         if (getMathHeading() > 0)
-            dev_m0 = displ_m0 - displ_average;
+            dev_m0 = displ_m0 - displ_averageX;
         else
-            dev_m0 = displ_m0 + displ_average;
-        dev_m1 = displ_m1 - displ_average;
-        dev_m2 = displ_m2 - displ_average;
+            dev_m0 = displ_m0 + displ_averageX;
+        dev_m1 = displ_m1 - displ_averageX;
+        dev_m2 = displ_m2 - displ_averageX;
         //Compute the displacement of the holonomic drive, in robot reference frame
         delt_Xr = (dev_m0);
         delt_Yr = (dev_m1 - dev_m2);
@@ -172,19 +174,28 @@ public class Teleop extends Controls {
                 x = 1;
                 markedTime2 = runtime.milliseconds();
             }
-            Shooter.shoot();
+            Shooter.shoot_by_pd(Subsystem.robot.shoot2.getVelocity(), 1500);
+//            Shooter.shoot();
             Shooter.flap_open();
+        } else if (gamepad2.left_bumper) {
+            Shooter.shoot_by_pd(Subsystem.robot.shoot2.getVelocity(), 1420);
+            Shooter.flap_power_shot();
         } else {
             x = 0;
             Shooter.dont_shoot();
             Shooter.flap_close();
         }
 
+
         // Conveyor and shooter Controls
-        if (gamepad2.right_bumper && (runtime.milliseconds() - markedTime2) > 2600) {
+        if (gamepad2.right_bumper && Subsystem.robot.shoot2.getVelocity() > 1475 && Subsystem.robot.shoot2.getVelocity() < 1525) {
+//        if(gamepad2.right_bumper && runtime.milliseconds() - markedTime2 > 2500) {
             Conveyor.flap_open();
             Conveyor.collect();
-        } else if(gamepad2.left_bumper || gamepad1.left_bumper) {
+        } else if (gamepad2.left_bumper && Subsystem.robot.shoot2.getVelocity() > 1405 && Subsystem.robot.shoot2.getVelocity() < 1440) {
+            Conveyor.flap_open();
+            Conveyor.collect();
+        } else if(gamepad1.left_bumper) {
             Conveyor.flap_open();
             Conveyor.eject();
         } else if (gamepad1.right_bumper) {
@@ -200,10 +211,10 @@ public class Teleop extends Controls {
             Wobble.wobble_grip();
         } else if (gamepad2.b) {
             Wobble.wobble_ungrip();
-        } else if (gamepad2.y) {
-            Wobble.wobble_arm_up();
         } else if(gamepad2.a) {
             Wobble.wobble_arm_down();
+        } else if (gamepad2.y){
+            Wobble.wobble_arm_up();
         }
 
         // Set Motor Powers and Servos to Their Commands
@@ -226,6 +237,16 @@ public class Teleop extends Controls {
             // Telemetry Update to Inform Drivers That the Program is Running and how to Access Telemetry
             telemetry.addData("Status: ", "Running Teleop");
             telemetry.addData("Press Start on the Tower Gamepad for Telemetry", "");
+            double currentPos = Subsystem.robot.shoot2.getCurrentPosition();
+            double linearShootSpeed = previousPos - currentPos;
+            previousPos = currentPos;
+            telemetry.addData("pidf", Subsystem.robot.shoot2.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+            telemetry.addData("DcMotorEx Velocity", Subsystem.robot.shoot2.getVelocity());
+            telemetry.addData("Shooter2Power", Subsystem.robot.shoot2.getPower());
+            telemetry.addData("Shooter1power", Subsystem.robot.shoot1.getPower());
+            telemetry.addData("Shooter2 should be power", (-(Subsystem.robot.shoot2.getVelocity()/5067))+.3);
+            telemetry.addData("X", X);
+            telemetry.addData("Y", Y);
         }
 
     }

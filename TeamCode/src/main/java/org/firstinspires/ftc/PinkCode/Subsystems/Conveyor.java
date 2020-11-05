@@ -12,13 +12,13 @@ public abstract class Conveyor extends Subsystem{
         conveyor_command = Presets.CONVEYOR_COLLECT_POWER;
     }
 
-    public static void Regulator_on() {
-        robot.conveyor_regulator.setPosition(0);
-    }
-
-    public static void Regulator_off() {
-        robot.conveyor_regulator.setPosition(30);
-    }
+//    public static void Regulator_on() {
+//        robot.conveyor_regulator.setPosition(0);
+//    }
+//
+//    public static void Regulator_off() {
+//        robot.conveyor_regulator.setPosition(30);
+//    }
 
     // Method for Ejecting
     public static void eject() {
