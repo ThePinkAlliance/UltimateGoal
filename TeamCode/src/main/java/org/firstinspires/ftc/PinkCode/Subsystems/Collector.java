@@ -21,6 +21,9 @@ public abstract class Collector extends Subsystem{
     // Method for Stopping the Collector
     public static void collect_stop() {
         // Define Commands
-        collect_command = 0;
+        collect_command = Presets.COLLECTOR_STOP_POWER;
+    }
+    public static void collector_drop() {
+        collector_drop_command = Presets.COLLECTOR_DROP;
     }
 }

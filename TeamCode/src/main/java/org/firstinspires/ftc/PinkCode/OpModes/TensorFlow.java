@@ -214,7 +214,7 @@ public class TensorFlow extends OpMode {
                                         .splineTo(new Vector2d(3, 3), Math.toRadians(0))
                                         .addSpatialMarker(new Vector2d(3, 3), () -> {
                                             Collector.collect_stop();
-                                            Conveyor.collect_stop();
+                                            Conveyor.conveyor_stop();
                                         })
                                         .build();
 
