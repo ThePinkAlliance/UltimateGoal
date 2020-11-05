@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +66,7 @@ public class PinkNavigate extends MecanumDrive {
 
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
-//    private BNO055IMU imu;
+    private BNO055IMU imu;
 
     private Pose2d lastPoseOnTurn;
 
@@ -86,14 +87,14 @@ public class PinkNavigate extends MecanumDrive {
         poseHistory = new ArrayList<>();
 
         // TODO: adjust the names of the following hardware devices to match your configuration
-//        imu = hardwareMap.get(BNO055IMU.class, "imu");
-//        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-//        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-//        imu.initialize(parameters);
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        imu.initialize(parameters);
 
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
-        // BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
+//         BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
         leftFront = hardwareMap.get(DcMotorEx.class, "leftF_drive");
         leftRear = hardwareMap.get(DcMotorEx.class, "leftB_drive");
@@ -290,23 +291,29 @@ public class PinkNavigate extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        // Possible
-        if (v >= 0.1 && v2 >= 0.1 && v1 >= -0.1 && v3 >= -0.1) {
-            // Im not sure +v will work
-            leftFront.setPower(-v);
-            leftRear.setPower(-v1);
-            rightFront.setPower(+v3);
-            rightRear.setPower(+v2);
-        }
 
-        // Possible
-        if (v >= -0.1 && v2 >= -0.1 && v1 >= 0.1 && v3 >= 0.1) {
-            // Im not sure +v will work
-            leftFront.setPower(+v);
-            leftRear.setPower(+v1);
-            rightFront.setPower(-v3);
-            rightRear.setPower(-v2);
-        }
+        leftFront.setPower(v);
+        leftRear.setPower(v1);
+        rightRear.setPower(v2);
+        rightFront.setPower(v3);
+
+        //        // Possible
+//        if (v >= 0.1 && v2 >= 0.1 && v1 >= -0.1 && v3 >= -0.1) {
+//            // Im not sure +v will work
+//            leftFront.setPower(-v);
+//            leftRear.setPower(-v1);
+//            rightFront.setPower(+v3);
+//            rightRear.setPower(+v2);
+//        }
+//
+//        // Possible
+//        if (v >= -0.1 && v2 >= -0.1 && v1 >= 0.1 && v3 >= 0.1) {
+//            // Im not sure +v will work
+//            leftFront.setPower(+v);
+//            leftRear.setPower(+v1);
+//            rightFront.setPower(-v3);
+//            rightRear.setPower(-v2);
+//        }
     }
 
     public double GetMotorPowerOne() {
@@ -323,6 +330,6 @@ public class PinkNavigate extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return /*imu.getAngularOrientation().firstAngle*/ 0.0 ;
+        return imu.getAngularOrientation().firstAngle;
     }
 }
