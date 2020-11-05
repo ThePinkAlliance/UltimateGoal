@@ -195,6 +195,7 @@ public class TensorFlow extends OpMode {
             case INIT:
                 telemetry.addData("Status", "Init");
 
+                // init
                 Wobble.wobble_arm_down();
                 Wobble.wobble_grip();
                 Wobble.wobble_arm_up();
