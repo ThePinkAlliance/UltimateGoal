@@ -32,11 +32,11 @@ public class ShooterTest extends OpMode {
     @Override
     public void loop() {
         if (gamepad1.a) {
-            Subsystem.robot.scorer_rotate.setPosition(scorer_rotate_position + 1);
+//            Subsystem.robot.scorer_rotate.setPosition(scorer_rotate_position + 1);
         }
 
         if (gamepad1.b) {
-            Subsystem.robot.scorer_rotate.setPosition(-scorer_rotate_position + 1);
+//            Subsystem.robot.scorer_rotate.setPosition(-scorer_rotate_position + 1);
         }
     }
 

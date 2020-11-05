@@ -57,7 +57,7 @@ public class Hardware {
         encoder_left = hwMap.get(DcMotorEx.class, "rightB_drive");
         encoder_right = hwMap.get(DcMotorEx.class, "leftF_drive");
 
-//        webcam = hwMap.get(WebcamName.class, "webcam");
+        webcam = hwMap.get(WebcamName.class, "webcam");
 
         // Motor Configuration
         rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

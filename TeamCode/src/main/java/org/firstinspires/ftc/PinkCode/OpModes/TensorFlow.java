@@ -3,15 +3,19 @@ package org.firstinspires.ftc.PinkCode.OpModes;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
 import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
 import org.firstinspires.ftc.PinkCode.Subsystems.Shooter;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
+import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -48,7 +52,7 @@ public class TensorFlow extends OpMode {
 
 
         static boolean SHOOT = false;
-        static boolean LOOK_FOR_DONUTS = true;
+        static boolean DRIVE_TO_DONUTS = false;
         static boolean START_CONVEYOR_ON_INIT = false;
         static boolean GET_WOBBLE_GOAL = false;
         static boolean GET_STARTER_STACK = false;
@@ -60,7 +64,7 @@ public class TensorFlow extends OpMode {
         BLUE,
     };
 
-    private States current_state = States.INIT;
+    private States current_state = States.DRIVE_TO_TARGETS;
     private Trajectory drive_init;
     private Pose2d init_pose;
     private Pose2d drive_to_targets;
@@ -104,7 +108,33 @@ public class TensorFlow extends OpMode {
     public void init() {
         navigate = new PinkNavigate(hardwareMap);
 
-        Subsystem.set_servo_positions();
+        //imu initialization
+//        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+//        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+//        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+//        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+//        parameters.loggingEnabled = true;
+//        parameters.loggingTag = "IMU";
+//        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+//        imu = hardwareMap.get(BNO055IMU.class, "imu");
+//        imu.initialize(parameters);
+
+
+
+        // Initialization of Each Subsystem's Hardware Map
+        Subsystem.robot.init(hardwareMap);
+        Subsystem.robot.rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Subsystem.robot.rightB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Subsystem.robot.rightF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Subsystem.robot.rightB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         initVuforia();
         initTfod();
@@ -134,7 +164,6 @@ public class TensorFlow extends OpMode {
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
-        telemetry.update();
     }
 
     @Override
@@ -146,8 +175,12 @@ public class TensorFlow extends OpMode {
                 RobotFunctions(updatedRecognitions);
             } else if (CurrentAlliance == ALLIANCE.BLUE && updatedRecognitions != null) {
                 RobotFunctions(updatedRecognitions);
+            } else {
+                telemetry.addData("updatedRecognitions", "null");
             }
         }
+
+        telemetry.update();
     }
 
     @Override
@@ -161,24 +194,26 @@ public class TensorFlow extends OpMode {
         switch (current_state) {
             case INIT:
                 telemetry.addData("Status", "Init");
-                telemetry.update();
-                drive_init = navigate.trajectoryBuilder(new Pose2d(0,0, Math.toRadians(0)))
-                        .lineTo(new Vector2d(1.5, 0))
-                        .addSpatialMarker(new Vector2d(1.5, 0), () -> {
-                            AddToHomePosition(1.5, 0);
-                        })
-                        .lineTo(new Vector2d(0, 2.5))
-                        .addSpatialMarker(new Vector2d(2.5, 0), () -> {
-                            AddToHomePosition(2.5, 0);
-                        })
-                        .splineTo(new Vector2d(-1.8, 1.5), Math.toRadians(-30))
-                        .addSpatialMarker(new Vector2d(-1.8, 1.5), () -> {
-                            AddToHomePosition(-1.8, 1.5);
-                        })
-                        .build();
 
-                init_pose = drive_init.end();
-                current_state = States.DRIVE_TO_TARGETS;
+                Wobble.wobble_arm_down();
+                Wobble.wobble_grip();
+                Wobble.wobble_arm_up();
+
+//                Trajectory left = navigate.trajectoryBuilder(new Pose2d(0,0))
+//                        .lineTo(new Vector2d(0.5, 0))
+//                        .addDisplacementMarker(() -> {
+//                            Trajectory forward = navigate.trajectoryBuilder(new Pose2d(-0.5, 0))
+//                                    .forward(1)
+//                                    .build();
+//
+//                            navigate.followTrajectory(forward);
+//                        })
+//                        .build();
+//
+//                navigate.followTrajectory(left);
+
+//                init_pose = new Pose2d(0.5, 1);
+                current_state = States.STOP;
                 break;
 
             case DRIVE_TO_TARGETS:
@@ -188,66 +223,46 @@ public class TensorFlow extends OpMode {
                 }
 
                 telemetry.addData("Status", "Driving to Targets");
-                telemetry.update();
                 double pos = GetObjectPosition(updatedRecognitions);
 
-                if (Config.GET_WOBBLE_GOAL) {
-                    Trajectory goal = navigate.trajectoryBuilder(init_pose)
-                            .forward(1.5)
-                            .addDisplacementMarker(() -> {
+                telemetry.addData("pos", pos);
+                
 
-                            })
-                            .build();
-
-                    navigate.followTrajectory(goal);
-                }
+//                drive_targets = navigate.trajectoryBuilder(new Pose2d(0, 0))
+//                        .forward(pos)
+//                        .addDisplacementMarker(() -> {
+//                            Trajectory center = navigate.trajectoryBuilder(new Pose2d(0, pos))
+//                                    .splineTo(new Vector2d(3, 3), Math.toRadians(0))
+//                                    .addDisplacementMarker(() -> {
+//                                        Collector.collect_stop();
+//                                        Conveyor.conveyor_stop();
+//                                    })
+//                                    .build();
+//
+//                            navigate.followTrajectory(center);
+//                        })
+//                        .build();
 
                 if (Config.START_CONVEYOR_ON_INIT) {
                     Conveyor.collect();
                 }
 
-                if (Config.LOOK_FOR_DONUTS) {
-                    drive_targets = navigate.trajectoryBuilder(init_pose)
-                            .forward(pos)
-                            .addSpatialMarker(new Vector2d(0, pos), () -> {
-                                Trajectory center = navigate.trajectoryBuilder(new Pose2d(0, pos))
-                                        .splineTo(new Vector2d(3, 3), Math.toRadians(0))
-                                        .addSpatialMarker(new Vector2d(3, 3), () -> {
-                                            Collector.collect_stop();
-                                            Conveyor.conveyor_stop();
-                                        })
-                                        .build();
-
-                                navigate.followTrajectory(center);
-                            })
-                            .build();
-
-                    navigate.followTrajectory(drive_targets);
+                if (Config.DRIVE_TO_DONUTS) {
+                    telemetry.addData("Status", "Going to Donut");
+                    
+//                    navigate.followTrajectory(drive_targets);
                 }
 
                 break;
 
-            case SHOOT:
-
-                break;
-
-            case GO_TO_HOME_POSITION:
-                Trajectory pos_home = navigate.trajectoryBuilder(drive_to_targets)
-                        .splineTo(pos_from_home, Math.toRadians(0))
-                        .build();
-
-                telemetry.addData("pos from home", "x: " + pos_from_home.getX() + " y: " + pos_from_home.getY());
-                telemetry.update();
-//                navigate.followTrajectory(pos_home);
-                break;
-
             case FIND_TARGETS:
                 telemetry.addData("Status", "Searching For Object");
-                telemetry.update();
-                Subsystem.robot.leftB_drive.setPower(-0.1);
-                Subsystem.robot.leftF_drive.setPower(-0.1);
-                Subsystem.robot.rightF_drive.setPower(0.1);
-                Subsystem.robot.rightB_drive.setPower(0.1);
+                telemetry.addData("updatedRecognitions", updatedRecognitions.toArray());
+                
+//                Subsystem.robot.leftB_drive.setPower(-0.3);
+//                Subsystem.robot.leftF_drive.setPower(-0.3);
+//                Subsystem.robot.rightF_drive.setPower(0.3);
+//                Subsystem.robot.rightB_drive.setPower(0.3);
 
                 if (!updatedRecognitions.isEmpty()) {
                     current_state = States.DRIVE_TO_TARGETS;
@@ -272,6 +287,7 @@ public class TensorFlow extends OpMode {
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
+//        parameters.cameraName = Subsystem.robot.webcam;
 
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
@@ -296,7 +312,7 @@ public class TensorFlow extends OpMode {
             angle = recognition.estimateAngleToObject(AngleUnit.DEGREES);
         }
 
-        telemetry.update();
+        
         return angle;
     }
 
@@ -305,7 +321,7 @@ public class TensorFlow extends OpMode {
 
         for (Recognition r: updatedRecognitions) {
             if (r.getLabel().equals(LABEL_TOWER)) {
-                pos = r.getWidth() / 2;
+                pos = r.getLeft();
             }
         }
 
@@ -321,6 +337,6 @@ public class TensorFlow extends OpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfodParameters.minResultConfidence = 0.7f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT, LABEL_TOWER);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 }

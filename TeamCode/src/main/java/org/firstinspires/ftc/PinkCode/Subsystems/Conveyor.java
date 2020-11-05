@@ -13,12 +13,12 @@ public abstract class Conveyor extends Subsystem{
     }
 
     public static void Regulator_on() {
-        robot.conveyor_regulator.setPosition(0);
+//        robot.conveyor_regulator.setPosition(0);
     }
 
-    public static void Regulator_off() {
-        robot.conveyor_regulator.setPosition(30);
-    }
+//    public static void Regulator_off() {
+//        robot.conveyor_regulator.setPosition(30);
+//    }
 
     // Method for Ejecting
     public static void eject() {
