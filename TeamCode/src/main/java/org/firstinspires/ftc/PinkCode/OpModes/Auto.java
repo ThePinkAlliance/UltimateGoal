@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -17,6 +18,7 @@ import static org.firstinspires.ftc.PinkCode.odometry.OdemetryPresets.drive_from
 import static org.firstinspires.ftc.PinkCode.odometry.OdemetryPresets.drive_init;
 
 @Autonomous(name = "Auto", group = "Auto")
+@Disabled
 public class Auto extends OpMode {
     private VuforiaWebcam webcam;
     private VuforiaLocalizer.Parameters parameters;
