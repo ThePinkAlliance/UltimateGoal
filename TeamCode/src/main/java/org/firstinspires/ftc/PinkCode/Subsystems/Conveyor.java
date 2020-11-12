@@ -7,9 +7,9 @@ import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 public abstract class Conveyor extends Subsystem{
 
     // Method for Collecting
-    public static void collect() {
+    public static void collect(double power) {
         // Define Commands
-        conveyor_command = Presets.CONVEYOR_COLLECT_POWER;
+        conveyor_command = power;
     }
 
     public static void Regulator_on() {
