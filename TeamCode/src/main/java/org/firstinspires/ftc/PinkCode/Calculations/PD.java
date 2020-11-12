@@ -12,11 +12,11 @@ public abstract class PD {
     {
         double motorCmd;
         double error = targetVel - currentVel;
-        double diff = 1 - (targetVel/2090);
+        double diff = 1 - (targetVel/2420);
         double kp = -(currentVel/(targetVel*(1/diff)))+diff;
         double kd = (currentVel/targetVel)-1;
 //        motorCmd = ((-(Subsystem.robot.shoot2.getVelocity()/5067))+.3) + .7;
-        motorCmd = kp + (targetVel/2090) - kd;
+        motorCmd = kp + (targetVel/2420) - kd;
         motorCmd = Range.clip(motorCmd, -1.0, 1.0);
 
         return motorCmd;

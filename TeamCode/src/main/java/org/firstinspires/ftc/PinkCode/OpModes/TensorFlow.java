@@ -245,7 +245,7 @@ public class TensorFlow extends OpMode {
 //                        .build();
 
                 if (Config.START_CONVEYOR_ON_INIT) {
-                    Conveyor.collect();
+                    Conveyor.collect(1);
                 }
 
                 if (Config.DRIVE_TO_DONUTS) {
