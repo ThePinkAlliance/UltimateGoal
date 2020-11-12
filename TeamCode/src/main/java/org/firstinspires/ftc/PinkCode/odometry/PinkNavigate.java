@@ -40,7 +40,7 @@ import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kA;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kStatic;
 
 public class PinkNavigate extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(1, 1, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
@@ -106,6 +106,7 @@ public class PinkNavigate extends MecanumDrive {
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(Presets.MAX_RPM);
+            motorConfigurationType.setMaxRPM(Presets.MAX_RPM);
             motorConfigurationType.setGearing(1.1);
             motorConfigurationType.setTicksPerRev(1000);
             motor.setMotorType(motorConfigurationType);
@@ -296,24 +297,6 @@ public class PinkNavigate extends MecanumDrive {
         leftRear.setPower(v1);
         rightRear.setPower(v2);
         rightFront.setPower(v3);
-
-        //        // Possible
-//        if (v >= 0.1 && v2 >= 0.1 && v1 >= -0.1 && v3 >= -0.1) {
-//            // Im not sure +v will work
-//            leftFront.setPower(-v);
-//            leftRear.setPower(-v1);
-//            rightFront.setPower(+v3);
-//            rightRear.setPower(+v2);
-//        }
-//
-//        // Possible
-//        if (v >= -0.1 && v2 >= -0.1 && v1 >= 0.1 && v3 >= 0.1) {
-//            // Im not sure +v will work
-//            leftFront.setPower(+v);
-//            leftRear.setPower(+v1);
-//            rightFront.setPower(-v3);
-//            rightRear.setPower(-v2);
-//        }
     }
 
     public double GetMotorPowerOne() {

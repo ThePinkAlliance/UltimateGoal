@@ -43,9 +43,9 @@ public class BackupAuto extends OpMode {
         switch (state) {
             case MOVE:
                 Trajectory moveToLine = navigate.trajectoryBuilder(new Pose2d(0, 0))
-                        .lineTo(new Vector2d(-0.5, 0))
+                        .lineTo(new Vector2d(1,0))
                         .addDisplacementMarker(() -> {
-                            Trajectory move = navigate.trajectoryBuilder(new Pose2d(-0.5, 0))
+                            Trajectory move = navigate.trajectoryBuilder(new Pose2d(1, 0))
                                     .forward(1)
                                     .build();
 

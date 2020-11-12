@@ -1,8 +1,14 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
+import android.content.Context;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.pedro.rtplibrary.rtmp.RtmpCamera1;
+import com.pedro.rtplibrary.rtsp.RtspCamera1;
+import com.pedro.rtsp.rtsp.RtspClient;
+import com.pedro.rtsp.utils.ConnectCheckerRtsp;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -10,6 +16,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+
+import net.ossrs.rtmp.ConnectCheckerRtmp;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
@@ -19,6 +27,8 @@ import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -28,13 +38,10 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 @TeleOp(name = "TensorFlow Auto Webcam", group = "Auto")
-@Disabled
 public class TensorFlow extends OpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
-    private static final String LABEL_TOWER = "Tower";
-    private static final String LABEL_GOAL_LABEL = "Goal";
     private PinkNavigate navigate;
 
     private enum States {
@@ -51,7 +58,6 @@ public class TensorFlow extends OpMode {
         *    On Auto INIT best to grab Wobble Goal and place it across the wall
         *    then grab the start stack then shoot at the line then park at the line
         */
-
 
         static boolean SHOOT = false;
         static boolean DRIVE_TO_DONUTS = false;
@@ -129,14 +135,6 @@ public class TensorFlow extends OpMode {
 
         // Initialization of Each Subsystem's Hardware Map
         Subsystem.robot.init(hardwareMap);
-        Subsystem.robot.rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Subsystem.robot.rightB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Subsystem.robot.rightF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Subsystem.robot.rightB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         initVuforia();
         initTfod();
@@ -147,13 +145,7 @@ public class TensorFlow extends OpMode {
          **/
         if (tfod != null) {
             tfod.activate();
-
-            // The TensorFlow software will scale the input images from the camera to a lower resolution.
-            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
-            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
-            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
-            // should be set to the value of the images used to create the TensorFlow Object Detection model
-            // (typically 1.78 or 16/9).
+            telemetry.addData("TFOD", "Activated");
         }
 
         if (gamepad1.dpad_left) {
@@ -166,6 +158,8 @@ public class TensorFlow extends OpMode {
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
+
+        tfod.activate();
     }
 
     @Override
@@ -173,13 +167,19 @@ public class TensorFlow extends OpMode {
         if (tfod != null) {
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
-            if (CurrentAlliance == ALLIANCE.RED && updatedRecognitions != null) {
-                RobotFunctions(updatedRecognitions);
-            } else if (CurrentAlliance == ALLIANCE.BLUE && updatedRecognitions != null) {
+            if (updatedRecognitions != null) {
+                for (Recognition r: updatedRecognitions) {
+                    telemetry.addData("obj", r.getLabel());
+                }
+
                 RobotFunctions(updatedRecognitions);
             } else {
-                telemetry.addData("updatedRecognitions", "null");
+                tfod.activate();
+                telemetry.addData("TFOD", "activating");
             }
+        } else {
+            telemetry.addData("TFOD", "is null");
+            tfod.activate();
         }
 
         telemetry.update();
@@ -187,6 +187,7 @@ public class TensorFlow extends OpMode {
 
     @Override
     public void stop() {
+
         if (tfod != null) {
             tfod.shutdown();
         }
@@ -198,9 +199,8 @@ public class TensorFlow extends OpMode {
                 telemetry.addData("Status", "Init");
 
                 // init
-                Wobble.wobble_arm_down();
-                Wobble.wobble_grip();
-                Wobble.wobble_arm_up();
+//                Wobble.wobble_grip();
+//                Wobble.wobble_arm_up();
 
 //                Trajectory left = navigate.trajectoryBuilder(new Pose2d(0,0))
 //                        .lineTo(new Vector2d(0.5, 0))
@@ -256,7 +256,8 @@ public class TensorFlow extends OpMode {
 //                    navigate.followTrajectory(drive_targets);
                 }
 
-                break;
+                current_state = States.STOP;
+                return;
 
             case FIND_TARGETS:
                 telemetry.addData("Status", "Searching For Object");
@@ -287,10 +288,13 @@ public class TensorFlow extends OpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = Subsystem.robot.webcam;
+
+
+        ClassFactory.getInstance().getCameraManager().nameForUnknownCamera();
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-//        parameters.cameraName = Subsystem.robot.webcam;
 
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
@@ -305,6 +309,10 @@ public class TensorFlow extends OpMode {
         for (Recognition recognition : updatedRecognitions) {
             pos = recognition.getLeft() - Presets.CAMERA_TO_INTAKE;
         }
+
+        telemetry.addData("Obj Pos", pos);
+        telemetry.update();
+
         return Presets.encoderTicksToInches(pos);
     }
 
@@ -323,10 +331,13 @@ public class TensorFlow extends OpMode {
         float pos = 0.0f;
 
         for (Recognition r: updatedRecognitions) {
-            if (r.getLabel().equals(LABEL_TOWER)) {
+            if (r.getLabel().equals("t")) {
                 pos = r.getLeft();
             }
         }
+
+        telemetry.addData("Tower Pos", pos);
+        telemetry.update();
 
         return Presets.encoderTicksToInches(pos);
     }

@@ -71,6 +71,8 @@ public class PermissionValidatorWrapper extends PermissionValidatorActivity {
             return Misc.formatForUser(R.string.permAccessLocationExplain);
         } else if (permission.equals(Manifest.permission.READ_PHONE_STATE)) {
             return Misc.formatForUser(R.string.permReadPhoneState);
+        } else if (permission.equals(Manifest.permission.INTERNET)) {
+            return Misc.formatForUser(R.string.pref_network_connection_info);
         }
         return Misc.formatForUser(R.string.permGenericExplain);
     }
