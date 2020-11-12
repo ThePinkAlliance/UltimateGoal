@@ -43,7 +43,7 @@ public abstract class Presets {
     public static double TICKS_PER_REV = 1; // in
     public static double LATERAL_DISTANCE = 10; // in; distance between the left and right wheels
     public static double FORWARD_OFFSET = 4; // in; offset of the lateral wheel
-    public static final double MAX_RPM = 0.1;
+    public static final double MAX_RPM = 0.2;
     public static final boolean RUN_USING_ENCODER = true;
     public static final PIDCoefficients MOTOR_VELO_PID = null;
     public static double TRACK_WIDTH = 1; // in

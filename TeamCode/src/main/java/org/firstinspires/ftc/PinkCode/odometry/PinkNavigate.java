@@ -330,6 +330,6 @@ public class PinkNavigate extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return /*imu.getAngularOrientation().firstAngle; */ 0.0;
+        return imu.getAngularOrientation().firstAngle;
     }
 }
