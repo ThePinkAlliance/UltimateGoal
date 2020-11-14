@@ -38,6 +38,7 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 @TeleOp(name = "TensorFlow Auto Webcam", group = "Auto")
+@Disabled
 public class TensorFlow extends OpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";

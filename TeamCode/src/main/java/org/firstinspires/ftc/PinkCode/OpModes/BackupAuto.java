@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 
-@Autonomous(name = "Scrimmage Auto Two", group = "Auto")
+@Autonomous(name = "Scrimmage Auto Backup", group = "Auto")
 public class BackupAuto extends OpMode {
     private PinkNavigate navigate;
     private States state = States.MOVE;

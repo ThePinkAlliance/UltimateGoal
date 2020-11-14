@@ -23,7 +23,9 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
+import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +35,8 @@ import static org.firstinspires.ftc.PinkCode.Calculations.Presets.BASE_CONSTRAIN
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.MOTOR_VELO_PID;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.RUN_USING_ENCODER;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.TRACK_WIDTH;
+import static org.firstinspires.ftc.PinkCode.Calculations.Presets.X_MULTIPLIER;
+import static org.firstinspires.ftc.PinkCode.Calculations.Presets.Y_MULTIPLIER;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.encoderTicksToInches;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.getMotorVelocityF;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kV;
@@ -40,7 +44,7 @@ import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kA;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kStatic;
 
 public class PinkNavigate extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(1, 1, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
@@ -72,6 +76,7 @@ public class PinkNavigate extends MecanumDrive {
 
     public PinkNavigate(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
+        Subsystem.robot.init(hardwareMap);
 
         clock = NanoClock.system();
 
@@ -273,13 +278,29 @@ public class PinkNavigate extends MecanumDrive {
         }
     }
 
+    @NotNull
     @Override
     public List<Double> getWheelPositions() {
-        List<Double> wheelPositions = new ArrayList<>();
+        List<Double> wheelVelocities = new ArrayList<>();
         for (DcMotorEx motor : motors) {
-            wheelPositions.add(encoderTicksToInches(motor.getCurrentPosition()));
+            wheelVelocities.add(encoderTicksToInches(motor.getCurrentPosition()) * X_MULTIPLIER);
+
+
+            //            if (motor.getDeviceName().equals(Subsystem.robot.encoder_right.getDeviceName())) {
+//                wheelVelocities.add(encoderTicksToInches(Subsystem.robot.encoder_right.getCurrentPosition()) * X_MULTIPLIER);
+//            } else if (motor.getDeviceName().equals(Subsystem.robot.encoder_right.getDeviceName())) {
+//                wheelVelocities.add(encoderTicksToInches(Subsystem.robot.encoder_left.getCurrentPosition()) * X_MULTIPLIER);
+//            } else if (motor.getDeviceName().equals(Subsystem.robot.encoder_center.getDeviceName())) {
+//                wheelVelocities.add(encoderTicksToInches(Subsystem.robot.encoder_center.getCurrentPosition()) * Y_MULTIPLIER);
+//            }
         }
-        return wheelPositions;
+        return wheelVelocities;
+
+//        return Arrays.asList(
+//                encoderTicksToInches(Subsystem.robot.encoder_right.getCurrentPosition()) * X_MULTIPLIER,
+//                encoderTicksToInches(Subsystem.robot.encoder_left.getCurrentPosition()) * X_MULTIPLIER,
+//                encoderTicksToInches(Subsystem.robot.encoder_center.getCurrentPosition()) * Y_MULTIPLIER
+//        );
     }
 
     public List<Double> getWheelVelocities() {
@@ -292,23 +313,10 @@ public class PinkNavigate extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-
         leftFront.setPower(v);
         leftRear.setPower(v1);
         rightRear.setPower(v2);
         rightFront.setPower(v3);
-    }
-
-    public double GetMotorPowerOne() {
-        return leftRear.getPower();
-    }
-
-    public double GetMotorPowerTwo() {
-        return leftFront.getPower();
-    }
-
-    public double GetMotorPowerThree() {
-        return rightFront.getPower();
     }
 
     @Override
