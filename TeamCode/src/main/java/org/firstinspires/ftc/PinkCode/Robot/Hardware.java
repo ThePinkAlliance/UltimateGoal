@@ -21,9 +21,9 @@ public class Hardware {
     public DcMotor shoot1; // Port _ Control Hub
     public DcMotorEx shoot2; // Port _ Control Hub
 
-    public DcMotorEx encoder_left; // unknown
-    public DcMotorEx encoder_right; // RB
-    public DcMotorEx encoder_center; // RF
+    public Encoder encoder_left; // unknown
+    public Encoder encoder_right; // RB
+    public Encoder encoder_center; // RF
 
     public WebcamName webcam; // Port Unknown
 
@@ -53,9 +53,9 @@ public class Hardware {
         shoot2 = hwMap.get(DcMotorEx.class, "shoot2");
 
         // Odometry Encoders
-        encoder_center = hwMap.get(DcMotorEx.class, "rightF_drive");
-        encoder_left = hwMap.get(DcMotorEx.class, "rightB_drive");
-        encoder_right = hwMap.get(DcMotorEx.class, "leftF_drive");
+        encoder_center = new Encoder(hwMap.get(DcMotorEx.class, "rightF_drive"));
+        encoder_left = new Encoder(hwMap.get(DcMotorEx.class, "rightB_drive"));
+        encoder_right = new Encoder(hwMap.get(DcMotorEx.class, "leftF_drive"));
 
         webcam = hwMap.get(WebcamName.class, "webcam");
 

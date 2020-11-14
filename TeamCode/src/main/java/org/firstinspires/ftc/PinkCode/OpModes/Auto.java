@@ -10,10 +10,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 
 import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
+import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
@@ -24,7 +26,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 @Autonomous(name = "Auto", group = "Auto")
-@Disabled
+//@Disabled
 public class Auto extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
@@ -34,6 +36,7 @@ public class Auto extends LinearOpMode {
     private Runtime time;
     private BNO055IMU imu;
     private PinkNavigate navigate;
+    private ElapsedTime runtime;
     private enum States {
         INIT,
         ONE_STACK,
@@ -52,7 +55,8 @@ public class Auto extends LinearOpMode {
     @Override
     public void runOpMode() {
         navigate = new PinkNavigate(hardwareMap);
-        Subsystem.robot.init(hardwareMap);
+        Subsystem.set_motor_powers();
+        Subsystem.set_servo_positions();
 
         //imu initialization
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -65,8 +69,6 @@ public class Auto extends LinearOpMode {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-        Wobble.wobble_arm_up();
-        Collector.collector_drop();
 
         initVuforia();
         initTfod();
@@ -104,11 +106,16 @@ public class Auto extends LinearOpMode {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         switch (state) {
+                            /**
+                             * C : Three Stack
+                             * B : One Stack
+                             * A : None
+                             */
                             case INIT:
                                 navigate.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
                                 telemetry.addData("state", "init");
                                 telemetry.update();
-                                int amount = 0; //updatedRecognitions.size();
+                                final int amount = 0;//updatedRecognitions.size();
 
                                 switch (amount) {
                                     case 0:
@@ -123,21 +130,64 @@ public class Auto extends LinearOpMode {
                                         state = States.THREE_STACK;
                                         break;
 
-                                    default:
-                                        state = States.NO_STACK;
+                                    case 4:
+                                        state = States.THREE_STACK;
                                         break;
                                 }
                                 break;
 
                             case NO_STACK:
-                                telemetry.addData("state", "moving");
+                                double moveXNone = -3.5;//-7.5;
+                                telemetry.addData("state", "No Stack");
                                 telemetry.addData("pos", navigate.getWheelPositions());
                                 telemetry.update();
-                                Trajectory noStack = navigate.trajectoryBuilder(new Pose2d(0,0))
-                                        .splineToLinearHeading(new Pose2d(-5.5, 0, Math.toRadians(0)), Math.toRadians(0))
+                                Trajectory none = navigate.trajectoryBuilder(new Pose2d(0,0))
+                                        .back(3)
+//                                        .splineToConstantHeading(new Vector2d(-2.5, 0), Math.toRadians(-80))
+//                                        .addDisplacementMarker(() -> {
+//                                            telemetry.addData("Pos", navigate.getWheelPositions());
+//                                            telemetry.addData("Status", "Move Finished");
+//                                            telemetry.update();
+//                                        })
                                         .build();
 
-                                navigate.followTrajectory(noStack);
+                                navigate.followTrajectory(none);
+                                state = States.STOP;
+                                break;
+
+                            case ONE_STACK:
+                                double moveXOne = -3.5;//-8.5;
+
+                                telemetry.addData("state", "One Stack");
+                                telemetry.addData("pos", navigate.getWheelPositions());
+                                telemetry.update();
+                                Trajectory oneStack = navigate.trajectoryBuilder(new Pose2d(0,0))
+                                        .splineToConstantHeading(new Vector2d(moveXOne, 0), Math.toRadians(1.22173))
+                                        .addDisplacementMarker(() -> {
+                                            Wobble.wobble_arm_down();
+                                            Wobble.wobble_ungrip();
+                                        })
+                                        .build();
+
+                                navigate.followTrajectory(oneStack);
+                                state = States.STOP;
+                                break;
+
+                            case THREE_STACK:
+                                double moveXThree = -3.5;//-9.5;
+
+                                telemetry.addData("state", "One Stack");
+                                telemetry.addData("pos", navigate.getWheelPositions());
+                                telemetry.update();
+                                Trajectory threeStack = navigate.trajectoryBuilder(new Pose2d(0,0))
+                                        .splineToConstantHeading(new Vector2d(moveXThree, 0), Math.toRadians(1.22173))
+                                        .addDisplacementMarker(() -> {
+                                            Wobble.wobble_arm_down();
+                                            Wobble.wobble_ungrip();
+                                        })
+                                        .build();
+
+                                navigate.followTrajectory(threeStack);
                                 state = States.STOP;
                                 break;
 

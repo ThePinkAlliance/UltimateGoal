@@ -65,6 +65,7 @@ public class PinkNavigate extends MecanumDrive {
 
     private DriveConstraints constraints;
     private TrajectoryFollower follower;
+    private WheelTracker tracker;
 
     private List<Pose2d> poseHistory;
 
@@ -79,8 +80,10 @@ public class PinkNavigate extends MecanumDrive {
         Subsystem.robot.init(hardwareMap);
 
         clock = NanoClock.system();
-
         mode = Mode.IDLE;
+        tracker = new WheelTracker();
+
+        setLocalizer(tracker);
 
         turnController = new PIDFController(HEADING_PID);
         turnController.setInputBounds(0, 2 * Math.PI);
@@ -108,7 +111,7 @@ public class PinkNavigate extends MecanumDrive {
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
-        for (DcMotorEx motor : motors) {
+        for (DcMotor motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(Presets.MAX_RPM);
             motorConfigurationType.setMaxRPM(Presets.MAX_RPM);
@@ -192,7 +195,7 @@ public class PinkNavigate extends MecanumDrive {
         updatePoseEstimate();
 
         Pose2d currentPose = getPoseEstimate();
-        Pose2d lastError = getLastError();
+//        Pose2d lastError = getLastError();
 
         poseHistory.add(currentPose);
 
@@ -281,42 +284,20 @@ public class PinkNavigate extends MecanumDrive {
     @NotNull
     @Override
     public List<Double> getWheelPositions() {
-        List<Double> wheelVelocities = new ArrayList<>();
-        for (DcMotorEx motor : motors) {
-            wheelVelocities.add(encoderTicksToInches(motor.getCurrentPosition()) * X_MULTIPLIER);
-
-
-            //            if (motor.getDeviceName().equals(Subsystem.robot.encoder_right.getDeviceName())) {
-//                wheelVelocities.add(encoderTicksToInches(Subsystem.robot.encoder_right.getCurrentPosition()) * X_MULTIPLIER);
-//            } else if (motor.getDeviceName().equals(Subsystem.robot.encoder_right.getDeviceName())) {
-//                wheelVelocities.add(encoderTicksToInches(Subsystem.robot.encoder_left.getCurrentPosition()) * X_MULTIPLIER);
-//            } else if (motor.getDeviceName().equals(Subsystem.robot.encoder_center.getDeviceName())) {
-//                wheelVelocities.add(encoderTicksToInches(Subsystem.robot.encoder_center.getCurrentPosition()) * Y_MULTIPLIER);
-//            }
-        }
-        return wheelVelocities;
-
-//        return Arrays.asList(
-//                encoderTicksToInches(Subsystem.robot.encoder_right.getCurrentPosition()) * X_MULTIPLIER,
-//                encoderTicksToInches(Subsystem.robot.encoder_left.getCurrentPosition()) * X_MULTIPLIER,
-//                encoderTicksToInches(Subsystem.robot.encoder_center.getCurrentPosition()) * Y_MULTIPLIER
-//        );
+        return tracker.getWheelPositions();
     }
 
+    @Override
     public List<Double> getWheelVelocities() {
-        List<Double> wheelVelocities = new ArrayList<>();
-        for (DcMotorEx motor : motors) {
-            wheelVelocities.add(encoderTicksToInches(motor.getVelocity()));
-        }
-        return wheelVelocities;
+        return tracker.getWheelVelocity();
     }
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftFront.setPower(v);
-        leftRear.setPower(v1);
-        rightRear.setPower(v2);
-        rightFront.setPower(v3);
+        leftFront.setPower(v / 2);
+        leftRear.setPower(v1 / 2);
+        rightRear.setPower(v2 / 2);
+        rightFront.setPower(v3 / 2);
     }
 
     @Override

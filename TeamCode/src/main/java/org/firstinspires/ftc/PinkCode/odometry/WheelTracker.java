@@ -10,6 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.firstinspires.ftc.PinkCode.Calculations.Presets.X_MULTIPLIER;
+import static org.firstinspires.ftc.PinkCode.Calculations.Presets.Y_MULTIPLIER;
+
 public class WheelTracker extends ThreeTrackingWheelLocalizer {
     public WheelTracker() {
         super(Arrays.asList(
@@ -35,9 +38,9 @@ public class WheelTracker extends ThreeTrackingWheelLocalizer {
     @NotNull
     public List<Double> getWheelVelocity() {
         return Arrays.asList(
-//                Presets.encoderTicksToInches(Subsystem.robot.encoder_left.getRawVelocity()),
-//                Presets.encoderTicksToInches(Subsystem.robot.encoder_right.getRawVelocity()),
-//                Presets.encoderTicksToInches(Subsystem.robot.encoder_center.getRawVelocity())
+                Presets.encoderTicksToInches(Subsystem.robot.encoder_left.getCorrectedVelocity()) * X_MULTIPLIER,
+                Presets.encoderTicksToInches(Subsystem.robot.encoder_right.getCorrectedVelocity()) * X_MULTIPLIER,
+                Presets.encoderTicksToInches(Subsystem.robot.encoder_center.getCorrectedVelocity()) * Y_MULTIPLIER
         );
     }
 }
