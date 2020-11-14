@@ -1,28 +1,44 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
+import android.content.Context;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 
+import java.util.Timer;
+import java.util.jar.Manifest;
+
 @Autonomous(name = "Scrimmage Auto One", group = "Auto")
 public class EventAuto extends OpMode {
     private PinkNavigate navigate;
     private States state = States.INIT;
+    private boolean init = true;
+    private ElapsedTime elapsedTime;
+
     private enum States {
         INIT,
         GRIP_GOAL,
         LIFT_GOAL,
         DROP_GOAL,
         PARK_AT_LINE,
-        STOP
+        STOP,
+        MAIN
     };
+
+    public abstract static class Config {
+        static Pose2d MoveToLine = new Pose2d(1, 0, Math.toRadians(-90));
+        static Vector2d MoveToDrop = new Vector2d(0.7, 0);
+        static Pose2d MoveBackToLine = new Pose2d(-1, 0, Math.toRadians(90));
+    }
 
     @Override
     public void init() {
@@ -45,6 +61,11 @@ public class EventAuto extends OpMode {
 
     @Override
     public void loop() {
+        if (init) {
+            elapsedTime.startTime();
+            init = false;
+        }
+
         switch (state) {
             case INIT:
                 Wobble.wobble_arm_down();
@@ -54,6 +75,8 @@ public class EventAuto extends OpMode {
                 break;
 
             case GRIP_GOAL:
+                if (elapsedTime.seconds() > 2) return;
+
                 Wobble.wobble_grip();
                 telemetry.addData("State", "Wobble Grip");
 
@@ -61,21 +84,23 @@ public class EventAuto extends OpMode {
                 break;
 
             case LIFT_GOAL:
+                if (elapsedTime.seconds() < 4) return;
+
                 Wobble.wobble_arm_up();
                 telemetry.addData("State", "Arm Up");
 
                 state = States.DROP_GOAL;
                 break;
 
-            case DROP_GOAL:
+            case MAIN:
                 Trajectory moveToBox = navigate.trajectoryBuilder(new Pose2d(0, 0))
-                        .forward(1)
+                        .lineToLinearHeading(Config.MoveToLine)
                         .addDisplacementMarker(() -> {
-                            Trajectory rotate = navigate.trajectoryBuilder(new Pose2d(0, 1))
-                                    .lineToLinearHeading(new Pose2d(0, 0, Math.toRadians(-90)))
+                            Trajectory rotate = navigate.trajectoryBuilder(new Pose2d(1, 0, Math.toRadians(-90)))
+                                    .lineTo(Config.MoveToDrop)
                                     .addDisplacementMarker(() -> {
-                                        Trajectory rotateAgain = navigate.trajectoryBuilder(new Pose2d(0, 1, Math.toRadians(-90)))
-                                                .lineToLinearHeading(new Pose2d(0, 0, Math.toRadians(-90)))
+                                        Trajectory rotateAgain = navigate.trajectoryBuilder(new Pose2d(0.7, 0, Math.toRadians(-90)))
+                                                .lineToLinearHeading(Config.MoveBackToLine)
                                                 .build();
 
                                         navigate.followTrajectory(rotateAgain);
@@ -89,17 +114,6 @@ public class EventAuto extends OpMode {
 
                 navigate.followTrajectory(moveToBox);
                 telemetry.addData("State", "Moving to Wobble Goal Drop");
-
-                state = States.PARK_AT_LINE;
-                break;
-
-            case PARK_AT_LINE:
-                Trajectory moveToLine = navigate.trajectoryBuilder(new Pose2d(0,1, Math.toRadians(180)))
-                        .forward(0.5)
-                        .build();
-
-                telemetry.addData("State", "Moving To Line");
-                navigate.followTrajectory(moveToLine);
 
                 state = States.STOP;
                 break;

@@ -23,4 +23,5 @@ dependencies {
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 
     implementation 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:1.9.5'
+    implementation 'org.openftc:easyopencv:1.4.1'
 }

@@ -19,6 +19,10 @@ public class BackupAuto extends OpMode {
         STOP
     };
 
+    abstract class Config {
+//        static Vector2d
+    }
+
     @Override
     public void init() {
         Subsystem.robot.init(hardwareMap);
@@ -34,7 +38,7 @@ public class BackupAuto extends OpMode {
         Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Telemetry Update to Inform Drivers That the Program is Initialized
-        telemetry.addData("Status: ", "Waiting for Driver to Press Play");
+        telemetry.addData("Status: ",  "Waiting for Driver to Press Play");
         telemetry.update();
     }
 
