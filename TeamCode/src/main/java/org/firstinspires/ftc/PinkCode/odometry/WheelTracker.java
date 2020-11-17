@@ -18,7 +18,7 @@ public class WheelTracker extends ThreeTrackingWheelLocalizer {
         super(Arrays.asList(
                 new Pose2d(0, Presets.LATERAL_DISTANCE / 2, 0), // left
                 new Pose2d(0, -Presets.LATERAL_DISTANCE / 2, 0), // right
-                new Pose2d(0, Presets.FORWARD_OFFSET, Math.toRadians(90)) // front
+                new Pose2d(0, Presets.FORWARD_OFFSET, Math.toRadians(90)) // center
         ));
     }
 

@@ -44,8 +44,8 @@ import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kA;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kStatic;
 
 public class PinkNavigate extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0.1, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(1, 0.1, 1);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -56,7 +56,6 @@ public class PinkNavigate extends MecanumDrive {
     }
 
     private NanoClock clock;
-
     private Mode mode;
 
     private PIDFController turnController;
