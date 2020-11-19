@@ -53,8 +53,14 @@ public class Hardware {
         shoot2 = hwMap.get(DcMotorEx.class, "shoot2");
 
         // Odometry Encoders
+        
+        // Port for the center encoder
         encoder_center = new Encoder(hwMap.get(DcMotorEx.class, "rightF_drive"));
+
+        // Port for the left encoder
         encoder_left = new Encoder(hwMap.get(DcMotorEx.class, "rightB_drive"));
+
+        // Port for the right encoder
         encoder_right = new Encoder(hwMap.get(DcMotorEx.class, "leftF_drive"));
 
         webcam = hwMap.get(WebcamName.class, "webcam");

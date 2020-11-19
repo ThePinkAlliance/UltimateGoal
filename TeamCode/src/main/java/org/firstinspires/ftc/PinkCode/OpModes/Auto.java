@@ -35,7 +35,6 @@ public class Auto extends LinearOpMode {
     private static final String LABEL_SECOND_ELEMENT = "Single";
 
     private States state = States.INIT;
-    private Runtime time;
     private BNO055IMU imu;
     private PinkNavigateTest navigate;
     private ElapsedTime runtime;
@@ -114,7 +113,19 @@ public class Auto extends LinearOpMode {
                                 navigate.setPoseEstimate(new Pose2d(0,0, Math.toRadians(0)));
                                 telemetry.addData("state", "init");
                                 telemetry.update();
-                                final int amount = 0;//updatedRecognitions.size();
+                                final int amount = updatedRecognitions.size();
+
+                                if (amount == 0) {
+                                    state = States.NO_STACK;
+                                } else if (amount == 1) {
+                                    state = States.ONE_STACK;
+                                } else if (amount == 3) {
+                                    state = States.THREE_STACK;
+                                } else if (amount == 4) {
+                                    state = States.THREE_STACK;
+                                } else {
+                                    state = States.NO_STACK;
+                                }
 
                                 switch (amount) {
                                     case 0:

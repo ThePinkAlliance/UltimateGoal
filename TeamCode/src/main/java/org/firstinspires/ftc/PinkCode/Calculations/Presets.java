@@ -3,6 +3,7 @@ package org.firstinspires.ftc.PinkCode.Calculations;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 // Abstract Class to Define Preset Values Used Throughout Subsystems
 public abstract class Presets {
@@ -28,10 +29,9 @@ public abstract class Presets {
 
     //Wobble Presets
     public static final double WOBBLE_UP = .3;
-    public static final double WOBBLE_DOWN = .7;
+    public static final double WOBBLE_DOWN = .10;
     public static final double WOBBLE_GRIP = .7;
     public static final double WOBBLE_UNGRIP = 0;
-
 
     //Hook Presets
     public static final double HOOK_DOWN = .5;
@@ -40,7 +40,7 @@ public abstract class Presets {
     // Odometry
     public static double WHEEL_RADIUS = 2; // in
     public static double GEAR_RATIO = 1.1; // output (wheel) speed / input (motor) speed
-    public static double TICKS_PER_REV = 1; // in
+    public static double TICKS_PER_REV = 1000; // in
     public static double LATERAL_DISTANCE = 10; // in; distance between the left and right wheels
     public static double FORWARD_OFFSET = 4; // in; offset of the lateral wheel
     public static final double MAX_RPM = 0.2;
@@ -53,15 +53,17 @@ public abstract class Presets {
     public static double Y_MULTIPLIER = 1; // Multiplier in the Y direction
 
     public static int COLLECTOR_HOLDER_INIT_POSITION = 80;
-    public static float CAMERA_TO_INTAKE = 6.4f;
+    public static float CAMERA_TO_INTAKE = 6.6f;
 
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
             30.0, 30.0, 0.0,
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
+
     public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
     public static double kA = 0;
     public static double kStatic = 0;
+    public static final PIDFCoefficients MOTOR_VELO_PIDF = new PIDFCoefficients(1, 0.1, 1, getMotorVelocityF());
 
     // Convert Encoder Values to Inch
     public static double encoderTicksToInches(double ticks) {

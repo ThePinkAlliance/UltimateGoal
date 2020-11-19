@@ -24,7 +24,6 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -35,9 +34,6 @@ import static org.firstinspires.ftc.PinkCode.Calculations.Presets.BASE_CONSTRAIN
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.MOTOR_VELO_PID;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.RUN_USING_ENCODER;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.TRACK_WIDTH;
-import static org.firstinspires.ftc.PinkCode.Calculations.Presets.X_MULTIPLIER;
-import static org.firstinspires.ftc.PinkCode.Calculations.Presets.Y_MULTIPLIER;
-import static org.firstinspires.ftc.PinkCode.Calculations.Presets.encoderTicksToInches;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.getMotorVelocityF;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kV;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.kA;
@@ -88,6 +84,7 @@ public class PinkNavigate extends MecanumDrive {
         turnController.setInputBounds(0, 2 * Math.PI);
 
         constraints = new MecanumConstraints(BASE_CONSTRAINTS, TRACK_WIDTH);
+
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
 
@@ -194,8 +191,6 @@ public class PinkNavigate extends MecanumDrive {
         updatePoseEstimate();
 
         Pose2d currentPose = getPoseEstimate();
-//        Pose2d lastError = getLastError();
-
         poseHistory.add(currentPose);
 
         switch (mode) {
@@ -204,15 +199,13 @@ public class PinkNavigate extends MecanumDrive {
                 break;
             case TURN: {
                 double t = clock.seconds() - turnStart;
-
                 MotionState targetState = turnProfile.get(t);
-
                 turnController.setTargetPosition(targetState.getX());
 
                 double correction = turnController.update(currentPose.getHeading());
-
                 double targetOmega = targetState.getV();
                 double targetAlpha = targetState.getA();
+
                 setDriveSignal(new DriveSignal(new Pose2d(
                         0, 0, targetOmega + correction
                 ), new Pose2d(
@@ -220,18 +213,14 @@ public class PinkNavigate extends MecanumDrive {
                 )));
 
                 Pose2d newPose = lastPoseOnTurn.copy(lastPoseOnTurn.getX(), lastPoseOnTurn.getY(), targetState.getX());
-
                 if (t >= turnProfile.duration()) {
                     mode = Mode.IDLE;
                     setDriveSignal(new DriveSignal());
                 }
-
                 break;
             }
             case FOLLOW_TRAJECTORY: {
                 setDriveSignal(follower.update(currentPose));
-
-                Trajectory trajectory = follower.getTrajectory();
 
                 double t = follower.elapsedTime();
 

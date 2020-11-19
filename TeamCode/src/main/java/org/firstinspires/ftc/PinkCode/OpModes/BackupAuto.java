@@ -19,10 +19,6 @@ public class BackupAuto extends OpMode {
         STOP
     };
 
-    abstract class Config {
-//        static Vector2d
-    }
-
     @Override
     public void init() {
         Subsystem.robot.init(hardwareMap);
