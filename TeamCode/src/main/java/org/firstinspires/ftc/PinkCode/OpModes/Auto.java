@@ -19,6 +19,8 @@ import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
+import org.firstinspires.ftc.PinkCode.odometry.PinkNavigateTest;
+import org.firstinspires.ftc.PinkCode.odometry.WheelTracker;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -35,8 +37,9 @@ public class Auto extends LinearOpMode {
     private States state = States.INIT;
     private Runtime time;
     private BNO055IMU imu;
-    private PinkNavigate navigate;
+    private PinkNavigateTest navigate;
     private ElapsedTime runtime;
+    private WheelTracker tracker;
     private enum States {
         INIT,
         ONE_STACK,
@@ -54,15 +57,15 @@ public class Auto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        navigate = new PinkNavigate(hardwareMap);
+        navigate = new PinkNavigateTest(hardwareMap);
+        tracker = new WheelTracker();
         Subsystem.set_motor_powers();
         Subsystem.set_servo_positions();
 
         //imu initialization
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-//        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
         parameters.loggingEnabled = true;
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
@@ -73,10 +76,6 @@ public class Auto extends LinearOpMode {
         initVuforia();
         initTfod();
 
-        /**
-         * Activate TensorFlow Object Detection before we wait for the start command.
-         * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
-         **/
         if (tfod != null) {
             tfod.activate();
 
@@ -99,14 +98,14 @@ public class Auto extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 telemetry.addData("IMU", imu.getAngularOrientation());
+                telemetry.addData("Encoder Positions", tracker.getWheelPositions());
+                telemetry.addData("Encoder Speeds", tracker.getWheelVelocity());
 
                 if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         switch (state) {
-                            /**
+                            /*
                              * C : Three Stack
                              * B : One Stack
                              * A : None
@@ -137,54 +136,43 @@ public class Auto extends LinearOpMode {
                                 break;
 
                             case NO_STACK:
-                                double moveXNone = -3.5;//-7.5;
                                 telemetry.addData("state", "No Stack");
                                 telemetry.addData("pos", navigate.getWheelPositions());
                                 telemetry.update();
                                 Trajectory none = navigate.trajectoryBuilder(new Pose2d(0,0))
-                                        .back(3)
-//                                        .splineToConstantHeading(new Vector2d(-2.5, 0), Math.toRadians(-80))
-//                                        .addDisplacementMarker(() -> {
-//                                            telemetry.addData("Pos", navigate.getWheelPositions());
-//                                            telemetry.addData("Status", "Move Finished");
-//                                            telemetry.update();
-//                                        })
+                                        .splineTo(new Vector2d(3, 0), Math.toRadians(-90))
+                                        .addSpatialMarker(new Vector2d(3, 0), Wobble::wobble_ungrip)
                                         .build();
 
+                                Wobble.wobble_arm_down();
                                 navigate.followTrajectory(none);
+                                Wobble.wobble_arm_up();
                                 state = States.STOP;
                                 break;
 
                             case ONE_STACK:
-                                double moveXOne = -3.5;//-8.5;
-
                                 telemetry.addData("state", "One Stack");
                                 telemetry.addData("pos", navigate.getWheelPositions());
                                 telemetry.update();
                                 Trajectory oneStack = navigate.trajectoryBuilder(new Pose2d(0,0))
-                                        .splineToConstantHeading(new Vector2d(moveXOne, 0), Math.toRadians(1.22173))
-                                        .addDisplacementMarker(() -> {
-                                            Wobble.wobble_arm_down();
-                                            Wobble.wobble_ungrip();
-                                        })
+                                        .splineToConstantHeading(new Vector2d(-3.5, 0), Math.toRadians(1.22173))
+                                        .addDisplacementMarker(Wobble::wobble_ungrip)
                                         .build();
 
+                                Wobble.wobble_arm_down();
                                 navigate.followTrajectory(oneStack);
+                                Wobble.wobble_arm_up();
                                 state = States.STOP;
                                 break;
 
                             case THREE_STACK:
-                                double moveXThree = -3.5;//-9.5;
+                                double moveXThree = -3.5;
 
                                 telemetry.addData("state", "One Stack");
                                 telemetry.addData("pos", navigate.getWheelPositions());
                                 telemetry.update();
                                 Trajectory threeStack = navigate.trajectoryBuilder(new Pose2d(0,0))
-                                        .splineToConstantHeading(new Vector2d(moveXThree, 0), Math.toRadians(1.22173))
-                                        .addDisplacementMarker(() -> {
-                                            Wobble.wobble_arm_down();
-                                            Wobble.wobble_ungrip();
-                                        })
+                                        .splineTo(new Vector2d(moveXThree, 0), Math.toRadians(1.22173))
                                         .build();
 
                                 navigate.followTrajectory(threeStack);
@@ -208,13 +196,7 @@ public class Auto extends LinearOpMode {
         }
     }
 
-    /**
-     * Initialize the Vuforia localization engine.
-     */
     private void initVuforia() {
-        /*
-         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-         */
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
