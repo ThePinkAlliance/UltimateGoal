@@ -35,15 +35,11 @@ public class Teleop extends Controls {
 
     double markedTime2 = 0;
     int x = 0;
-    double robotTheta;
     double sinTheta;
+    double backCoderAngleNeg;
     double cosTheta;
-    double wheel0Pos, wheel1Pos, wheel2Pos, wheelDisplacePerEncoderCount, Theta;
-    double delt_m0, delt_m1, delt_m2, dev_m0, dev_m1, dev_m2, delt_Xr, delt_Yr, delt_Xf, delt_Yf, X, Y,
-            displ_m0, displ_m1, displ_m2, lastM0, lastM1, lastM2, lastX, lastY, displ_averageY, displ_averageX;
-
     double previousPos;
-
+    double X, Y, backCoder, leftCoder, rightCoder, theta, thetaDiff, preX, preY, thetaTest;
     private double previousHeading = 0;
     private double integratedHeading = 0;
     private ElapsedTime runtime = new ElapsedTime();
@@ -80,6 +76,7 @@ public class Teleop extends Controls {
         Subsystem.robot.leftF_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Subsystem.robot.leftB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        Wobble.wobble_arm_up();
 //        Scorer.score_rotate_to_position(Presets.SCORER_STOW);
         // Telemetry Update to Inform Drivers That the Program is Initialized
         telemetry.addData("Status: ", "Waiting for Driver to Press Play");
@@ -93,45 +90,23 @@ public class Teleop extends Controls {
             Collector.collector_drop();
         }
 
+        backCoder = -Subsystem.robot.rightF_drive.getCurrentPosition();
+        leftCoder = Subsystem.robot.rightB_drive.getCurrentPosition();
+        rightCoder = Subsystem.robot.leftF_drive.getCurrentPosition();
+        thetaTest = ((((rightCoder - leftCoder) / 2) / 153.5) * Math.PI)/180;
+        backCoderAngleNeg = (((rightCoder - leftCoder) / 2) / 153.5) * 105.5;
+        thetaDiff = (rightCoder - leftCoder) / 2;
+        cosTheta = Math.cos(thetaTest);
+        sinTheta = Math.sin(thetaTest);
+        preX = backCoder - backCoderAngleNeg;
+        preY = ((rightCoder + leftCoder) / 2) - thetaDiff;
 
-        wheelDisplacePerEncoderCount = 1/1125;
-        wheel0Pos = Subsystem.robot.rightF_drive.getCurrentPosition();
-        wheel1Pos = Subsystem.robot.rightB_drive.getCurrentPosition();
-        wheel2Pos = Subsystem.robot.leftF_drive.getCurrentPosition();
-        //Compute change in encoder positions
-        delt_m0 = wheel0Pos - lastM0;
-        delt_m1 = wheel1Pos - lastM1;
-        delt_m2 = wheel2Pos - lastM2;
-        //Compute displacements for each wheel
-        displ_m0 = delt_m0 * wheelDisplacePerEncoderCount;
-        displ_m1 = delt_m1 * wheelDisplacePerEncoderCount;
-        displ_m2 = delt_m2 * wheelDisplacePerEncoderCount;
-        //Compute the average displacement in order to untangle rotation from displacement
-        displ_averageY = (displ_m1 + displ_m2) / 2.0;
-        displ_averageX = (displ_m2 - displ_m1) / 2.0;
-        //Compute the component of the wheel displacements that yield robot displacement
-        if (getMathHeading() > 0)
-            dev_m0 = displ_m0 - displ_averageX;
-        else
-            dev_m0 = displ_m0 + displ_averageX;
-        dev_m1 = displ_m1 - displ_averageX;
-        dev_m2 = displ_m2 - displ_averageX;
-        //Compute the displacement of the holonomic drive, in robot reference frame
-        delt_Xr = (dev_m0);
-        delt_Yr = (dev_m1 - dev_m2);
-        //Move this holonomic displacement from robot to field frame of reference
-        robotTheta = getMathHeading();
-        sinTheta = Math.sin(robotTheta);
-        cosTheta = Math.cos(robotTheta);
-        delt_Xf = delt_Xr * cosTheta - delt_Yr * sinTheta;
-        delt_Yf = delt_Yr * cosTheta + delt_Xr * sinTheta;
-        //Update the position
-        X = lastX + delt_Xf;
-        Y = lastY + delt_Yf;
-        Theta = robotTheta;
-        lastM0 = wheel0Pos;
-        lastM1 = wheel1Pos;
-        lastM2 = wheel2Pos;
+        X = (preX * cosTheta) + (preY * sinTheta);
+        Y = (preY * cosTheta) + (preX * sinTheta);
+        X = X/1125;
+        Y = Y/1125;
+
+
 
         // Drive Train Control
         if (gamepad1.left_stick_y > .1 ||
@@ -183,17 +158,17 @@ public class Teleop extends Controls {
             Shooter.flap_power_shot();
         } else {
             x = 0;
-            Shooter.dont_shoot();
             Shooter.flap_close();
+            Shooter.dont_shoot();
         }
 
 
         // Conveyor and shooter Controls
-        if (gamepad2.right_bumper && Subsystem.robot.shoot2.getVelocity() > 1520 && Subsystem.robot.shoot2.getVelocity() < 1600) {
+        if (gamepad2.right_bumper && Subsystem.robot.shoot2.getVelocity() > 1490 && Subsystem.robot.shoot2.getVelocity() < 1620) {
 //        if(gamepad2.right_bumper && runtime.milliseconds() - markedTime2 > 2500) {
             Conveyor.flap_open();
             Conveyor.collect(.7);
-        } else if (gamepad2.left_bumper && Subsystem.robot.shoot2.getVelocity() > 1405 && Subsystem.robot.shoot2.getVelocity() < 1440) {
+        } else if (gamepad2.left_bumper && Subsystem.robot.shoot2.getVelocity() > 1375 && Subsystem.robot.shoot2.getVelocity() < 1440) {
             Conveyor.flap_open();
             Conveyor.collect(.7);
         } else if(gamepad1.left_bumper) {
@@ -245,9 +220,13 @@ public class Teleop extends Controls {
             telemetry.addData("DcMotorEx Velocity", Subsystem.robot.shoot2.getVelocity());
             telemetry.addData("Shooter2Power", Subsystem.robot.shoot2.getPower());
             telemetry.addData("Shooter1power", Subsystem.robot.shoot1.getPower());
-            telemetry.addData("Shooter2 should be power", (-(Subsystem.robot.shoot2.getVelocity()/5067))+.3);
             telemetry.addData("X", X);
             telemetry.addData("Y", Y);
+            telemetry.addData("ImuHeading", getIntegratedHeading());
+            telemetry.addData("MathHeading", thetaTest);
+            telemetry.addData("getMathHeadingTets", theta);
+            telemetry.addData("MathHeadingCounts", (rightCoder - leftCoder) / 2);
+            telemetry.addData("BackCoder Counts", backCoder);
         }
 
     }
@@ -267,12 +246,10 @@ public class Teleop extends Controls {
 
     }
 
-    private double getMathHeading() {
+    private double getMathHeading(double x) {
 
-        double x = getIntegratedHeading();
-        double test = getIntegratedHeading();
         double angle = 0;
-        if(test > 0)
+        if(x > 0)
              angle = (x - ((Math.round((x / 360) - .5)) * 360));
         else
             angle = (x - ((Math.round((x / 360) + .5)) * 360));

@@ -8,17 +8,21 @@ import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 public abstract class PD {
     // Use a PD to Determine the Lift Motor Command
 
-    public static double ShooterPD (double currentVel, double targetVel)
-    {
+    public static double ShooterPD (double currentVel, double targetVel) {
         double motorCmd;
         double error = targetVel - currentVel;
         double diff = 1 - (targetVel/2420);
         double kp = -(currentVel/(targetVel*(1/diff)))+diff;
         double kd = (currentVel/targetVel)-1;
-//        motorCmd = ((-(Subsystem.robot.shoot2.getVelocity()/5067))+.3) + .7;
         motorCmd = kp + (targetVel/2420) - kd;
         motorCmd = Range.clip(motorCmd, -1.0, 1.0);
 
+        return motorCmd;
+    }
+
+    public static double getMotorCmd (double Kp, double Kd, double error, double currentVel) {
+        double motorCmd;
+        motorCmd = (Kp * error) - (Kd * currentVel);
         return motorCmd;
     }
 }

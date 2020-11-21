@@ -5,10 +5,10 @@ import android.content.Context;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.pedro.rtplibrary.rtmp.RtmpCamera1;
-import com.pedro.rtplibrary.rtsp.RtspCamera1;
-import com.pedro.rtsp.rtsp.RtspClient;
-import com.pedro.rtsp.utils.ConnectCheckerRtsp;
+//import com.pedro.rtplibrary.rtmp.RtmpCamera1;
+//import com.pedro.rtplibrary.rtsp.RtspCamera1;
+//import com.pedro.rtsp.rtsp.RtspClient;
+//import com.pedro.rtsp.utils.ConnectCheckerRtsp;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import net.ossrs.rtmp.ConnectCheckerRtmp;
+//import net.ossrs.rtmp.ConnectCheckerRtmp;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
