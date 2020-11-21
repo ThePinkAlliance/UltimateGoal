@@ -40,8 +40,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.BASE_CONSTRAINTS;
-import static org.firstinspires.ftc.PinkCode.Calculations.Presets.MOTOR_VELO_PID;
-import static org.firstinspires.ftc.PinkCode.Calculations.Presets.MOTOR_VELO_PIDF;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.RUN_USING_ENCODER;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.TRACK_WIDTH;
 import static org.firstinspires.ftc.PinkCode.Calculations.Presets.getMotorVelocityF;
@@ -149,10 +147,10 @@ public class PinkNavigateTest extends MecanumDrive {
         }
 
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        if (RUN_USING_ENCODER && MOTOR_VELO_PIDF != null) {
-            setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PIDF);
-        }
+//
+//        if (RUN_USING_ENCODER && MOTOR_VELO_PIDF != null) {
+//            setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PIDF);
+//        }
 
         // TODO: reverse any motors using DcMotor.setDirection()
 

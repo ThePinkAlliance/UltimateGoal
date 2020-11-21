@@ -1,40 +1,23 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
-import android.content.Context;
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-//import com.pedro.rtplibrary.rtmp.RtmpCamera1;
-//import com.pedro.rtplibrary.rtsp.RtspCamera1;
-//import com.pedro.rtsp.rtsp.RtspClient;
-//import com.pedro.rtsp.utils.ConnectCheckerRtsp;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-
-//import net.ossrs.rtmp.ConnectCheckerRtmp;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
-import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
 import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
-import org.firstinspires.ftc.PinkCode.Subsystems.Shooter;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.lang.reflect.Array;
 import java.util.List;
 
 @TeleOp(name = "TensorFlow Auto Webcam", group = "Auto")
@@ -198,25 +181,11 @@ public class TensorFlow extends OpMode {
         switch (current_state) {
             case INIT:
                 telemetry.addData("Status", "Init");
-
                 // init
-//                Wobble.wobble_grip();
-//                Wobble.wobble_arm_up();
+                Wobble.wobble_grip();
+                Wobble.wobble_arm_up();
+                Subsystem.set_servo_positions();
 
-//                Trajectory left = navigate.trajectoryBuilder(new Pose2d(0,0))
-//                        .lineTo(new Vector2d(0.5, 0))
-//                        .addDisplacementMarker(() -> {
-//                            Trajectory forward = navigate.trajectoryBuilder(new Pose2d(-0.5, 0))
-//                                    .forward(1)
-//                                    .build();
-//
-//                            navigate.followTrajectory(forward);
-//                        })
-//                        .build();
-//
-//                navigate.followTrajectory(left);
-
-//                init_pose = new Pose2d(0.5, 1);
                 current_state = States.STOP;
                 break;
 
@@ -230,22 +199,6 @@ public class TensorFlow extends OpMode {
                 double pos = GetObjectPosition(updatedRecognitions);
 
                 telemetry.addData("pos", pos);
-                
-
-//                drive_targets = navigate.trajectoryBuilder(new Pose2d(0, 0))
-//                        .forward(pos)
-//                        .addDisplacementMarker(() -> {
-//                            Trajectory center = navigate.trajectoryBuilder(new Pose2d(0, pos))
-//                                    .splineTo(new Vector2d(3, 3), Math.toRadians(0))
-//                                    .addDisplacementMarker(() -> {
-//                                        Collector.collect_stop();
-//                                        Conveyor.conveyor_stop();
-//                                    })
-//                                    .build();
-//
-//                            navigate.followTrajectory(center);
-//                        })
-//                        .build();
 
                 if (Config.START_CONVEYOR_ON_INIT) {
                     Conveyor.collect(1);

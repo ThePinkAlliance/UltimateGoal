@@ -20,6 +20,7 @@ import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.PinkCode.odometry.PinkNavigateTest;
+import org.firstinspires.ftc.PinkCode.odometry.SampleMecanumDrive;
 import org.firstinspires.ftc.PinkCode.odometry.WheelTracker;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -36,7 +37,7 @@ public class Auto extends LinearOpMode {
 
     private States state = States.INIT;
     private BNO055IMU imu;
-    private PinkNavigateTest navigate;
+    private SampleMecanumDrive navigate;
     private ElapsedTime runtime;
     private WheelTracker tracker;
     private enum States {
@@ -56,8 +57,7 @@ public class Auto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        navigate = new PinkNavigateTest(hardwareMap);
-        tracker = new WheelTracker();
+        navigate = new SampleMecanumDrive(hardwareMap);
         Subsystem.set_motor_powers();
         Subsystem.set_servo_positions();
 
@@ -126,24 +126,6 @@ public class Auto extends LinearOpMode {
                                 } else {
                                     state = States.NO_STACK;
                                 }
-
-                                switch (amount) {
-                                    case 0:
-                                        state = States.NO_STACK;
-                                        break;
-
-                                    case 1:
-                                        state = States.ONE_STACK;
-                                        break;
-
-                                    case 3:
-                                        state = States.THREE_STACK;
-                                        break;
-
-                                    case 4:
-                                        state = States.THREE_STACK;
-                                        break;
-                                }
                                 break;
 
                             case NO_STACK:
@@ -151,13 +133,22 @@ public class Auto extends LinearOpMode {
                                 telemetry.addData("pos", navigate.getWheelPositions());
                                 telemetry.update();
                                 Trajectory none = navigate.trajectoryBuilder(new Pose2d(0,0))
-                                        .splineTo(new Vector2d(3, 0), Math.toRadians(-90))
-                                        .addSpatialMarker(new Vector2d(3, 0), Wobble::wobble_ungrip)
+                                        .splineToLinearHeading(new Pose2d(-60, -10), Math.toRadians(-90))
+                                        .addDisplacementMarker(() -> {
+                                            Wobble.wobble_arm_down();
+                                            Subsystem.set_servo_positions();
+                                            Wobble.wobble_ungrip();
+                                            Subsystem.set_servo_positions();
+
+                                            Wobble.wobble_arm_up();
+                                            Subsystem.set_servo_positions();
+                                            Wobble.wobble_grip();
+                                            Subsystem.set_servo_positions();
+                                        })
+                                        .splineToLinearHeading(new Pose2d(0, -15), Math.toRadians(-90))
                                         .build();
 
-                                Wobble.wobble_arm_down();
                                 navigate.followTrajectory(none);
-                                Wobble.wobble_arm_up();
                                 state = States.STOP;
                                 break;
 
@@ -165,25 +156,36 @@ public class Auto extends LinearOpMode {
                                 telemetry.addData("state", "One Stack");
                                 telemetry.addData("pos", navigate.getWheelPositions());
                                 telemetry.update();
-                                Trajectory oneStack = navigate.trajectoryBuilder(new Pose2d(0,0))
-                                        .splineToConstantHeading(new Vector2d(-3.5, 0), Math.toRadians(1.22173))
-                                        .addDisplacementMarker(Wobble::wobble_ungrip)
+                                Trajectory oneStack = navigate.trajectoryBuilder(new Pose2d())
+                                        .splineToLinearHeading(new Pose2d(-64, -10), Math.toRadians(-90))
+                                        .addDisplacementMarker(() -> {
+                                            Wobble.wobble_arm_down();
+                                            Subsystem.set_servo_positions();
+                                            Wobble.wobble_ungrip();
+                                            Subsystem.set_servo_positions();
+                                            Wobble.wobble_arm_up();
+                                            Subsystem.set_servo_positions();
+                                        })
                                         .build();
 
-                                Wobble.wobble_arm_down();
                                 navigate.followTrajectory(oneStack);
-                                Wobble.wobble_arm_up();
                                 state = States.STOP;
                                 break;
 
                             case THREE_STACK:
-                                double moveXThree = -3.5;
-
                                 telemetry.addData("state", "One Stack");
                                 telemetry.addData("pos", navigate.getWheelPositions());
                                 telemetry.update();
                                 Trajectory threeStack = navigate.trajectoryBuilder(new Pose2d(0,0))
-                                        .splineTo(new Vector2d(moveXThree, 0), Math.toRadians(1.22173))
+                                        .splineToLinearHeading(new Pose2d(-69, -10), Math.toRadians(-90))
+                                        .addDisplacementMarker(() -> {
+                                            Wobble.wobble_arm_down();
+                                            Subsystem.set_servo_positions();
+                                            Wobble.wobble_ungrip();
+                                            Subsystem.set_servo_positions();
+                                            Wobble.wobble_arm_up();
+                                            Subsystem.set_servo_positions();
+                                        })
                                         .build();
 
                                 navigate.followTrajectory(threeStack);
@@ -191,8 +193,6 @@ public class Auto extends LinearOpMode {
                                 break;
 
                             case STOP:
-                                telemetry.addData("state", "stop");
-                                telemetry.update();
                                 break;
                         }
                     }
