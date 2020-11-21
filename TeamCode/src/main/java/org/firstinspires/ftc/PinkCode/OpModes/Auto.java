@@ -145,7 +145,7 @@ public class Auto extends LinearOpMode {
                                             Wobble.wobble_grip();
                                             Subsystem.set_servo_positions();
                                         })
-                                        .splineToLinearHeading(new Pose2d(0, -15), Math.toRadians(-90))
+                                        .splineToLinearHeading(new Pose2d(-4, -15), Math.toRadians(-90))
                                         .build();
 
                                 navigate.followTrajectory(none);
@@ -166,6 +166,7 @@ public class Auto extends LinearOpMode {
                                             Wobble.wobble_arm_up();
                                             Subsystem.set_servo_positions();
                                         })
+                                        .splineToLinearHeading(new Pose2d(-3, -15), Math.toRadians(-90))
                                         .build();
 
                                 navigate.followTrajectory(oneStack);
@@ -173,7 +174,7 @@ public class Auto extends LinearOpMode {
                                 break;
 
                             case THREE_STACK:
-                                telemetry.addData("state", "One Stack");
+                                telemetry.addData("state", "Three Stack");
                                 telemetry.addData("pos", navigate.getWheelPositions());
                                 telemetry.update();
                                 Trajectory threeStack = navigate.trajectoryBuilder(new Pose2d(0,0))
@@ -186,6 +187,7 @@ public class Auto extends LinearOpMode {
                                             Wobble.wobble_arm_up();
                                             Subsystem.set_servo_positions();
                                         })
+                                        .splineToLinearHeading(new Pose2d(1, -15), Math.toRadians(-90))
                                         .build();
 
                                 navigate.followTrajectory(threeStack);
@@ -215,13 +217,8 @@ public class Auto extends LinearOpMode {
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 
-    /**
-     * Initialize the TensorFlow Object Detection engine.
-     */
     private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
