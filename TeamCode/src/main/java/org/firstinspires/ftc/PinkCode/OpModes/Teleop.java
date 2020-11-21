@@ -151,7 +151,7 @@ public class Teleop extends Controls {
                 markedTime2 = runtime.milliseconds();
             }
             Shooter.shoot_by_pd(Subsystem.robot.shoot2.getVelocity(), 1550);
-//            Shooter.shoot();
+//            Shooter.shoot();.
             Shooter.flap_open();
         } else if (gamepad2.left_bumper) {
             Shooter.shoot_by_pd(Subsystem.robot.shoot2.getVelocity(), 1420);
