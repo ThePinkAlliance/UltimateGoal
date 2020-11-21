@@ -135,7 +135,7 @@ public class Teleop extends Controls {
             Base.drive_stop();
         }
 
-        // Collector Controls and Conveyor
+        // Collector Controls and Conveyor.
         if (base_right_bumper(false)) {
             Collector.collect();
         } else if (base_left_bumper(false)) {
