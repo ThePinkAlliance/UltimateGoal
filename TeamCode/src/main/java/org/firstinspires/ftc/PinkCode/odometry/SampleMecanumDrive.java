@@ -76,12 +76,6 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     private Mode mode;
 
-    public Servo shoot_flap;
-    public Servo conveyor_flap;
-    public Servo collector_drop;
-    public Servo wobble_arm;
-    public Servo wobble_grip;
-
     private PIDFController turnController;
     private MotionProfile turnProfile;
     private double turnStart;
@@ -91,7 +85,6 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     private LinkedList<Pose2d> poseHistory;
 
-    private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
     private BNO055IMU imu;
 
@@ -106,6 +99,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 //        dashboard = FtcDashboard.getInstance();
 //        dashboard.setTelemetryTransmissionInterval(25);
 
+//        Subsystem.robot.init(hardwareMap);
 
         clock = NanoClock.system();
 
@@ -138,18 +132,18 @@ public class SampleMecanumDrive extends MecanumDrive {
         // upward (normal to the floor) using a command like the following:
         // BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftF_drive");
-        leftRear = hardwareMap.get(DcMotorEx.class, "leftB_drive");
-        rightRear = hardwareMap.get(DcMotorEx.class, "rightB_drive");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightF_drive");
+//        leftFront = hardwareMap.get(DcMotorEx.class, "leftF_drive");
+//        leftRear = hardwareMap.get(DcMotorEx.class, "leftB_drive");
+//        rightRear = hardwareMap.get(DcMotorEx.class, "rightB_drive");
+//        rightFront = hardwareMap.get(DcMotorEx.class, "rightF_drive");
 
-        shoot_flap = hardwareMap.get(Servo.class, "shoot_flap");
-        collector_drop = hardwareMap.get(Servo.class, "collector_drop");
-        conveyor_flap = hardwareMap.get(Servo.class, "conveyor_flap");
-        wobble_arm = hardwareMap.get(Servo.class, "wobble_arm");
-        wobble_grip = hardwareMap.get(Servo.class, "wobble_grip");
+//        shoot_flap = hardwareMap.get(Servo.class, "shoot_flap");
+//        collector_drop = hardwareMap.get(Servo.class, "collector_drop");
+//        conveyor_flap = hardwareMap.get(Servo.class, "conveyor_flap");
+//        wobble_arm = hardwareMap.get(Servo.class, "wobble_arm");
+//        wobble_grip = hardwareMap.get(Servo.class, "wobble_grip");
 
-        motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
+        motors = Arrays.asList(Subsystem.robot.leftF_drive, Subsystem.robot.leftB_drive, Subsystem.robot.rightB_drive, Subsystem.robot.rightF_drive);
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -168,10 +162,6 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
-        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
         // TODO: if desired, use setLocalizer() to change the localization method
 
         setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
@@ -395,10 +385,10 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftFront.setPower(v);
-        leftRear.setPower(v1);
-        rightRear.setPower(v2);
-        rightFront.setPower(v3);
+        Subsystem.robot.leftF_drive.setPower(v);
+        Subsystem.robot.leftB_drive.setPower(v1);
+        Subsystem.robot.rightB_drive.setPower(v2);
+        Subsystem.robot.rightF_drive.setPower(v3);
     }
 
     @Override

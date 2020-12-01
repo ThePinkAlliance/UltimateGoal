@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
-import android.content.Context;
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -9,32 +7,21 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 //import com.pedro.rtplibrary.rtsp.RtspCamera1;
 //import com.pedro.rtsp.rtsp.RtspClient;
 //import com.pedro.rtsp.utils.ConnectCheckerRtsp;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 //import net.ossrs.rtmp.ConnectCheckerRtmp;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
-import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
 import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
-import org.firstinspires.ftc.PinkCode.Subsystems.Shooter;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
-import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
-import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.lang.reflect.Array;
 import java.util.List;
 
 @TeleOp(name = "TensorFlow Auto Webcam", group = "Auto")
@@ -43,7 +30,7 @@ public class TensorFlow extends OpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
-    private PinkNavigate navigate;
+//    private PinkNavigate navigate;
 
     private enum States {
         INIT,
@@ -115,7 +102,7 @@ public class TensorFlow extends OpMode {
 
     @Override
     public void init() {
-        navigate = new PinkNavigate(hardwareMap);
+//        navigate = new PinkNavigate(hardwareMap);
 
         //imu initialization
 //        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();

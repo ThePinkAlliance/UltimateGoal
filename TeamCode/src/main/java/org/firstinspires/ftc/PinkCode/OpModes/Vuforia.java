@@ -1,16 +1,11 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
-import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
@@ -19,7 +14,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +89,7 @@ public class Vuforia extends OpMode {
     private List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
     private VuforiaTrackables targetsUltimateGoal = null;
     private VuforiaLocalizer.Parameters parameters = null;
-    private PinkNavigate navigate = null;
+//    private PinkNavigate navigate = null;
 
     public void InitVision() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -116,7 +110,7 @@ public class Vuforia extends OpMode {
     @Override
     public void init() {
         Subsystem.robot.init(hardwareMap);
-        navigate = new PinkNavigate(hardwareMap);
+//        navigate = new PinkNavigate(hardwareMap);
 
         InitVision();
 
