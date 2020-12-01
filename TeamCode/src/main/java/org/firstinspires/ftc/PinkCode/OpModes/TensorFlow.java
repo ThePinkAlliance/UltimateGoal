@@ -3,19 +3,15 @@ package org.firstinspires.ftc.PinkCode.OpModes;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-//import com.pedro.rtplibrary.rtmp.RtmpCamera1;
-//import com.pedro.rtplibrary.rtsp.RtspCamera1;
-//import com.pedro.rtsp.rtsp.RtspClient;
-//import com.pedro.rtsp.utils.ConnectCheckerRtsp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-//import net.ossrs.rtmp.ConnectCheckerRtmp;
-
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
+import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
+import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -30,7 +26,7 @@ public class TensorFlow extends OpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
-//    private PinkNavigate navigate;
+    private PinkNavigate navigate;
 
     private enum States {
         INIT,
@@ -102,7 +98,7 @@ public class TensorFlow extends OpMode {
 
     @Override
     public void init() {
-//        navigate = new PinkNavigate(hardwareMap);
+        navigate = new PinkNavigate(hardwareMap);
 
         //imu initialization
 //        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -185,25 +181,11 @@ public class TensorFlow extends OpMode {
         switch (current_state) {
             case INIT:
                 telemetry.addData("Status", "Init");
-
                 // init
-//                Wobble.wobble_grip();
-//                Wobble.wobble_arm_up();
+                Wobble.wobble_grip();
+                Wobble.wobble_arm_up();
+                Subsystem.set_servo_positions();
 
-//                Trajectory left = navigate.trajectoryBuilder(new Pose2d(0,0))
-//                        .lineTo(new Vector2d(0.5, 0))
-//                        .addDisplacementMarker(() -> {
-//                            Trajectory forward = navigate.trajectoryBuilder(new Pose2d(-0.5, 0))
-//                                    .forward(1)
-//                                    .build();
-//
-//                            navigate.followTrajectory(forward);
-//                        })
-//                        .build();
-//
-//                navigate.followTrajectory(left);
-
-//                init_pose = new Pose2d(0.5, 1);
                 current_state = States.STOP;
                 break;
 
@@ -217,22 +199,6 @@ public class TensorFlow extends OpMode {
                 double pos = GetObjectPosition(updatedRecognitions);
 
                 telemetry.addData("pos", pos);
-                
-
-//                drive_targets = navigate.trajectoryBuilder(new Pose2d(0, 0))
-//                        .forward(pos)
-//                        .addDisplacementMarker(() -> {
-//                            Trajectory center = navigate.trajectoryBuilder(new Pose2d(0, pos))
-//                                    .splineTo(new Vector2d(3, 3), Math.toRadians(0))
-//                                    .addDisplacementMarker(() -> {
-//                                        Collector.collect_stop();
-//                                        Conveyor.conveyor_stop();
-//                                    })
-//                                    .build();
-//
-//                            navigate.followTrajectory(center);
-//                        })
-//                        .build();
 
                 if (Config.START_CONVEYOR_ON_INIT) {
                     Conveyor.collect(1);
