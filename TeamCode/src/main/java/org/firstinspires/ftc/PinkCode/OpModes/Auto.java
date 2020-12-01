@@ -57,6 +57,7 @@ public class Auto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        Subsystem.robot.init(hardwareMap);
         navigate = new SampleMecanumDrive(hardwareMap);
         Subsystem.set_motor_powers();
         Subsystem.set_servo_positions();
@@ -141,7 +142,7 @@ public class Auto extends LinearOpMode {
                                             // Subsystem.set_servo_positions();
 
                                         })
-                                        .splineToLinearHeading(new Pose2d(-4, -15), Math.toRadians(-90))
+                                        .splineToLinearHeading(new Pose2d(4, -15), Math.toRadians(-90))
                                         .addTemporalMarker(3, () -> {
                                             // Wobble.wobble_arm_up();
                                             // Subsystem.set_servo_positions();
@@ -168,7 +169,7 @@ public class Auto extends LinearOpMode {
                                             // Wobble.wobble_arm_up();
                                             // Subsystem.set_servo_positions();
                                         })
-                                        .splineToLinearHeading(new Pose2d(-3, -15), Math.toRadians(-90))
+                                        .splineToLinearHeading(new Pose2d(3, -15), Math.toRadians(-90))
                                         .build();
 
                                 navigate.followTrajectory(oneStack);
