@@ -135,17 +135,19 @@ public class Auto extends LinearOpMode {
                                 Trajectory none = navigate.trajectoryBuilder(new Pose2d(0,0))
                                         .splineToLinearHeading(new Pose2d(-60, -10), Math.toRadians(-90))
                                         .addDisplacementMarker(() -> {
-                                            Wobble.wobble_arm_down();
-                                            Subsystem.set_servo_positions();
-                                            Wobble.wobble_ungrip();
-                                            Subsystem.set_servo_positions();
+                                            // Wobble.wobble_arm_down();
+                                            // Subsystem.set_servo_positions();
+                                            // Wobble.wobble_ungrip();
+                                            // Subsystem.set_servo_positions();
 
-                                            Wobble.wobble_arm_up();
-                                            Subsystem.set_servo_positions();
-                                            Wobble.wobble_grip();
-                                            Subsystem.set_servo_positions();
                                         })
                                         .splineToLinearHeading(new Pose2d(-4, -15), Math.toRadians(-90))
+                                        .addTemporalMarker(3, () -> {
+                                            // Wobble.wobble_arm_up();
+                                            // Subsystem.set_servo_positions();
+                                            // Wobble.wobble_grip();
+                                            // Subsystem.set_servo_positions();
+                                        })
                                         .build();
 
                                 navigate.followTrajectory(none);
@@ -159,12 +161,12 @@ public class Auto extends LinearOpMode {
                                 Trajectory oneStack = navigate.trajectoryBuilder(new Pose2d())
                                         .splineToLinearHeading(new Pose2d(-64, -10), Math.toRadians(-90))
                                         .addDisplacementMarker(() -> {
-                                            Wobble.wobble_arm_down();
-                                            Subsystem.set_servo_positions();
-                                            Wobble.wobble_ungrip();
-                                            Subsystem.set_servo_positions();
-                                            Wobble.wobble_arm_up();
-                                            Subsystem.set_servo_positions();
+                                            // Wobble.wobble_arm_down();
+                                            // Subsystem.set_servo_positions();
+                                            // Wobble.wobble_ungrip();
+                                            // Subsystem.set_servo_positions();
+                                            // Wobble.wobble_arm_up();
+                                            // Subsystem.set_servo_positions();
                                         })
                                         .splineToLinearHeading(new Pose2d(-3, -15), Math.toRadians(-90))
                                         .build();
@@ -180,12 +182,12 @@ public class Auto extends LinearOpMode {
                                 Trajectory threeStack = navigate.trajectoryBuilder(new Pose2d(0,0))
                                         .splineToLinearHeading(new Pose2d(-69, -10), Math.toRadians(-90))
                                         .addDisplacementMarker(() -> {
-                                            Wobble.wobble_arm_down();
-                                            Subsystem.set_servo_positions();
-                                            Wobble.wobble_ungrip();
-                                            Subsystem.set_servo_positions();
-                                            Wobble.wobble_arm_up();
-                                            Subsystem.set_servo_positions();
+                                            // Wobble.wobble_arm_down();
+                                            // Subsystem.set_servo_positions();
+                                            // Wobble.wobble_ungrip();
+                                            // Subsystem.set_servo_positions();
+                                            // Wobble.wobble_arm_up();
+                                            // Subsystem.set_servo_positions();
                                         })
                                         .splineToLinearHeading(new Pose2d(1, -15), Math.toRadians(-90))
                                         .build();
