@@ -12,10 +12,10 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 // Class to Define the Hardware of the Robot
 public class Hardware {
     // Motors
-    public DcMotor rightF_drive; // Port 3 Expan Hub
-    public DcMotor rightB_drive; // Port 2 Expan Hub
-    public DcMotor leftF_drive; // Port 0 Expan Hub
-    public DcMotor leftB_drive; // Port 1 Expan Hub
+    public DcMotorEx rightF_drive; // Port 3 Expan Hub
+    public DcMotorEx rightB_drive; // Port 2 Expan Hub
+    public DcMotorEx leftF_drive; // Port 0 Expan Hub
+    public DcMotorEx leftB_drive; // Port 1 Expan Hub
     public DcMotor collect; // Port _ Control Hub
     public DcMotor conveyor; // Port _ Control Hub
     public DcMotor shoot1; // Port _ Control Hub
@@ -43,10 +43,10 @@ public class Hardware {
         hwMap = ahwMap;
 
         // Motors
-        rightF_drive = hwMap.get(DcMotor.class, "rightF_drive");
-        rightB_drive = hwMap.get(DcMotor.class, "rightB_drive");
-        leftF_drive = hwMap.get(DcMotor.class, "leftF_drive");
-        leftB_drive = hwMap.get(DcMotor.class, "leftB_drive");
+        rightF_drive = hwMap.get(DcMotorEx.class, "rightF_drive");
+        rightB_drive = hwMap.get(DcMotorEx.class, "rightB_drive");
+        leftF_drive = hwMap.get(DcMotorEx.class, "leftF_drive");
+        leftB_drive = hwMap.get(DcMotorEx.class, "leftB_drive");
         collect = hwMap.get(DcMotor.class, "collector");
         conveyor = hwMap.get(DcMotor.class, "conveyor");
         shoot1 = hwMap.get(DcMotor.class, "shoot1");

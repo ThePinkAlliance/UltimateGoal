@@ -20,7 +20,7 @@ public abstract class Presets {
     public static final double CONVEYOR_FLAP_CLOSE = 0;
 
     //Shooter Commands
-    public static final double SHOOTER_SHOOT_POWER = 1;
+    public static final double SHOOTER_SHOOT_POWER = .7;
     public static final double SHOOTER_STOP_POWER = 0;
     public static final double SHOOTER_FLAP_CLOSE = 0.22;
     public static final double SHOOTER_FLAP_POWER_SHOT = .41;
