@@ -1,29 +1,20 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 
-import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
-import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
-import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
-import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
-import org.firstinspires.ftc.PinkCode.odometry.PinkNavigateTest;
 import org.firstinspires.ftc.PinkCode.odometry.SampleMecanumDrive;
+import org.firstinspires.ftc.PinkCode.odometry.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.PinkCode.odometry.WheelTracker;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -39,7 +30,6 @@ public class Auto extends LinearOpMode {
     private BNO055IMU imu;
     private SampleMecanumDrive navigate;
     private ElapsedTime runtime;
-    private WheelTracker tracker;
     private enum States {
         INIT,
         ONE_STACK,
@@ -59,8 +49,6 @@ public class Auto extends LinearOpMode {
     public void runOpMode() {
         Subsystem.robot.init(hardwareMap);
         navigate = new SampleMecanumDrive(hardwareMap);
-        Subsystem.set_motor_powers();
-        Subsystem.set_servo_positions();
 
         //imu initialization
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -98,8 +86,6 @@ public class Auto extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 telemetry.addData("IMU", imu.getAngularOrientation());
-                telemetry.addData("Encoder Positions", tracker.getWheelPositions());
-                telemetry.addData("Encoder Speeds", tracker.getWheelVelocity());
 
                 if (tfod != null) {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
@@ -136,18 +122,10 @@ public class Auto extends LinearOpMode {
                                 Trajectory none = navigate.trajectoryBuilder(new Pose2d(0,0))
                                         .splineToLinearHeading(new Pose2d(-60, -10), Math.toRadians(-90))
                                         .addDisplacementMarker(() -> {
-                                            // Wobble.wobble_arm_down();
-                                            // Subsystem.set_servo_positions();
-                                            // Wobble.wobble_ungrip();
-                                            // Subsystem.set_servo_positions();
 
                                         })
                                         .splineToLinearHeading(new Pose2d(4, -15), Math.toRadians(-90))
                                         .addTemporalMarker(3, () -> {
-                                            // Wobble.wobble_arm_up();
-                                            // Subsystem.set_servo_positions();
-                                            // Wobble.wobble_grip();
-                                            // Subsystem.set_servo_positions();
                                         })
                                         .build();
 
@@ -162,12 +140,6 @@ public class Auto extends LinearOpMode {
                                 Trajectory oneStack = navigate.trajectoryBuilder(new Pose2d())
                                         .splineToLinearHeading(new Pose2d(-64, -10), Math.toRadians(-90))
                                         .addDisplacementMarker(() -> {
-                                            // Wobble.wobble_arm_down();
-                                            // Subsystem.set_servo_positions();
-                                            // Wobble.wobble_ungrip();
-                                            // Subsystem.set_servo_positions();
-                                            // Wobble.wobble_arm_up();
-                                            // Subsystem.set_servo_positions();
                                         })
                                         .splineToLinearHeading(new Pose2d(3, -15), Math.toRadians(-90))
                                         .build();
@@ -183,12 +155,6 @@ public class Auto extends LinearOpMode {
                                 Trajectory threeStack = navigate.trajectoryBuilder(new Pose2d(0,0))
                                         .splineToLinearHeading(new Pose2d(-69, -10), Math.toRadians(-90))
                                         .addDisplacementMarker(() -> {
-                                            // Wobble.wobble_arm_down();
-                                            // Subsystem.set_servo_positions();
-                                            // Wobble.wobble_ungrip();
-                                            // Subsystem.set_servo_positions();
-                                            // Wobble.wobble_arm_up();
-                                            // Subsystem.set_servo_positions();
                                         })
                                         .splineToLinearHeading(new Pose2d(1, -15), Math.toRadians(-90))
                                         .build();

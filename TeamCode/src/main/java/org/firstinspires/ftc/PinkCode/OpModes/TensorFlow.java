@@ -11,7 +11,6 @@ import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
-import org.firstinspires.ftc.PinkCode.odometry.PinkNavigate;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -20,53 +19,52 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
-@TeleOp(name = "TensorFlow Auto Webcam", group = "Auto")
-@Disabled
+@TeleOp(name = "TensorFlow Webcam", group = "Auto")
+//@Disabled
 public class TensorFlow extends OpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
-    private PinkNavigate navigate;
 
-    private enum States {
-        INIT,
-        DRIVE_TO_TARGETS,
-        GO_TO_HOME_POSITION,
-        FIND_TARGETS,
-        SHOOT,
-        STOP
-    };
+//    private enum States {
+//        INIT,
+//        DRIVE_TO_TARGETS,
+//        GO_TO_HOME_POSITION,
+//        FIND_TARGETS,
+//        SHOOT,
+//        STOP
+//    };
+//
+//    public abstract static class Config {
+//        /*
+//        *    On Auto INIT best to grab Wobble Goal and place it across the wall
+//        *    then grab the start stack then shoot at the line then park at the line
+//        */
+//
+//        static boolean SHOOT = false;
+//        static boolean DRIVE_TO_DONUTS = false;
+//        static boolean START_CONVEYOR_ON_INIT = false;
+//        static boolean GET_WOBBLE_GOAL = false;
+//        static boolean GET_STARTER_STACK = false;
+//        static boolean GO_FOR_LINE = false;
+//    };
+//
+//    private enum ALLIANCE {
+//        RED,
+//        BLUE,
+//    };
 
-    public abstract static class Config {
-        /*
-        *    On Auto INIT best to grab Wobble Goal and place it across the wall
-        *    then grab the start stack then shoot at the line then park at the line
-        */
+//    private States current_state = States.DRIVE_TO_TARGETS;
+//    private Trajectory drive_init;
+//    private Pose2d init_pose;
+//    private Pose2d drive_to_targets;
+//    private Pose2d home_pose;
+//    private Vector2d pos_from_home = new Vector2d(0, 0);
 
-        static boolean SHOOT = false;
-        static boolean DRIVE_TO_DONUTS = false;
-        static boolean START_CONVEYOR_ON_INIT = false;
-        static boolean GET_WOBBLE_GOAL = false;
-        static boolean GET_STARTER_STACK = false;
-        static boolean GO_FOR_LINE = false;
-    };
+//    private Trajectory drive_targets;
+//    private Pose2d targets_pose;
 
-    private enum ALLIANCE {
-        RED,
-        BLUE,
-    };
-
-    private States current_state = States.DRIVE_TO_TARGETS;
-    private Trajectory drive_init;
-    private Pose2d init_pose;
-    private Pose2d drive_to_targets;
-    private Pose2d home_pose;
-    private Vector2d pos_from_home = new Vector2d(0, 0);
-
-    private Trajectory drive_targets;
-    private Pose2d targets_pose;
-
-    private ALLIANCE CurrentAlliance = ALLIANCE.RED;
+//    private ALLIANCE CurrentAlliance = ALLIANCE.RED;
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -88,6 +86,7 @@ public class TensorFlow extends OpMode {
      * localization engine.
      */
     private VuforiaLocalizer vuforia;
+    private double zoom = 1.0, aspect = 4.3;
 
     /**
      * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
@@ -98,7 +97,6 @@ public class TensorFlow extends OpMode {
 
     @Override
     public void init() {
-        navigate = new PinkNavigate(hardwareMap);
 
         //imu initialization
 //        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -108,10 +106,10 @@ public class TensorFlow extends OpMode {
 //        parameters.loggingEnabled = true;
 //        parameters.loggingTag = "IMU";
 //        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
+//
+//         Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+//         on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+//         and named "imu".
 //        imu = hardwareMap.get(BNO055IMU.class, "imu");
 //        imu.initialize(parameters);
 
@@ -129,21 +127,12 @@ public class TensorFlow extends OpMode {
          **/
         if (tfod != null) {
             tfod.activate();
+            tfod.setZoom(1.0, 4.3);
             telemetry.addData("TFOD", "Activated");
         }
 
-        if (gamepad1.dpad_left) {
-            CurrentAlliance = ALLIANCE.BLUE;
-        } else if (gamepad1.dpad_right) {
-            CurrentAlliance = ALLIANCE.RED;
-        }
-
-//        navigate = new PinkNavigate(hardwareMap);
-
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
-
-        tfod.activate();
     }
 
     @Override
@@ -154,9 +143,9 @@ public class TensorFlow extends OpMode {
             if (updatedRecognitions != null) {
                 for (Recognition r: updatedRecognitions) {
                     telemetry.addData("obj", r.getLabel());
+                    telemetry.addData("amount", updatedRecognitions.size());
                 }
 
-                RobotFunctions(updatedRecognitions);
             } else {
                 tfod.activate();
                 telemetry.addData("TFOD", "activating");
@@ -174,61 +163,6 @@ public class TensorFlow extends OpMode {
 
         if (tfod != null) {
             tfod.shutdown();
-        }
-    }
-
-    private void RobotFunctions(List<Recognition> updatedRecognitions) {
-        switch (current_state) {
-            case INIT:
-                telemetry.addData("Status", "Init");
-                // init
-                Wobble.wobble_grip();
-                Wobble.wobble_arm_up();
-                Subsystem.set_servo_positions();
-
-                current_state = States.STOP;
-                break;
-
-            case DRIVE_TO_TARGETS:
-                if (updatedRecognitions.isEmpty()) {
-                    current_state = States.FIND_TARGETS;
-                    return;
-                }
-
-                telemetry.addData("Status", "Driving to Targets");
-                double pos = GetObjectPosition(updatedRecognitions);
-
-                telemetry.addData("pos", pos);
-
-                if (Config.START_CONVEYOR_ON_INIT) {
-                    Conveyor.collect(1);
-                }
-
-                if (Config.DRIVE_TO_DONUTS) {
-                    telemetry.addData("Status", "Going to Donut");
-                    
-//                    navigate.followTrajectory(drive_targets);
-                }
-
-                current_state = States.STOP;
-                return;
-
-            case FIND_TARGETS:
-                telemetry.addData("Status", "Searching For Object");
-                telemetry.addData("updatedRecognitions", updatedRecognitions.toArray());
-                
-//                Subsystem.robot.leftB_drive.setPower(-0.3);
-//                Subsystem.robot.leftF_drive.setPower(-0.3);
-//                Subsystem.robot.rightF_drive.setPower(0.3);
-//                Subsystem.robot.rightB_drive.setPower(0.3);
-
-                if (!updatedRecognitions.isEmpty()) {
-                    current_state = States.DRIVE_TO_TARGETS;
-                }
-                break;
-
-            case STOP:
-                break;
         }
     }
 
@@ -253,9 +187,9 @@ public class TensorFlow extends OpMode {
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 
-    private void AddToHomePosition(double x, double y) {
-        pos_from_home.plus(new Vector2d(x, y));
-    }
+//    private void AddToHomePosition(double x, double y) {
+//        pos_from_home.plus(new Vector2d(x, y));
+//    }
 
     private double GetObjectPosition(List<Recognition> updatedRecognitions) {
         // step through the list of recognitions and display boundary info.
