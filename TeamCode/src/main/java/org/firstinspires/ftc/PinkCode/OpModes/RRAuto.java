@@ -53,7 +53,6 @@ public class RRAuto extends OpMode {
         STOP
     }
 
-    //    private Stage stage = Stage.INITIALIZE;
     private States states = States.FIND_TARGETS;
 
     private Trajectory trajectory;
