@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -21,7 +22,7 @@ import java.util.List;
 
 @Config
 @Autonomous(name = "RRAuto", group = "Auto")
-public class RRAuto extends OpMode {
+public class RRAuto extends LinearOpMode {
     public static double markedTime = 0;
     private ElapsedTime runtime = new ElapsedTime();
     public static double DISTANCE = 60; // in
@@ -47,160 +48,91 @@ public class RRAuto extends OpMode {
     }
 
     private enum States {
+        INIT,
+        DRIVE_TO_TARGETS,
         GO_TO_HOME_POSITION,
         FIND_TARGETS,
-        RUN,
+        SHOOT,
         STOP
     }
 
-    private States states = States.FIND_TARGETS;
-
-    private Trajectory trajectory;
-    private Trajectory trajectory1;
-    private SampleMecanumDrive drive;
+    private Stage stage = Stage.INITIALIZE;
+    private States states = States.INIT;
 
     @Override
-    public void init() {
+    public void runOpMode() throws InterruptedException {
+
         Subsystem.robot.init(hardwareMap);
-        drive = new SampleMecanumDrive(hardwareMap);
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        initVuforia();
-        initTfod();
-
-        if (tfod != null) {
-            tfod.activate();
+        if (numRings == 4) {
+            ANGLE = -20;
+            DISTANCE = -102;
+            CenteringAngle = 198;
+            CenteringDistance = 49;
+        } else if (numRings == 1) {
+            ANGLE = 20;
+            DISTANCE = -79;
+            CenteringAngle = 158;
+            CenteringDistance = 26;
+        } else {
+            ANGLE = -20;
+            DISTANCE = -56;
+            CenteringDistance = 3;
+            CenteringAngle = 198;
         }
 
-        telemetry.addData("robot", "Press Play To Start");
+        telemetry.addData("DISTANCE:", DISTANCE);
+        telemetry.addData("Time:", runtime.milliseconds() - markedTime);
         telemetry.update();
+
+        Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
+                .lineToLinearHeading(new Pose2d(DISTANCE, 0, Math.toRadians(ANGLE)))
+                .addTemporalMarker(3.0, () -> {
+                    Subsystem.robot.wobble_arm.setPosition(Presets.WOBBLE_DOWN);
+                })
+                .addTemporalMarker(3.1, () -> {
+                    Subsystem.robot.conveyor_flap.setPosition(Presets.CONVEYOR_FLAP_OPEN);
+                })
+                .addTemporalMarker(3.5, () -> {
+                    Subsystem.robot.wobble_grip.setPosition(Presets.WOBBLE_UNGRIP);
+                })
+                .addTemporalMarker(4.3, () -> {
+                    Subsystem.robot.wobble_arm.setPosition(Presets.WOBBLE_UP);
+                })
+                .addTemporalMarker(4.5, () -> {
+                    Subsystem.robot.shoot2.setPower(.7);
+                })
+                .addTemporalMarker(4.6, () -> {
+                    Subsystem.robot.shoot1.setPower(.7);
+                })
+                .addTemporalMarker(4.6, () -> {
+                    Subsystem.robot.shoot_flap.setPosition(Presets.SHOOTER_FLAP_OPEN);
+                })
+                .build();
+
+        Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d())
+                .lineToLinearHeading(new Pose2d(CenteringDistance, -20, Math.toRadians(CenteringAngle)))
+                .addTemporalMarker(7.5, () -> {
+                    Subsystem.robot.conveyor.setPower(1);
+                })
+                .build();
+
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        drive.followTrajectory(trajectory);
+        drive.followTrajectory(trajectory1);
+
+        Pose2d poseEstimate = drive.getPoseEstimate();
+        telemetry.addData("finalX", poseEstimate.getX());
+        telemetry.addData("finalY", poseEstimate.getY());
+        telemetry.addData("finalHeading", poseEstimate.getHeading());
+        telemetry.update();
+
+        while (!isStopRequested() && opModeIsActive()) ;
+
     }
 
-    @Override
-    public void loop() {
-        if (tfod != null) {
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-
-            if (updatedRecognitions != null) {
-                switch (states) {
-                    case FIND_TARGETS:
-                        numRings = updatedRecognitions.size();
-
-                        telemetry.addData("number of rings", numRings);
-                        telemetry.addData("updatedRecognitions", updatedRecognitions.size());
-                        telemetry.update();
-
-                        if (numRings == 4) {
-                            ANGLE = -20;
-                            DISTANCE = -102;
-                            CenteringAngle = 198;
-                            CenteringDistance = 49;
-                        } else if (numRings == 3) {
-                            ANGLE = -20;
-                            DISTANCE = -102;
-                            CenteringAngle = 198;
-                            CenteringDistance = 49;
-                        } else if (numRings == 1) {
-                            ANGLE = 20;
-                            DISTANCE = -79;
-                            CenteringAngle = 158;
-                            CenteringDistance = 26;
-                        } else {
-                            ANGLE = -20;
-                            DISTANCE = -56;
-                            CenteringDistance = 3;
-                            CenteringAngle = 198;
-                        }
-
-                        trajectory = drive.trajectoryBuilder(new Pose2d())
-                                .lineToLinearHeading(new Pose2d(DISTANCE, 0, Math.toRadians(ANGLE)))
-                                .addTemporalMarker(3.0, () -> {
-                                    Subsystem.robot.wobble_arm.setPosition(Presets.WOBBLE_DOWN);
-                                })
-                                .addTemporalMarker(3.1, () -> {
-                                    Subsystem.robot.conveyor_flap.setPosition(Presets.CONVEYOR_FLAP_OPEN);
-                                })
-                                .addTemporalMarker(3.5, () -> {
-                                    Subsystem.robot.wobble_grip.setPosition(Presets.WOBBLE_UNGRIP);
-                                })
-                                .addTemporalMarker(4.3, () -> {
-                                    Subsystem.robot.wobble_arm.setPosition(Presets.WOBBLE_UP);
-                                })
-                                .addTemporalMarker(4.5, () -> {
-                                    Subsystem.robot.shoot2.setPower(.7);
-                                })
-                                .addTemporalMarker(4.6, () -> {
-                                    Subsystem.robot.shoot1.setPower(.7);
-                                })
-                                .addTemporalMarker(4.6, () -> {
-                                    Subsystem.robot.shoot_flap.setPosition(Presets.SHOOTER_FLAP_OPEN);
-                                })
-                                .build();
-
-                        trajectory1 = drive.trajectoryBuilder(new Pose2d())
-                                .lineToLinearHeading(new Pose2d(CenteringDistance, -20, Math.toRadians(CenteringAngle)))
-                                .addTemporalMarker(7.5, () -> {
-                                    Subsystem.robot.conveyor.setPower(1);
-                                })
-                                .build();
-
-                        states = States.RUN;
-                        break;
-
-                    case RUN:
-                        drive.followTrajectory(trajectory);
-                        drive.followTrajectory(trajectory1);
-
-                        states = States.GO_TO_HOME_POSITION;
-                        break;
-
-                    case GO_TO_HOME_POSITION:
-                        Pose2d poseEstimate = drive.getPoseEstimate();
-                        telemetry.addData("finalX", poseEstimate.getX());
-                        telemetry.addData("finalY", poseEstimate.getY());
-                        telemetry.addData("finalHeading", poseEstimate.getHeading());
-                        telemetry.update();
-
-                        states = States.STOP;
-                        break;
-
-                    case STOP:
-                        break;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void stop() {
-        if (tfod != null) {
-            tfod.deactivate();
-        }
-    }
-
-    private void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.7f;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-    }
-
-    private void initVuforia() {
-        /*
-         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-         */
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = Subsystem.robot.webcam;
-
-
-        ClassFactory.getInstance().getCameraManager().nameForUnknownCamera();
-
-        //  Instantiate the Vuforia engine
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
-    }
 }
