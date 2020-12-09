@@ -6,31 +6,20 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.PinkCode.odometry.SampleMecanumDrive;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
-import org.firstinspires.ftc.PinkCode.Robot.Hardware;
-import org.firstinspires.ftc.PinkCode.Subsystems.Collector;
-import org.firstinspires.ftc.PinkCode.Subsystems.Conveyor;
-import org.firstinspires.ftc.PinkCode.Subsystems.Shooter;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
-import org.firstinspires.ftc.PinkCode.Subsystems.Base;
-import org.firstinspires.ftc.PinkCode.Robot.Controls;
-import org.firstinspires.ftc.PinkCode.Subsystems.Wobble;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.net.ProxySelector;
 import java.util.List;
 
-/*
- * This is a simple routine to test translational drive capabilities.
- */
 @Config
 @Autonomous(name = "RRAuto", group = "Auto")
 public class RRAuto extends LinearOpMode {
@@ -66,8 +55,6 @@ public class RRAuto extends LinearOpMode {
         SHOOT,
         STOP
     }
-
-    ;
 
     private Stage stage = Stage.INITIALIZE;
     private States states = States.INIT;

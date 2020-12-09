@@ -171,7 +171,6 @@ public class TensorFlow extends OpMode {
 
     @Override
     public void stop() {
-
         if (tfod != null) {
             tfod.shutdown();
         }
