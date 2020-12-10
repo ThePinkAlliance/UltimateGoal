@@ -56,6 +56,7 @@ public class RRAutoVision extends OpMode {
 
     private Trajectory trajectory;
     private Trajectory trajectory1;
+    private Trajectory trajectory2;
     private SampleMecanumDrive drive;
 
     @Override
@@ -190,7 +191,6 @@ public class RRAutoVision extends OpMode {
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraName = Subsystem.robot.webcam;
-
 
         ClassFactory.getInstance().getCameraManager().nameForUnknownCamera();
 
