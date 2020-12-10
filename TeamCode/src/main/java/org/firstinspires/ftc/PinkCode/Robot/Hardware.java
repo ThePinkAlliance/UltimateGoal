@@ -122,5 +122,6 @@ public class Hardware {
         conveyor_flap = hwMap.get(Servo.class, "conveyor_flap");
         wobble_arm = hwMap.get(Servo.class, "wobble_arm");
         wobble_grip = hwMap.get(Servo.class, "wobble_grip");
+
     }
 }
