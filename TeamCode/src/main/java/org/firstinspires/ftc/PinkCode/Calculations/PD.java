@@ -11,7 +11,7 @@ public abstract class PD {
     public static double ShooterPD (double currentVel, double targetVel) {
         double motorCmd;
         double error = targetVel - currentVel;
-        double diff = 1 - (targetVel/2420);
+        double diff = 1 - (targetVel/2420); //2420 prev.
         double kp = -(currentVel/(targetVel*(1/diff)))+diff;
         double kd = (currentVel/targetVel)-1;
         motorCmd = kp + (targetVel/2420) - kd;

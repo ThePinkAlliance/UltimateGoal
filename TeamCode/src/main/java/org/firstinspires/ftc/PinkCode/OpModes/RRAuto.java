@@ -21,6 +21,7 @@ import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
 
 
 import java.net.ProxySelector;
+import java.sql.Time;
 import java.util.List;
 
 /*
@@ -34,6 +35,7 @@ public class RRAuto extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     public static double DISTANCE = 60; // in
     public static double ANGLE = -20;
+    public static double TimeChecker = 12000;
     public static double CenteringAngle = 0;
     public static double CenteringDistanceX = 0;
     public static double CenteringDistanceY = 0;
@@ -85,21 +87,21 @@ public class RRAuto extends LinearOpMode {
         telemetry.update();
 
         if (numRings.equals("quad")) {
-            ANGLE = -20;
-            DISTANCE = -104;
-            CenteringAngle = 189;
-            markedTime = 3.8;
-            CenteringDistanceX = 70;
-            CenteringDistanceY = -14;
+            ANGLE = -25;
+            DISTANCE = -103;
+            CenteringAngle = 210;
+            markedTime = 4.0;
+            CenteringDistanceX = 77;
+            CenteringDistanceY = -3;
         } else if (numRings.equals("single")) {
             ANGLE = 10;
-            DISTANCE = -53;
+            DISTANCE = -47;
             markedTime = 2.3;
-            CenteringAngle = 173;
+            CenteringAngle = 177;
             CenteringDistanceX = 37;
-            CenteringDistanceY = -10;
+            CenteringDistanceY = -12;
         } else {
-            ANGLE = -30;
+            ANGLE = -22;
             markedTime = 3.0;
             DISTANCE = -56;
             CenteringDistanceX = 1;
@@ -155,8 +157,29 @@ public class RRAuto extends LinearOpMode {
                 })
                 .build();
 
+        Trajectory tracjectory4 = drive.trajectoryBuilder(new Pose2d())
+                .forward(15)
+                .addTemporalMarker(18, () -> {
+                    Subsystem.robot.shoot2.setPower(0);
+                })
+                .addTemporalMarker(18.1, () -> {
+                    Subsystem.robot.shoot1.setPower(0);
+                })
+                .addTemporalMarker(18.3, () -> {
+                    Subsystem.robot.conveyor.setPower(0);
+                })
+                .build();
+
         waitForStart();
 
+        markedTime = runtime.milliseconds();
+        if(numRings.equals("quad")) {
+            TimeChecker = 16000;
+        } else if(numRings.equals("single")) {
+            TimeChecker = 15000;
+        } else {
+            TimeChecker = 12000;
+        }
         if (isStopRequested()) return;
 
         if(numRings.equals("single")) {
@@ -164,8 +187,13 @@ public class RRAuto extends LinearOpMode {
         }
         drive.followTrajectory(trajectory2);
         drive.followTrajectory(trajectory3);
+        while(runtime.milliseconds() - markedTime < TimeChecker) {
+            telemetry.addData("waiting","waitihgm");
+            telemetry.update();
+        }
+        drive.followTrajectory(tracjectory4);
 
-        if(!(Subsystem.robot.shoot2.getVelocity() > 1480)) {
+        if(!(Subsystem.robot.shoot2.getVelocity() > 1450)) {
             Subsystem.robot.conveyor.setPower(0);
         } else {
             Subsystem.robot.conveyor.setPower(.5);
