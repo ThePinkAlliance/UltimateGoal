@@ -273,6 +273,8 @@ public class SampleMecanumDrive extends MecanumDrive {
                 Pose2d newPose = lastPoseOnTurn.copy(lastPoseOnTurn.getX(), lastPoseOnTurn.getY(), targetState.getX());
 
                 fieldOverlay.setStroke("#4CAF50");
+                dashboard.getTelemetry().addData("pose", newPose);
+                dashboard.getTelemetry().update();
                 DashboardUtil.drawRobot(fieldOverlay, newPose);
 
                 if (t >= turnProfile.duration()) {
@@ -288,11 +290,13 @@ public class SampleMecanumDrive extends MecanumDrive {
                 Trajectory trajectory = follower.getTrajectory();
 
                 fieldOverlay.setStrokeWidth(1);
+                // Green
                 fieldOverlay.setStroke("#4CAF50");
                 DashboardUtil.drawSampledPath(fieldOverlay, trajectory.getPath());
                 double t = follower.elapsedTime();
                 DashboardUtil.drawRobot(fieldOverlay, trajectory.get(t));
 
+                // Blue
                 fieldOverlay.setStroke("#3F51B5");
                 DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
 
@@ -305,8 +309,8 @@ public class SampleMecanumDrive extends MecanumDrive {
             }
         }
 
-        fieldOverlay.setStroke("#3F51B5");
-        DashboardUtil.drawRobot(fieldOverlay, currentPose);
+//        fieldOverlay.setStroke("#3F51B5");
+//        DashboardUtil.drawRobot(fieldOverlay, currentPose);
 
         dashboard.sendTelemetryPacket(packet);
     }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.PinkCode.OpModes;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -18,6 +20,7 @@ import org.firstinspires.ftc.PinkCode.odometry.SampleMecanumDrive;
 
 import org.firstinspires.ftc.PinkCode.Calculations.Presets;
 import org.firstinspires.ftc.PinkCode.Subsystems.Subsystem;
+import org.firstinspires.ftc.robotserver.internal.webserver.controlhubupdater.result.Result;
 
 
 import java.net.ProxySelector;
@@ -51,20 +54,26 @@ public class RRAuto extends LinearOpMode {
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
 
-
     @Override
     public void runOpMode() throws InterruptedException {
 
         Subsystem.robot.init(hardwareMap);
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        Telemetry dashboardTelemetry = drive.dashboard.getTelemetry();
 
-        initVuforia();
+        initVuforia(drive.dashboard);
         initTfod();
 
         if (tfod != null) {
             tfod.activate();
+
+            drive.dashboard.updateConfig();
         }
 
+        drive.setPoseEstimate(new Pose2d(-63, -48, Math.toRadians(0)));
+        drive.dashboard.startCameraStream(tfod, 20);
+        dashboardTelemetry.addData("TOFD ON", 1);
+        dashboardTelemetry.update();
         telemetry.addData("TFOD ON:", 1);
         telemetry.update();
         markedTime = runtime.milliseconds();
@@ -78,6 +87,8 @@ public class RRAuto extends LinearOpMode {
                         numRings = r.getLabel().toLowerCase();
                         telemetry.addData("obj", r.getLabel());
                     }
+                    dashboardTelemetry.addData("updatedRecognitions", updatedRecognitions.toArray());
+                    dashboardTelemetry.update();
                     telemetry.addData("updatedRecognitions", updatedRecognitions.toArray());
                     telemetry.update();
                 }
@@ -93,6 +104,12 @@ public class RRAuto extends LinearOpMode {
             markedTime = 4.0;
             CenteringDistanceX = 77;
             CenteringDistanceY = -3;
+
+            dashboardTelemetry.addData("angle", ANGLE);
+            dashboardTelemetry.addData("distance", DISTANCE);
+            dashboardTelemetry.addData("center angle", CenteringAngle);
+            dashboardTelemetry.addData("center distance x", CenteringDistanceX);
+            dashboardTelemetry.addData("center distance y", CenteringDistanceY);
         } else if (numRings.equals("single")) {
             ANGLE = 10;
             DISTANCE = -47;
@@ -100,6 +117,12 @@ public class RRAuto extends LinearOpMode {
             CenteringAngle = 177;
             CenteringDistanceX = 37;
             CenteringDistanceY = -12;
+
+            dashboardTelemetry.addData("angle", ANGLE);
+            dashboardTelemetry.addData("distance", DISTANCE);
+            dashboardTelemetry.addData("center angle", CenteringAngle);
+            dashboardTelemetry.addData("center distance x", CenteringDistanceX);
+            dashboardTelemetry.addData("center distance y", CenteringDistanceY);
         } else {
             ANGLE = -22;
             markedTime = 3.0;
@@ -107,6 +130,12 @@ public class RRAuto extends LinearOpMode {
             CenteringDistanceX = 1;
             CenteringDistanceY = -20;
             CenteringAngle = 181;
+
+            dashboardTelemetry.addData("angle", ANGLE);
+            dashboardTelemetry.addData("distance", DISTANCE);
+            dashboardTelemetry.addData("center angle", CenteringAngle);
+            dashboardTelemetry.addData("center distance x", CenteringDistanceX);
+            dashboardTelemetry.addData("center distance y", CenteringDistanceY);
         }
 
         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d())
@@ -188,7 +217,9 @@ public class RRAuto extends LinearOpMode {
         drive.followTrajectory(trajectory2);
         drive.followTrajectory(trajectory3);
         while(runtime.milliseconds() - markedTime < TimeChecker) {
+            dashboardTelemetry.addData("waiting", "wait");
             telemetry.addData("waiting","waitihgm");
+            dashboardTelemetry.update();
             telemetry.update();
         }
         drive.followTrajectory(tracjectory4);
@@ -205,10 +236,16 @@ public class RRAuto extends LinearOpMode {
         telemetry.addData("finalHeading", poseEstimate.getHeading());
         telemetry.update();
 
+        dashboardTelemetry.addData("finalX", poseEstimate.getX());
+        dashboardTelemetry.addData("finalY", poseEstimate.getY());
+        dashboardTelemetry.addData("finalHeading", poseEstimate.getHeading());
+        dashboardTelemetry.update();
+
         while (!isStopRequested() && opModeIsActive()) ;
 
             if (tfod != null) {
                 tfod.deactivate();
+                drive.dashboard.stopCameraStream();
             }
     }
 
@@ -217,12 +254,13 @@ public class RRAuto extends LinearOpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+//        dash.startCameraStream(tfod, 20);
         tfodParameters.minResultConfidence = 0.6f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    private void initVuforia() {
+    private void initVuforia(FtcDashboard dash) {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
@@ -230,6 +268,7 @@ public class RRAuto extends LinearOpMode {
 
 
         ClassFactory.getInstance().getCameraManager().nameForUnknownCamera();
+//        dash.startCameraStream(vuforia, 0);
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);

@@ -132,7 +132,6 @@ public class Teleop extends Controls {
             Collector.collect_stop();
         }
 
-
         if(gamepad2.right_bumper) {
 //            if(x == 0) {
 //                x = 1;
@@ -154,7 +153,9 @@ public class Teleop extends Controls {
 
         // Conveyor and shooter Controls
         if (gamepad2.right_bumper && Subsystem.robot.shoot2.getVelocity() > 1450 && Subsystem.robot.shoot2.getVelocity() < 1620 && x != 1) {
-            x = 1;
+            if (gamepad2.right_trigger >= 0.2) {
+                x = 1;
+            }
 //            Conveyor.flap_open();
 //            Conveyor.collect(.7);
 //        if(gamepad2.right_bumper && runtime.milliseconds() - markedTime2 > 2500) {
@@ -163,7 +164,7 @@ public class Teleop extends Controls {
             Conveyor.collect(.7);
         } else if (x == 1) {
             Conveyor.flap_open();
-            Conveyor.collect(1);
+            Conveyor.collect(.85);
         } else if(gamepad1.left_bumper) {
             Conveyor.flap_open();
             Conveyor.eject();
