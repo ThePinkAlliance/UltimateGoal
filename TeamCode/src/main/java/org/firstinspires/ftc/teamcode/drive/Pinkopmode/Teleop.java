@@ -63,6 +63,7 @@ public class Teleop extends Controls {
         PinkSubsystem.robot.leftB_drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         Wobble.wobble_arm_up();
+        Wobble.wobble_grip();
 //        Scorer.score_rotate_to_position(Presets.SCORER_STOW);
         // Telemetry Update to Inform Drivers That the Program is Initialized
         telemetry.addData("Status: ", "Waiting for Driver to Press Play");
@@ -145,7 +146,7 @@ public class Teleop extends Controls {
             Shooter.flap_power_shot();
         } else {
             x = 0;
-            Shooter.flap_close();
+//            Shooter.flap_close();
             Shooter.dont_shoot();
         }
 

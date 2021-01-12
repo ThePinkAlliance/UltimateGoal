@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.path.PathBuilder;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryGenerator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Conveyor;
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Shooter;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @Config
+@Disabled
 @Autonomous(name = "PinkTestAuto", group = "Auto")
 public class PinkTestAuto extends LinearOpMode {
 
