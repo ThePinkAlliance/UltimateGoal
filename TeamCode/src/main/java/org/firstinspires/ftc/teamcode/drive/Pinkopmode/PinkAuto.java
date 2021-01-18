@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.drive.Pinkopmode;
 
+import android.view.animation.LinearInterpolator;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.path.Path;
 import com.acmerobotics.roadrunner.path.PathBuilder;
+import com.acmerobotics.roadrunner.path.heading.SplineInterpolator;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryGenerator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -49,6 +52,9 @@ public class PinkAuto extends LinearOpMode {
         AS_DROP_SECOND_WOBBLE_DRIVE,
         AS_DROP_SECOND_WOBBLE_DROP,
         AS_DROP_SECOND_WOBBLE_RELEASE,
+        AS_QUAD_COLLECT_LAST_DRIVE,
+        AS_QUAD_LAST_SHOOT_DRIVE,
+        AS_QUAD_LAST_SHOOT,
         AS_PARK,
         AS_AUTONOMOUS_END
     }
@@ -86,12 +92,14 @@ public class PinkAuto extends LinearOpMode {
     public static double RC_SHOOT_HIGH_WOB_X = -2;
     public static double RC_SHOOT_HIGH_WOB_Y = -36;
     public static double RC_SHOOT_HIGH_WOB_HEADING = 0;
+    public static double RCQ_SHOOT_HIGH_WOB_HEADING = 3;
 
     public static double RC0_SHOOT_HIGH_WOB_TAN_END = 15;
     public static double RC1_SHOOT_HIGH_WOB_TAN_END = 180; // Different Tangent for second pos but same x/y/heading
     public static double RCQ_SHOOT_HIGH_WOB_TAN_END = 180;
 
-    public static double RC_SHOOT_HIGH_WOB_TAN_BEGIN = 90;
+    public static double RC_SHOOT_HIGH_WOB_TAN_BEGIN = 100;
+    public static double RCQ_SHOOT_HIGH_WOB_TAN_BEGIN = 100;
 
     public static double RC_COLLECT_MID_WOB_X = -39;
     public static double RC_COLLECT_MID_WOB_Y = -21;
@@ -99,9 +107,9 @@ public class PinkAuto extends LinearOpMode {
     public static double RC_COLLECT_MID_WOB_TAN_END = 180;
 
     public static double RCQ_COLLECT_MID_WOB_X = -39;
-    public static double RCQ_COLLECT_MID_WOB_Y = -24.5;
-    public static double RCQ_COLLECT_MID_WOB_HEADING = 0;
-    public static double RCQ_COLLECT_MID_WOB_TAN_END = 180;
+    public static double RCQ_COLLECT_MID_WOB_Y = -29;
+    public static double RCQ_COLLECT_MID_WOB_HEADING = 3;
+    public static double RCQ_COLLECT_MID_WOB_TAN_END = 210;
 
     public static double RC0_COLLECT_MID_WOB_TAN_BEGIN = 25;
     public static double RC1_COLLECT_MID_WOB_TAN_BEGIN = -75; // Different Tangent to next position since now going to collect single ring
@@ -113,10 +121,10 @@ public class PinkAuto extends LinearOpMode {
     public static double RC1_SHOOT_SINGLE_STACK_TAN_END = 25;
     public static double RC1_SHOOT_SINGLE_STACK_TAN_BEGIN = 0;
 
-    public static double RCQ_SHOOT_SINGLE_STACK_X = 0;//RC_SHOOT_HIGH_WOB_X;
+    public static double RCQ_SHOOT_SINGLE_STACK_X = -3;//RC_SHOOT_HIGH_WOB_X;
     public static double RCQ_SHOOT_SINGLE_STACK_Y = RC_SHOOT_HIGH_WOB_Y;
     public static double RCQ_SHOOT_SINGLE_STACK_HEADING = RC_SHOOT_HIGH_WOB_HEADING;
-    public static double RCQ_SHOOT_SINGLE_STACK_TAN_END = 25;
+    public static double RCQ_SHOOT_SINGLE_STACK_TAN_END = 35;
     public static double RCQ_SHOOT_SINGLE_STACK_TAN_BEGIN = 0;
 
     public static double RC0_DROP_SECOND_WOB_X = 4;
@@ -132,10 +140,10 @@ public class PinkAuto extends LinearOpMode {
     public static double RC1_DROP_SECOND_WOB_TAN_BEGIN = 0;
 
     public static double RCQ_DROP_SECOND_WOB_X = 44;
-    public static double RCQ_DROP_SECOND_WOB_Y = -40;
-    public static double RCQ_DROP_SECOND_WOB_HEADING = 110;
+    public static double RCQ_DROP_SECOND_WOB_Y = -42;
+    public static double RCQ_DROP_SECOND_WOB_HEADING = 130;
     public static double RCQ_DROP_SECOND_WOB_TAN_END = -60;            ;
-    public static double RCQ_DROP_SECOND_WOB_TAN_BEGIN = 160;
+    public static double RCQ_DROP_SECOND_WOB_TAN_BEGIN = -205;
 
     public static double RC0_SECOND_PARK_X = 5;
     public static double RC0_SECOND_PARK_Y = -36;
@@ -146,6 +154,11 @@ public class PinkAuto extends LinearOpMode {
     public static double RC1_SECOND_PARK_Y = -36;
     public static double RC1_SECOND_PARK_HEADING = 180;
     public static double RC1_SECOND_PARK_TAN_END = 0;
+
+    public static double RCQ_COLLECT_LAST_X = -8;
+    public static double RCQ_COLLECT_LAST_Y = -50;
+    public static double RCQ_COLLECT_LAST_HEADING = 36;
+    public static double RCQ_COLLECT_LAST_TAN_END = -250;
 
     public static double RCQ_SECOND_PARK_X = 8;
     public static double RCQ_SECOND_PARK_Y = -36;
@@ -224,9 +237,19 @@ public class PinkAuto extends LinearOpMode {
 
         // Set all servos to their default positions
         Collector.collector_drop();
+        Collector.collect_stop();
+        Shooter.dont_shoot();
+        Shooter.flap_open();
+        Conveyor.conveyor_stop();
         Wobble.wobble_grip();
         Wobble.wobble_arm_up();
         PinkSubsystem.set_servo_positions();
+
+        // This is the starting position during auto
+        drive.setPoseEstimate(new Pose2d(RED_CORNER_START_X, RED_CORNER_START_Y, Math.toRadians(RED_CORNER_START_HEADING)));
+
+        Trajectory trajectory1 = BuildSimpleTrajectory(RED_CORNER_START_X, RED_CORNER_START_Y, RED_CORNER_START_HEADING, RED_CORNER_START_TAN_START,
+                RCQ_DROP_FIRST_WOB_X, RCQ_DROP_FIRST_WOB_Y, RCQ_DROP_FIRST_WOB_HEADING, RCQ_DROP_FIRST_WOB_TAN_END);
 
         // Wait for Start Button (Phone) to be pressed
         waitForStart();
@@ -241,9 +264,6 @@ public class PinkAuto extends LinearOpMode {
                     switch(startingFieldPosition)
                     {
                         case SP_CORNER_RED:
-                            // This is the starting position during auto
-                            drive.setPoseEstimate(new Pose2d(RED_CORNER_START_X, RED_CORNER_START_Y, Math.toRadians(RED_CORNER_START_HEADING)));
-
                             switch(ringFound)
                             {
                                 case NONE:
@@ -255,8 +275,7 @@ public class PinkAuto extends LinearOpMode {
                                             RC1_DROP_FIRST_WOB_X, RC1_DROP_FIRST_WOB_Y, RC1_DROP_FIRST_WOB_HEADING, RC1_DROP_FIRST_WOB_TAN_END);
                                     break; // SINGLE
                                 case QUAD:
-                                    trajectory = BuildSimpleTrajectory(RED_CORNER_START_X, RED_CORNER_START_Y, RED_CORNER_START_HEADING, RED_CORNER_START_TAN_START,
-                                            RCQ_DROP_FIRST_WOB_X, RCQ_DROP_FIRST_WOB_Y, RCQ_DROP_FIRST_WOB_HEADING, RCQ_DROP_FIRST_WOB_TAN_END);
+                                    trajectory = trajectory1;
                                     break; // QUAD
                             }
                             break; // SP_CORNER_RED:
@@ -300,7 +319,7 @@ public class PinkAuto extends LinearOpMode {
                                         break; // SINGLE
                                     case QUAD:
                                         trajectory = BuildSimpleTrajectory(RCQ_DROP_FIRST_WOB_X, RCQ_DROP_FIRST_WOB_Y, RCQ_DROP_FIRST_WOB_HEADING, RCQ_DROP_FIRST_WOB_TAN_BEGIN,
-                                                RC_SHOOT_HIGH_WOB_X, RC_SHOOT_HIGH_WOB_Y, RC_SHOOT_HIGH_WOB_HEADING, RC1_SHOOT_HIGH_WOB_TAN_END);
+                                                RC_SHOOT_HIGH_WOB_X, RC_SHOOT_HIGH_WOB_Y, RCQ_SHOOT_HIGH_WOB_HEADING, RC1_SHOOT_HIGH_WOB_TAN_END);
                                         break; // QUAD
                                 }
                                 break; // SP_CORNER_RED:
@@ -317,8 +336,8 @@ public class PinkAuto extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_DRIVE:
 
                 case AS_SHOOT_FIRST_3_SHOOT:
-                    if(runtime.milliseconds() - markedTime < 2000) { // run this for enough time to shoot
-                        Conveyor.collect(0.60);
+                    if(runtime.milliseconds() - markedTime < 1700) { // run this for enough time to shoot
+                        Conveyor.collect(1.0);
                         Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1550);
                         double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
 
@@ -344,7 +363,7 @@ public class PinkAuto extends LinearOpMode {
                                                 RC_COLLECT_MID_WOB_X, RC_COLLECT_MID_WOB_Y, RC_COLLECT_MID_WOB_HEADING, RC_COLLECT_MID_WOB_TAN_END);
                                         break; // SINGLE
                                     case QUAD:
-                                        trajectory = BuildSimpleTrajectory(RC_SHOOT_HIGH_WOB_X, RC_SHOOT_HIGH_WOB_Y, RC_SHOOT_HIGH_WOB_HEADING, RC_SHOOT_HIGH_WOB_TAN_BEGIN,
+                                        trajectory = BuildSimpleTrajectory(RC_SHOOT_HIGH_WOB_X, RC_SHOOT_HIGH_WOB_Y, RC_SHOOT_HIGH_WOB_HEADING, RCQ_SHOOT_HIGH_WOB_TAN_BEGIN,
                                                 RCQ_COLLECT_MID_WOB_X, RCQ_COLLECT_MID_WOB_Y, RCQ_COLLECT_MID_WOB_HEADING, RCQ_COLLECT_MID_WOB_TAN_END);
                                         break; // QUAD
                                 }
@@ -402,7 +421,7 @@ public class PinkAuto extends LinearOpMode {
                                 // Get ready to collect the ring on the trajectory to shoot
                                 Conveyor.flap_close();
                                 Collector.collect();
-                                Conveyor.collect(1);
+                                Conveyor.collect(.90);
                                 Shooter.shootPower(0.8); // Start spinning up the shooter so it is ready to shoot on the next step.
                                 drive.turn(Math.toRadians(-45)); // Turn -45 degrees to face the ring
                                 /*trajectory = BuildSimpleTrajectory(RC_COLLECT_MID_WOB_X, RC_COLLECT_MID_WOB_Y, -5, 0,
@@ -453,7 +472,7 @@ public class PinkAuto extends LinearOpMode {
                 break;
 
                 case AS_SHOOT_SINGLE_FROM_STACK:
-                    if(runtime.milliseconds() - markedTime < 2000) { // run this for enough time to shoot
+                    if(runtime.milliseconds() - markedTime < 1750) { // run this for enough time to shoot
                         Conveyor.collect(1);
                         Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1550);
                         double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
@@ -474,7 +493,7 @@ public class PinkAuto extends LinearOpMode {
                     break;
 
                 case AS_DROP_SECOND_WOBBLE_DRIVE:
-                    if(runtime.milliseconds() - markedTime > 300) {
+                    if(runtime.milliseconds() - markedTime > 250) {
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED:
                                 switch (ringFound) {
@@ -514,11 +533,20 @@ public class PinkAuto extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_DROP
 
                 case AS_DROP_SECOND_WOBBLE_RELEASE:
-                    if(runtime.milliseconds() - markedTime > 250) {
+                    if(runtime.milliseconds() - markedTime > 200) {
                         Wobble.wobble_ungrip();
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED:
-                                autoStep = AutonomousSTEPS.AS_PARK;
+                                switch (ringFound) {
+                                    case NONE:
+                                    case SINGLE:
+                                        autoStep = AutonomousSTEPS.AS_PARK;
+                                        break; // SINGLE
+                                    case QUAD:
+                                        autoStep = AutonomousSTEPS.AS_QUAD_COLLECT_LAST_DRIVE;
+                                        break; // QUAD
+                                }
+
                                 break; // SP_CORNER_RED:
                             case SP_MIDDLE_RED:
                                 break; // SP_CENTER_RED
@@ -530,6 +558,43 @@ public class PinkAuto extends LinearOpMode {
 
                     }
                     break; // AS_DROP_FIRST_WOBBLE_RELEASE
+
+                case AS_QUAD_COLLECT_LAST_DRIVE:
+                    Wobble.wobble_arm_up();
+                    Conveyor.flap_close();
+                    Collector.collect();
+                    Shooter.flap_power_shot();
+                    Shooter.flap_custom(0.42);
+                    Conveyor.collect(1);
+                    Shooter.shootPower(0.8); // Start spinning up the shooter so it is ready to shoot on the next step.
+                    trajectory = BuildSplineTrajectory(RCQ_DROP_SECOND_WOB_X, RCQ_DROP_SECOND_WOB_Y, RCQ_DROP_SECOND_WOB_HEADING, RCQ_DROP_SECOND_WOB_TAN_BEGIN,
+                            RCQ_COLLECT_LAST_X, RCQ_COLLECT_LAST_Y, RCQ_COLLECT_LAST_HEADING, RCQ_COLLECT_LAST_TAN_END);
+
+                    autoStep = AutonomousSTEPS.AS_QUAD_LAST_SHOOT_DRIVE;
+                    break; // AS_QUAD_COLLECT_LAST_DRIVE
+
+                case AS_QUAD_LAST_SHOOT_DRIVE:
+                    //drive.turn(Math.toRadians(-197));
+                    autoStep = AutonomousSTEPS.AS_QUAD_LAST_SHOOT;
+                    break; // AS_QUAD_LAST_SHOOT_DRIVE
+
+                case AS_QUAD_LAST_SHOOT:
+                    if(runtime.milliseconds() - markedTime < 500) { // run this for enough time to shoot
+                        Conveyor.collect(1);
+                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1550);
+                        double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
+
+                        if (currentShooterVelocity > 1440) {
+                            Conveyor.flap_open();
+                            autoStep = AutonomousSTEPS.AS_PARK;
+                        }
+                    } else {
+                        Conveyor.conveyor_stop();
+                        Shooter.dont_shoot();
+                        Collector.collect_stop();
+                        autoStep = AutonomousSTEPS.AS_PARK;
+                    }
+                    break; // AS_QUAD_LAST_SHOOT
 
                 case AS_PARK:
                     if(runtime.milliseconds() - markedTime > 300) {
@@ -545,8 +610,12 @@ public class PinkAuto extends LinearOpMode {
                                                 RC1_SECOND_PARK_X, RC1_SECOND_PARK_Y, RC1_SECOND_PARK_HEADING, RC1_SECOND_PARK_TAN_END);
                                         break; // SINGLE
                                     case QUAD:
-                                        trajectory = BuildSimpleTrajectory(RCQ_DROP_SECOND_WOB_X, RCQ_DROP_SECOND_WOB_Y, RCQ_DROP_SECOND_WOB_HEADING, RCQ_DROP_SECOND_WOB_TAN_BEGIN,
-                                                RCQ_SECOND_PARK_X, RCQ_SECOND_PARK_Y, RCQ_SECOND_PARK_HEADING, RCQ_SECOND_PARK_TAN_END);
+                                        trajectory =
+                                            drive.trajectoryBuilder(new Pose2d(RCQ_COLLECT_LAST_X, RCQ_COLLECT_LAST_Y, Math.toRadians(RCQ_COLLECT_LAST_HEADING)), Math.toRadians(RCQ_COLLECT_LAST_TAN_END))
+                                                    .forward(8)
+                                                    .build();
+                                                //BuildSimpleTrajectory(RCQ_COLLECT_LAST_X, RCQ_COLLECT_LAST_Y, RCQ_COLLECT_LAST_HEADING, 0,
+                                               //RCQ_COLLECT_LAST_X + 8, RCQ_COLLECT_LAST_Y, RCQ_COLLECT_LAST_HEADING, 0);
                                         break; // QUAD
                                 }
                                 break; // SP_CORNER_RED:
@@ -602,6 +671,18 @@ public class PinkAuto extends LinearOpMode {
         Trajectory newTractory =
                 drive.trajectoryBuilder(new Pose2d(beginX, beginY, Math.toRadians(beginHeadingAngle)), Math.toRadians(beginTangentAngle))
                         .splineToLinearHeading(new Pose2d(endX, endY, Math.toRadians(endHeadingAngle)), Math.toRadians(endTangentAngle))
+                        .build();
+
+        return newTractory;
+    }
+
+    public static Trajectory BuildSplineTrajectory(double beginX, double beginY, double beginHeadingAngle,  double beginTangentAngle,
+                                                   double endX, double endY, double endHeadingAngle,  double endTangentAngle)
+    {
+        Trajectory newTractory =
+                drive.trajectoryBuilder(new Pose2d(beginX, beginY, Math.toRadians(beginHeadingAngle)), Math.toRadians(beginTangentAngle))
+                        .splineToSplineHeading(new Pose2d(endX, endY, Math.toRadians(endHeadingAngle)), Math.toRadians(endTangentAngle))
+                        //.splineTo(new Vector2d(endX, endY), Math.toRadians(endTangentAngle))
                         .build();
 
         return newTractory;
