@@ -688,6 +688,18 @@ public class PinkAuto extends LinearOpMode {
         return newTractory;
     }
 
+    public static Trajectory BuildSimpleTrajectory2(double beginX, double beginY, double beginHeadingAngle,  double beginTangentAngle,
+                                                   double endX, double endY, double endHeadingAngle,  double endTangentAngle)
+    {
+        Trajectory newTractory =
+                drive.trajectoryBuilder(new Pose2d(beginX, beginY, Math.toRadians(beginHeadingAngle)), Math.toRadians(beginTangentAngle))
+                        .splineToSplineHeading(new Pose2d(endX, endY, Math.toRadians(endHeadingAngle)), Math.toRadians(endTangentAngle))
+                        .build();
+
+        return newTractory;
+    }
+
+
     private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());

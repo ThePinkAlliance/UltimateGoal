@@ -58,6 +58,7 @@ public abstract class Controls extends OpMode {
     public static boolean base_dpad_up;
     public static boolean base_start;
     public static boolean base_back;
+    public static boolean tower_start;
 
     public boolean base_x() {
         return gamepad1.x;
@@ -161,6 +162,7 @@ public abstract class Controls extends OpMode {
     }
     public boolean tower_dpad_down;
     public boolean tower_dpad_up;
+
     public boolean tower_start(boolean toggle) {
         if (toggle) {
             if (!tower_start_pressed && gamepad2.start) {
