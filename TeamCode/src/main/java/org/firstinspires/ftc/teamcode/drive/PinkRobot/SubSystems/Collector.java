@@ -11,6 +11,12 @@ public abstract class Collector extends PinkSubsystem{
         collect_command = Presets.COLLECTOR_COLLECT_POWER;
     }
 
+    // Method for Collecting
+    public static void collectAt(double power) {
+        // Command Assigned to preset value
+        collect_command = power;
+    }
+
     // Method for Ejecting
     public static void eject() {
         // Command assigned to preset value

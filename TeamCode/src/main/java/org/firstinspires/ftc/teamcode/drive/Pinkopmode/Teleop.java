@@ -33,6 +33,8 @@ public class Teleop extends Controls {
     double shootTime = 0;
     double sTimeTemp = 0;
 
+    double HIGH_SHOT_SPINDEXER_POWER  = 1.00;//0.765; // Good Safe Value
+
 //    private double previousHeading = 0;
 //    private double integratedHeading = 0;
     private ElapsedTime runtime = new ElapsedTime();
@@ -126,9 +128,6 @@ public class Teleop extends Controls {
         } else {
             Collector.collect_stop();
         }
-
-
-
         //Shoot Commands, if bumper or right trigger is used spin up motors
         if(gamepad2.right_bumper || (gamepad2.right_trigger >= 0.2)) {
             /* if running conveyor based on time instead of PD
@@ -141,8 +140,8 @@ public class Teleop extends Controls {
 //            Shooter.shootPower(1);
             Shooter.flap_open();
             //Power shot code
-        } else if (gamepad2.left_bumper) {
-            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1440);
+        } else if (gamepad2.left_bumper) { /// *** POWER SHOT ****
+            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1450);
 //            Shooter.shoot();
             Shooter.flap_power_shot();
         } else {
@@ -163,13 +162,13 @@ public class Teleop extends Controls {
             //Uncomment for time instead of pd Also comment shootbypd in shoot section, and first if statement in controls.
 //        if(gamepad2.right_bumper && runtime.milliseconds() - markedTime2 > 2500) {
             //Power shot code
-        } else if (gamepad2.left_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1400 && PinkSubsystem.robot.shoot2.getVelocity() < 1550) {
+        } else if (gamepad2.left_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1390 && PinkSubsystem.robot.shoot2.getVelocity() < 1550) {
             Conveyor.flap_open();
             Conveyor.collect(.65);
             //start shooting if shootTemp = 1 from previous code
         } else if (shootTemp == 1) {
             Conveyor.flap_open();
-            Conveyor.collect(.75);
+            Conveyor.collect(HIGH_SHOT_SPINDEXER_POWER);
             //if left bumper pressed, eject rings
         } else if(gamepad1.left_bumper) {
             Conveyor.flap_open();
