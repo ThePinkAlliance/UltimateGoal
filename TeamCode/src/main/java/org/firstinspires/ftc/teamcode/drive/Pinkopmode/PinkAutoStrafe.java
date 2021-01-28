@@ -50,6 +50,8 @@ public class PinkAutoStrafe extends LinearOpMode {
         AS_COLLECT_SINGLE_RING_DRIVE,
         AS_COLLECT_QUAD_RING_STRAFE,
         AS_COLLECT_QUAD_RING_DRIVE,
+        AS_COLLECT_LAST_QUAD_STRAIGHT_DRIVE,
+        AS_COLLECT_LAST_QUAD_STRAIGHT_SHOOT,
         AS_SHOOT_SINGLE_FROM_STACK,
         AS_DROP_SECOND_WOBBLE_DRIVE,
         AS_DROP_SECOND_WOBBLE_DROP,
@@ -61,9 +63,8 @@ public class PinkAutoStrafe extends LinearOpMode {
         AS_AUTONOMOUS_END
     }
 
-    double HIGH_SHOT_SPINDEXER_POWER  = 0.825;
+    double HIGH_SHOT_SPINDEXER_POWER  = 0.775;
 
-    double LAST_QUAD_SPINDEXER_POWER  = 1.0;
 
     // Starting Ring mode... None, will be adjusted later
     public static RingMode ringFound = RingMode.QUAD;
@@ -113,7 +114,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC_COLLECT_MID_WOB_TAN_END = 180;
 
     public static double RCQ_COLLECT_MID_WOB_X = -39;
-    public static double RCQ_COLLECT_MID_WOB_Y = -29;
+    public static double RCQ_COLLECT_MID_WOB_Y = -29.5;
     public static double RCQ_COLLECT_MID_WOB_HEADING = 3;
     public static double RCQ_COLLECT_MID_WOB_TAN_END = 210;
 
@@ -161,10 +162,10 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC1_SECOND_PARK_HEADING = 180;
     public static double RC1_SECOND_PARK_TAN_END = 0;
 
-    public static double RCQ_COLLECT_LAST_X = -8;
-    public static double RCQ_COLLECT_LAST_Y = -50;
-    public static double RCQ_COLLECT_LAST_HEADING = 36;
-    public static double RCQ_COLLECT_LAST_TAN_END = -250;
+    public static double RCQ_COLLECT_LAST_X = 6;//-8;
+    public static double RCQ_COLLECT_LAST_Y = -40; //-50;
+    public static double RCQ_COLLECT_LAST_HEADING = 0;
+    public static double RCQ_COLLECT_LAST_TAN_END = -180; ////-250;
 
     public static double RCQ_SECOND_PARK_X = 8;
     public static double RCQ_SECOND_PARK_Y = -36;
@@ -312,6 +313,7 @@ public class PinkAutoStrafe extends LinearOpMode {
 
                 case AS_SHOOT_FIRST_3_HIGH_DRIVE:
                     if(runtime.milliseconds() - markedTime > 100) {
+                        Wobble.wobble_arm_up();
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED:
                                 switch (ringFound) {
@@ -360,6 +362,7 @@ public class PinkAutoStrafe extends LinearOpMode {
 
                 case AS_COLLECT_CENTER_WOBBLE:
                     if(runtime.milliseconds() - markedTime > 100) {
+                        Wobble.wobble_arm_down();
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED: // Always start from shoot, so no need for multiple positions
                                 switch (ringFound) {
@@ -420,6 +423,25 @@ public class PinkAutoStrafe extends LinearOpMode {
                     }
                     break; // AS_DROP_FIRST_WOBBLE_RELEASE
 
+                case AS_COLLECT_QUAD_RING_STRAFE:
+                    if(runtime.milliseconds() - markedTime > 200) {
+                        // Get ready to collect the ring on the trajectory to shoot
+                        Conveyor.flap_close();
+                        Collector.collect();
+                        Conveyor.collect(1.0);
+                        Shooter.shootPower(0.835); // Start spinning up the shooter so it is ready to shoot on the next step.
+
+                        //trajectory = BuildSimpleTrajectory(RC_COLLECT_MID_WOB_X, RC_COLLECT_MID_WOB_Y, -45, RC1_COLLECT_MID_WOB_TAN_BEGIN,
+                        //        RC1_SHOOT_SINGLE_STACK_X, RC1_SHOOT_SINGLE_STACK_Y, 6, RC1_SHOOT_SINGLE_STACK_TAN_END);
+                        trajectory =
+                        drive.trajectoryBuilder(new Pose2d(RCQ_COLLECT_MID_WOB_X, RCQ_COLLECT_MID_WOB_Y, Math.toRadians(RCQ_COLLECT_MID_WOB_HEADING)))
+                                .strafeRight(13)
+                                .build();
+
+                        autoStep = AutonomousSTEPS.AS_COLLECT_QUAD_RING_DRIVE;
+                    }
+                    break;
+
                 case AS_COLLECT_SINGLE_RING_DRIVE:
                     if(runtime.milliseconds() - markedTime > 200) {
                         switch (startingFieldPosition) {
@@ -453,18 +475,11 @@ public class PinkAutoStrafe extends LinearOpMode {
                     if(runtime.milliseconds() - markedTime > 200) {
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED:
-                                // Get ready to collect the ring on the trajectory to shoot
-                                Conveyor.flap_close();
-                                Collector.collect();
-                                Conveyor.collect(1);
-                                Shooter.shootPower(0.8); // Start spinning up the shooter so it is ready to shoot on the next step.
-                                drive.turn(Math.toRadians(-45)); // Turn -45 degrees to face the ring
-                                /*trajectory = BuildSimpleTrajectory(RC_COLLECT_MID_WOB_X, RC_COLLECT_MID_WOB_Y, -5, 0,
-                                        RC_COLLECT_MID_WOB_X, -24, -45, 0);
-                                drive.followTrajectory(trajectory);
-                                */
-                                trajectory = BuildSimpleTrajectory(RCQ_COLLECT_MID_WOB_X, RCQ_COLLECT_MID_WOB_Y, -45, RCQ_COLLECT_MID_WOB_TAN_BEGIN,
-                                        RCQ_SHOOT_SINGLE_STACK_X, RCQ_SHOOT_SINGLE_STACK_Y, 6, RCQ_SHOOT_SINGLE_STACK_TAN_END);
+
+                                trajectory =
+                                        drive.trajectoryBuilder(new Pose2d(RCQ_COLLECT_MID_WOB_X, RCQ_COLLECT_MID_WOB_Y-13, Math.toRadians(RCQ_COLLECT_MID_WOB_HEADING)))
+                                                .forward(25)
+                                                .build();
                                 break; // SP_CORNER_RED:
                             case SP_MIDDLE_RED:
                                 break; // SP_CENTER_RED
@@ -479,7 +494,9 @@ public class PinkAutoStrafe extends LinearOpMode {
 
                 case AS_SHOOT_SINGLE_FROM_STACK:
                     if(runtime.milliseconds() - markedTime < 1750) { // run this for enough time to shoot
-                        Conveyor.collect(1);
+                        Conveyor.collect(0.75);
+                        Collector.eject();
+                        Shooter.flap_custom(0.405);
                         Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1550);
                         double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
 
@@ -487,8 +504,50 @@ public class PinkAutoStrafe extends LinearOpMode {
                             Conveyor.flap_open();
                             if(ringFound != RingMode.QUAD)
                             {
+                                Collector.collect_stop();
                                 autoStep = AutonomousSTEPS.AS_DROP_SECOND_WOBBLE_DRIVE;
+                            } else {
+                                autoStep = AutonomousSTEPS.AS_COLLECT_LAST_QUAD_STRAIGHT_DRIVE;
                             }
+                        }
+                    } else {
+                        Conveyor.conveyor_stop();
+                        Shooter.dont_shoot();
+                        Collector.collect_stop();
+                        if(ringFound != RingMode.QUAD)
+                        {
+                            Collector.collect_stop();
+                            autoStep = AutonomousSTEPS.AS_DROP_SECOND_WOBBLE_DRIVE;
+                        } else {
+                            autoStep = AutonomousSTEPS.AS_COLLECT_LAST_QUAD_STRAIGHT_DRIVE;
+                        }
+                    }
+
+                    break;
+
+                case AS_COLLECT_LAST_QUAD_STRAIGHT_DRIVE:
+                    if(runtime.milliseconds() - markedTime > 1250) { // run this for enough time to shoot
+                            Collector.collect();
+                            Conveyor.collect(1.0);
+                            trajectory =
+                                    drive.trajectoryBuilder(new Pose2d(RCQ_COLLECT_MID_WOB_X + 24, RCQ_COLLECT_MID_WOB_Y - 13, Math.toRadians(RCQ_COLLECT_MID_WOB_HEADING)))
+                                            .forward(10)
+                                            .build();
+
+                            autoStep = AutonomousSTEPS.AS_COLLECT_LAST_QUAD_STRAIGHT_SHOOT;
+                        }
+                    break;
+
+                case AS_COLLECT_LAST_QUAD_STRAIGHT_SHOOT:
+                    if(runtime.milliseconds() - markedTime < 1200) { // run this for enough time to shoot
+                        Conveyor.collect(1);
+                        Shooter.flap_open();
+                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1550);
+                        double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
+
+                        if (currentShooterVelocity > 1440) {
+                            Conveyor.flap_open();
+                            autoStep = AutonomousSTEPS.AS_DROP_SECOND_WOBBLE_DRIVE;
                         }
                     } else {
                         Conveyor.conveyor_stop();
@@ -496,6 +555,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                         Collector.collect_stop();
                         autoStep = AutonomousSTEPS.AS_DROP_SECOND_WOBBLE_DRIVE;
                     }
+
                     break;
 
                 case AS_DROP_SECOND_WOBBLE_DRIVE:
@@ -512,7 +572,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                                                 RC1_DROP_SECOND_WOB_X, RC1_DROP_SECOND_WOB_Y, RC1_DROP_SECOND_WOB_HEADING, RC1_DROP_SECOND_WOB_TAN_END);
                                         break; // SINGLE
                                     case QUAD:
-                                        trajectory = BuildSimpleTrajectory(RC1_SHOOT_SINGLE_STACK_X, RC1_SHOOT_SINGLE_STACK_Y, RC1_SHOOT_SINGLE_STACK_HEADING, RC1_SHOOT_SINGLE_STACK_TAN_BEGIN,
+                                        trajectory = BuildSimpleTrajectory(RCQ_COLLECT_MID_WOB_X + 24 + 10, RCQ_COLLECT_MID_WOB_Y - 13, RC1_SHOOT_SINGLE_STACK_HEADING, 0,
                                                 RCQ_DROP_SECOND_WOB_X, RCQ_DROP_SECOND_WOB_Y, RCQ_DROP_SECOND_WOB_HEADING, RCQ_DROP_SECOND_WOB_TAN_END);
                                         break; // QUAD
                                 }
@@ -568,15 +628,17 @@ public class PinkAutoStrafe extends LinearOpMode {
                 case AS_QUAD_COLLECT_LAST_DRIVE:
                     Wobble.wobble_arm_up();
                     Conveyor.flap_close();
-                    Collector.collect();
-                    Shooter.flap_power_shot();
-                    Shooter.flap_custom(0.415);
-                    Conveyor.collect(1);
-                    Shooter.shootPower(0.8); // Start spinning up the shooter so it is ready to shoot on the next step.
+                    Collector.collect_stop();
+                    Shooter.dont_shoot();
+                    Conveyor.conveyor_stop();
+                    //Shooter.flap_power_shot();
+                    //Shooter.flap_custom(0.415);
+                    //Conveyor.collect(1);
+                    //Shooter.shootPower(0.8); // Start spinning up the shooter so it is ready to shoot on the next step.
                     trajectory = BuildSplineTrajectory(RCQ_DROP_SECOND_WOB_X, RCQ_DROP_SECOND_WOB_Y, RCQ_DROP_SECOND_WOB_HEADING, RCQ_DROP_SECOND_WOB_TAN_BEGIN,
                             RCQ_COLLECT_LAST_X, RCQ_COLLECT_LAST_Y, RCQ_COLLECT_LAST_HEADING, RCQ_COLLECT_LAST_TAN_END);
 
-                    autoStep = AutonomousSTEPS.AS_QUAD_LAST_SHOOT_DRIVE;
+                    autoStep = AutonomousSTEPS.AS_AUTONOMOUS_END;
                     break; // AS_QUAD_COLLECT_LAST_DRIVE
 
                 case AS_QUAD_LAST_SHOOT_DRIVE:

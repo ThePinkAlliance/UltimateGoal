@@ -454,8 +454,8 @@ public class PinkAuto extends LinearOpMode {
                             case SP_CORNER_RED:
                                 // Get ready to collect the ring on the trajectory to shoot
                                 Conveyor.flap_close();
-                                Collector.collect();
-                                Conveyor.collect(0.82);
+                                Collector.collect();// collectAt(-0.70);
+                                Conveyor.collect(0.90);
                                 Shooter.shootPower(0.835); // Start spinning up the shooter so it is ready to shoot on the next step.
                                 drive.turn(Math.toRadians(-45)); // Turn -45 degrees to face the ring
                                 /*trajectory = BuildSimpleTrajectory(RC_COLLECT_MID_WOB_X, RC_COLLECT_MID_WOB_Y, -5, 0,
@@ -463,7 +463,7 @@ public class PinkAuto extends LinearOpMode {
                                 drive.followTrajectory(trajectory);
                                 */
                                 trajectory = BuildSimpleTrajectory(RCQ_COLLECT_MID_WOB_X, RCQ_COLLECT_MID_WOB_Y, -45, RCQ_COLLECT_MID_WOB_TAN_BEGIN,
-                                        RCQ_SHOOT_SINGLE_STACK_X, RCQ_SHOOT_SINGLE_STACK_Y, 6, RCQ_SHOOT_SINGLE_STACK_TAN_END);
+                                        RCQ_SHOOT_SINGLE_STACK_X, RCQ_SHOOT_SINGLE_STACK_Y, 4, RCQ_SHOOT_SINGLE_STACK_TAN_END);
                                 break; // SP_CORNER_RED:
                             case SP_MIDDLE_RED:
                                 break; // SP_CENTER_RED

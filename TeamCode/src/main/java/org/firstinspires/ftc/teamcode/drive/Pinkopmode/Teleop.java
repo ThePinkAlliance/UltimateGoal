@@ -33,7 +33,7 @@ public class Teleop extends Controls {
     double shootTime = 0;
     double sTimeTemp = 0;
 
-    double HIGH_SHOT_SPINDEXER_POWER  = 1.00;//0.765; // Good Safe Value
+    double HIGH_SHOT_SPINDEXER_POWER  = 0.80;//0.765; // Good Safe Value
 
 //    private double previousHeading = 0;
 //    private double integratedHeading = 0;
@@ -136,7 +136,7 @@ public class Teleop extends Controls {
                 shootTime = runtime.milliseconds();
             } */
             //Shoot by pd command passing current velocity and target velocity, shootPower is below, pass a power for the shooter motors to use
-            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1550);
+            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1620);
 //            Shooter.shootPower(1);
             Shooter.flap_open();
             //Power shot code
@@ -152,7 +152,7 @@ public class Teleop extends Controls {
 
         // Conveyor and shooter Controls
         // Check for right bumper pressed and within pd thresholds
-        if (gamepad2.right_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1460 && PinkSubsystem.robot.shoot2.getVelocity() < 1650 && shootTemp != 1) {
+        if (gamepad2.right_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1500 && PinkSubsystem.robot.shoot2.getVelocity() < 1700 && shootTemp != 1) {
             //if right trigger pressed, start shooting.
             if (gamepad2.right_trigger >= 0.2) {
                 shootTemp = 1;
