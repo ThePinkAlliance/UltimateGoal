@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.PinkSubsystem;
 
 import java.util.List;
 
-@Autonomous(name = "Powershot Auto")
+@Autonomous(name = "Powershot Auto", group = "Auto")
 public class PinkPowershot extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "pink.tflite";
     private static final String LABEL_FIRST_ELEMENT = "powershot";
