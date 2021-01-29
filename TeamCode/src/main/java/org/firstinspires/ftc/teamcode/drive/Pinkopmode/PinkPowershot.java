@@ -26,6 +26,9 @@ public class PinkPowershot extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        initVuforia();
+        initTfod(FtcDashboard.getInstance());
+
         if (tf != null) {
             tf.activate();
             telemetry.addData("tf", "ready");
