@@ -54,7 +54,7 @@ public class PinkPowershot extends LinearOpMode {
     }
 
     private double GetAngle(Recognition r) {
-        return r.estimateAngleToObject(AngleUnit.DEGREES);
+        return r.estimateAngleToObject(AngleUnit.RADIANS);
     }
 
     private void initTfod(FtcDashboard dash) {
