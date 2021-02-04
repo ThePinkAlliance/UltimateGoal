@@ -34,6 +34,15 @@ public class PinkSubsystem {
         robot.shoot2.setPower(shooter_command2);
     }
 
+    // Method Which Sends the Motor Powers to the Motors
+    public static void set_motor_powers_no_base() {
+        // Set Motor Powers
+        robot.collect.setPower(collect_command);
+        robot.conveyor.setPower(conveyor_command);
+        robot.shoot1.setPower(shooter_command1);
+        robot.shoot2.setPower(shooter_command2);
+    }
+
     // Method Which Sends the Servo Positions to the Servos
     public static void set_servo_positions() {
         // Set Servo Positions

@@ -20,8 +20,12 @@ public class Presets {
     public static final double SHOOTER_SHOOT_POWER = 1;
     public static final double SHOOTER_STOP_POWER = 0;
     public static final double SHOOTER_FLAP_CLOSE = 0.22;
-    public static final double SHOOTER_FLAP_POWER_SHOT = .415; // .41 is good ideal value
-    public static final double SHOOTER_FLAP_OPEN = .395; //increase in numbers is down; decrease in numbers is up.
+
+    public static final double SHOOTER_FLAP_OPEN = 0.401; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_POWER_SHOT = .420;// Short Flap .415; // .41 is good ideal value
+
+    public static final double SHOOTER_FLAP_OPEN_AUTO = .401; // Short .395 //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_OPEN_AUTO_FAR = .410; // Short .405; //increase in numbers is down; decrease in numbers is up.
 
     //Wobble Presets
     public static final double WOBBLE_UP = .32;

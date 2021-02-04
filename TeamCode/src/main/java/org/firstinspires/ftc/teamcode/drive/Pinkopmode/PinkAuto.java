@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.path.heading.SplineInterpolator;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryGenerator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -31,6 +32,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import java.util.List;
 
 @Config
+@Disabled
 @Autonomous(name = "PinkAuto", group = "Auto")
 public class PinkAuto extends LinearOpMode {
 

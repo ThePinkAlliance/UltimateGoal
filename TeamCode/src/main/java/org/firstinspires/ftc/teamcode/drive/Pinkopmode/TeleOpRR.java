@@ -1,6 +1,13 @@
 package org.firstinspires.ftc.teamcode.drive.Pinkopmode;
 
 //FIRST-provided Imports
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
+import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -11,8 +18,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 //Subsystem Imports
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Collector;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Conveyor;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Shooter;
@@ -20,11 +29,17 @@ import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.PinkSubsystem;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Base;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Controls;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Wobble;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+
+import java.util.Arrays;
 
 
 // Class for Player-Controlled Period of the Game Which Binds Controls to Subsystems
-@TeleOp(name = "TeleOp", group = "TeleOp")
-public class Teleop extends Controls {
+@TeleOp(name = "TeleOpRR", group = "TeleOpRR")
+public class TeleOpRR extends Controls {
 
     //Variables
     double telemTemp = 0;
@@ -33,17 +48,52 @@ public class Teleop extends Controls {
     double shootTime = 0;
     double sTimeTemp = 0;
 
-    double HIGH_SHOT_SPINDEXER_POWER  = 0.95;//0.765; // Good Safe Value
+    double HIGH_SHOT_SPINDEXER_POWER  = 0.80;//0.765; // Good Safe Value
 
-//    private double previousHeading = 0;
+    Boolean X_button_pressed;
+
+    //    private double previousHeading = 0;
 //    private double integratedHeading = 0;
     private ElapsedTime runtime = new ElapsedTime();
     private BNO055IMU imu;
 
-    private boolean isShootingHigh = false;
+    SampleMecanumDrive drive = null;
+
+    Trajectory shootingTrajectory;
+    Boolean initTrajectory = false;
+
+    Vector2d targetBVector = new Vector2d(10.0, 10.0);
+
+    double targetAngle = Math.toRadians(0);
 
     // Code to Run Once When the Drivers Press Init
     public void init() {
+        DriveConstants.MAX_VEL = 120;
+        DriveConstants.MAX_ACCEL = 120;
+        //DriveConstants.MAX_ANG_ACCEL = 360;
+        //DriveConstants.MAX_ANG_ACCEL = 360;
+        drive = new SampleMecanumDrive(hardwareMap);
+
+        shootingTrajectory = drive.trajectoryBuilder(new Pose2d())
+                // This spline is limited to 15 in/s and will be slower
+                .splineTo(
+                        new Vector2d(30, 30), 0,
+                        new MinVelocityConstraint(
+                                Arrays.asList(
+                                        new AngularVelocityConstraint(240),
+                                        new MecanumVelocityConstraint(35, DriveConstants.TRACK_WIDTH)
+                                )
+                        ),
+                        new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .build();
+
+      /*  shootingTrajectory = drive.trajectoryBuilder(new Pose2d())
+                // This spline is limited to 15 in/s and will be slower
+                .lineTo(new Vector2d(24,24 ))
+                .build();
+*/
+        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //imu initialization
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -84,42 +134,100 @@ public class Teleop extends Controls {
 
     // Code to Run Constantly After the Drivers Press Play and Before They Press Stop
     public void loop() {
+        X_button_pressed = gamepad1.x;
 
-        // Drive Train Control
+        if(X_button_pressed == true)
+        {
+            if(initTrajectory == false) {
+                initTrajectory = true;
+            }
+        } else {
+            initTrajectory = false;
+        }
+            // Drive Train Control
         //If any movement occurs on base controller, use math to power motor appropriately
         if (gamepad1.left_stick_y > .1  ||
-            gamepad1.left_stick_y < .1  ||
-            gamepad1.left_stick_x > .1  ||
-            gamepad1.left_stick_x < -.1 ||
-            gamepad1.right_stick_x > .1 ||
-            gamepad1.right_stick_x < -.1) {
+                gamepad1.left_stick_y < .1  ||
+                gamepad1.left_stick_x > .1  ||
+                gamepad1.left_stick_x < -.1 ||
+                gamepad1.right_stick_x > .1 ||
+                gamepad1.right_stick_x < -.1) {
 
-                //r is the hypotenuse of (x,y) coordinate of left stick, robotAngle = angleTheta of (x,y) coordinate of left stick. rightX = turning speed
-                double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-                double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-                double rightX = gamepad1.right_stick_x;
+            //r is the hypotenuse of (x,y) coordinate of left stick, robotAngle = angleTheta of (x,y) coordinate of left stick. rightX = turning speed
+            double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+            double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+            double rightX = gamepad1.right_stick_x;
 
-                //Equations below is motor speed for each wheel
-                double v1 = r * Math.cos(robotAngle) + rightX;
-                double v2 = r * Math.sin(robotAngle) + rightX;
-                double v3 = r * Math.sin(robotAngle) - rightX;
-                double v4 = r * Math.cos(robotAngle) - rightX;
+            //Equations below is motor speed for each wheel
+            double v1 = r * Math.cos(robotAngle) + rightX;
+            double v2 = r * Math.sin(robotAngle) + rightX;
+            double v3 = r * Math.sin(robotAngle) - rightX;
+            double v4 = r * Math.cos(robotAngle) - rightX;
 
-                //If not turning give each wheel full power
-                if (gamepad1.right_stick_x == 0) {
-                    v1 += v1 / 3;
-                    v2 += v2 / 3;
-                    v3 += v3 / 3;
-                    v4 += v4 / 3;
-                }
+            //If not turning give each wheel full power
+            if (gamepad1.right_stick_x == 0) {
+                v1 += v1 / 3;
+                v2 += v2 / 3;
+                v3 += v3 / 3;
+                v4 += v4 / 3;
+            }
 
-                //Base subsystem drive command passing variables from math above
-                Base.drive_by_command(-v1, -v2, -v3, -v4);
+            //Base subsystem drive command passing variables from math above
+            //Base.drive_by_command(-v1, -v2, -v3, -v4);
 
+            if(X_button_pressed == false)
+            {
+                drive.setWeightedDrivePower(
+                        new Pose2d(
+                                -gamepad1.left_stick_y,
+                                -gamepad1.left_stick_x,
+                                -gamepad1.right_stick_x
+                        )
+                );
+            }
         } else {
             //If no movement on base controller, stop base
-            Base.drive_stop();
+            //Base.drive_stop();
+
+                if (X_button_pressed == false)
+                {
+                drive.setWeightedDrivePower(
+                        new Pose2d(0.0, 0.0, 0.0
+                        )
+                );
+            }
         }
+
+        // This will force a drive to trajectory
+        if(X_button_pressed == true)
+        {
+            Pose2d poseEstimate = drive.getPoseEstimate();
+
+           /* shootingTrajectory = drive.trajectoryBuilder(poseEstimate)
+                    .lineTo(targetBVector)
+                    .build();
+
+
+*/
+
+            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            this.imu.getPosition();
+// and save the heading
+            double curHeading = angles.firstAngle;
+
+            drive.turnAsync(Angle.normDelta(targetAngle - Math.toRadians(curHeading)));//poseEstimate.getHeading()));
+
+            /* shootingTrajectory = drive.trajectoryBuilder(poseEstimate)
+                    .splineTo(targetBVector, targetAngle)
+                    .build();
+
+             drive.followTrajectoryAsync(shootingTrajectory);
+*/
+
+            telemetry.addData("X BUTTON PRESSED", curHeading);
+        }
+
+        drive.update();
 
         // Collector Controls and Conveyor.
         // Collect if right bumper on base controller is pressed, eject if left bumper on base controller is pressed, otherwise stop the collector
@@ -131,7 +239,6 @@ public class Teleop extends Controls {
             Collector.collect_stop();
         }
         //Shoot Commands, if bumper or right trigger is used spin up motors
-        isShootingHigh = false;
         if(gamepad2.right_bumper || (gamepad2.right_trigger >= 0.2)) {
             /* if running conveyor based on time instead of PD
             if(sTimeTemp == 0) {
@@ -139,13 +246,12 @@ public class Teleop extends Controls {
                 shootTime = runtime.milliseconds();
             } */
             //Shoot by pd command passing current velocity and target velocity, shootPower is below, pass a power for the shooter motors to use
-            isShootingHigh = true;
             Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1620);
 //            Shooter.shootPower(1);
             Shooter.flap_open();
             //Power shot code
         } else if (gamepad2.left_bumper) { /// *** POWER SHOT ****
-            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1500);
+            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1550);
 //            Shooter.shoot();
             Shooter.flap_power_shot();
         } else {
@@ -166,7 +272,7 @@ public class Teleop extends Controls {
             //Uncomment for time instead of pd Also comment shootbypd in shoot section, and first if statement in controls.
 //        if(gamepad2.right_bumper && runtime.milliseconds() - markedTime2 > 2500) {
             //Power shot code
-        } else if (gamepad2.left_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1430 && PinkSubsystem.robot.shoot2.getVelocity() < 1550) {
+        } else if (gamepad2.left_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1450 && PinkSubsystem.robot.shoot2.getVelocity() < 1550) {
             Conveyor.flap_open();
             Conveyor.collect(.65);
             //start shooting if shootTemp = 1 from previous code
@@ -184,11 +290,8 @@ public class Teleop extends Controls {
             //stop conveyor if nothing is pressed
         }else {
             Conveyor.flap_close();
-            if(isShootingHigh == false) {
-                Conveyor.conveyor_stop();
-            }
+            Conveyor.conveyor_stop();
         }
-
 
 
         //Wobble controls
@@ -204,7 +307,7 @@ public class Teleop extends Controls {
         }
 
         // Set Motor Powers and Servos to Their Commands
-        PinkSubsystem.set_motor_powers();
+        PinkSubsystem.set_motor_powers_no_base();
         PinkSubsystem.set_servo_positions();
 
 
