@@ -22,6 +22,7 @@ public class PinkHardware {
     // ****** Encoders Are defined in SampleMecanumDrive *****
 
     public WebcamName webcam; // Port Unknown
+    public WebcamName frontcam;
 
     // Servos
     public Servo shoot_flap;
@@ -52,6 +53,7 @@ public class PinkHardware {
         // Encoders are defined in SampleMecanumDrive
 
         webcam = hwMap.get(WebcamName.class, "webcam");
+        frontcam = hwMap.get(WebcamName.class, "frontcam");
 
         // Motor Configuration
         rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
