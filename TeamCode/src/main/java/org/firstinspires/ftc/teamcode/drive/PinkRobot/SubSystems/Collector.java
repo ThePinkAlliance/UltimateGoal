@@ -23,6 +23,12 @@ public abstract class Collector extends PinkSubsystem{
         collect_command = Presets.COLLECTOR_EJECT_POWER;
     }
 
+    // Method for Ejecting
+    public static void eject_slow() {
+        // Command assigned to preset value
+        collect_command = Presets.COLLECTOR_EJECT_POWER + 0.10;
+    }
+
     // Method for Stopping the Collector
     public static void collect_stop() {
         // Command assigned to preset value
@@ -38,4 +44,24 @@ public abstract class Collector extends PinkSubsystem{
         // Command assigned to preset value
         collector_drop_command = Presets.COLLECTOR_HOLDER_RELEASE;
     }
+
+    public static void ringblocker_up()
+    {
+        ring_blocker_command = Presets.RING_BROCKER_UP;
+    }
+
+    public static void ringblocker_folded()
+    {
+        ring_blocker_command = Presets.RING_BROCKER_FOLDED;
+    }
+
+    public static void ringblocker_down()
+    {
+        ring_blocker_command = Presets.RING_BROCKER_DOWN;
+    }
+
+
+
+
+
 }

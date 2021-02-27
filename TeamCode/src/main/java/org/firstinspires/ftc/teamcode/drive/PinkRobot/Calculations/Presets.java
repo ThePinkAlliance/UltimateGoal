@@ -6,13 +6,16 @@ public class Presets {
     public static final double COLLECTOR_COLLECT_POWER = -1; // Power Sent to Motor While Collecting
     public static final double COLLECTOR_EJECT_POWER = 1; // Power Sent to Motor While Ejecting
     public static final double COLLECTOR_STOP_POWER = 0;
-    public static final double COLLECTOR_HOLDER_RELEASE = 1;
+
+    public static final double COLLECTOR_HOLDER_RELEASE = 0.5;
     public static final double COLLECTOR_HOLDER_HOLD = 0;
 
     //Conveyor Commands
     public static final double CONVEYOR_COLLECT_POWER = 1;
     public static final double CONVEYOR_EJECT_POWER = -1;
     public static final double CONVEYOR_STOP_POWER = 0;
+
+
     public static final double CONVEYOR_FLAP_OPEN = .22;
     public static final double CONVEYOR_FLAP_CLOSE = 0;
 
@@ -21,10 +24,10 @@ public class Presets {
     public static final double SHOOTER_STOP_POWER = 0;
     public static final double SHOOTER_FLAP_CLOSE = 0.22;
 
-    public static final double SHOOTER_FLAP_OPEN = 0.401; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_OPEN = 0.402; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
     public static final double SHOOTER_FLAP_POWER_SHOT = .420;// Short Flap .415; // .41 is good ideal value
 
-    public static final double SHOOTER_FLAP_OPEN_AUTO = .400; // Short .395 //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_OPEN_AUTO = .402; // Short .395 //increase in numbers is down; decrease in numbers is up.
     public static final double SHOOTER_FLAP_OPEN_AUTO_FAR = .410; // Short .405; //increase in numbers is down; decrease in numbers is up.
 
     //Wobble Presets
@@ -32,6 +35,22 @@ public class Presets {
     public static final double WOBBLE_DOWN = 0.70; //.92;
     public static final double WOBBLE_GRIP = 0;
     public static final double WOBBLE_UNGRIP = 0.65; //.6;
+
+    // Top Gate
+    public static final double TOP_GATE_UP = 0.3;
+    public static final double TOP_GATE_DOWN = 0.05;
+
+    // Ring Blocker
+    public static final double RING_BROCKER_FOLDED = 0.0;
+    public static final double RING_BROCKER_UP = 0.4;
+    public static final double RING_BROCKER_DOWN = 0.80;
+
+    // TeleOp
+    public static final double TELEOP_HIGH_PID_RPM_TARGET = 1850;
+    public static final double TELEOP_HIGH_PID_RPM_TARGET_LOW = TELEOP_HIGH_PID_RPM_TARGET - 100;
+    public static final double TELEOP_HIGH_PID_RPM_TARGET_HIGH = TELEOP_HIGH_PID_RPM_TARGET + 100;
+
+
 
     //Hook Presets
     public static final double HOOK_DOWN = .5;

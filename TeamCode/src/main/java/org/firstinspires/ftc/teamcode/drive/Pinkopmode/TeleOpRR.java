@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstra
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.acmerobotics.roadrunner.util.Angle;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -39,6 +40,7 @@ import java.util.Arrays;
 
 // Class for Player-Controlled Period of the Game Which Binds Controls to Subsystems
 @TeleOp(name = "TeleOpRR", group = "TeleOpRR")
+@Disabled
 public class TeleOpRR extends Controls {
 
     //Variables

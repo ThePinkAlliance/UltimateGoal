@@ -22,6 +22,7 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.drive.PinkRobot.Calculations.Presets;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Conveyor;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.PinkSubsystem;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Collector;
@@ -249,6 +250,10 @@ public class PinkAuto extends LinearOpMode {
         Wobble.wobble_grip();
         Wobble.wobble_arm_up();
         PinkSubsystem.set_servo_positions();
+        Collector.ringblocker_folded();
+
+        Conveyor.top_gate_down();
+        Conveyor.flap_open();
 
         // This is the starting position during auto
         drive.setPoseEstimate(new Pose2d(RED_CORNER_START_X, RED_CORNER_START_Y, Math.toRadians(RED_CORNER_START_HEADING)));
@@ -296,6 +301,7 @@ public class PinkAuto extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_DRIVE:
 
                 case AS_DROP_FIRST_WOBBLE_DROP:
+                    Collector.collector_hold();
                     Wobble.wobble_arm_down();
                     autoStep = AutonomousSTEPS.AS_DROP_FIRST_WOBBLE_RELEASE;
                     break; // AS_DROP_FIRST_WOBBLE_DROP
@@ -304,7 +310,7 @@ public class PinkAuto extends LinearOpMode {
                     if(runtime.milliseconds() - markedTime > 350) {
                         Wobble.wobble_ungrip();
                         Shooter.shootPower(0.855);
-                        Conveyor.flap_open();
+                        Conveyor.top_gate_down(); // Conveyor.flap_open();
                         autoStep = AutonomousSTEPS.AS_SHOOT_FIRST_3_HIGH_DRIVE;
                     }
                     break; // AS_DROP_FIRST_WOBBLE_RELEASE
@@ -344,16 +350,16 @@ public class PinkAuto extends LinearOpMode {
                 case AS_SHOOT_FIRST_3_SHOOT:
                     if(runtime.milliseconds() - markedTime < 1700) { // run this for enough time to shoot
                         Conveyor.collect(HIGH_SHOT_SPINDEXER_POWER);
-                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1560);
+                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
                         double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
 
-                        if (currentShooterVelocity > 1460 && currentShooterVelocity < 1660) {
-                            Conveyor.flap_open();
+                        if (currentShooterVelocity > Presets.TELEOP_HIGH_PID_RPM_TARGET_LOW && currentShooterVelocity < Presets.TELEOP_HIGH_PID_RPM_TARGET_HIGH) {
+                            Conveyor.top_gate_up(); // Conveyor.flap_open();
                         }
                     } else {
                         autoStep = AutonomousSTEPS.AS_COLLECT_CENTER_WOBBLE;
                         Shooter.dont_shoot();
-                        Conveyor.flap_close();
+                        Conveyor.top_gate_down(); // Conveyor.flap_close();
                         Conveyor.conveyor_stop();
                         Wobble.wobble_arm_down();
                     }
@@ -426,7 +432,7 @@ public class PinkAuto extends LinearOpMode {
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED:
                                 // Get ready to collect the ring on the trajectory to shoot
-                                Conveyor.flap_close();
+                                Conveyor.top_gate_down();  //Conveyor.flap_close();
                                 Collector.collect();
                                 Conveyor.collect(   1.0);
                                 Shooter.shootPower(0.835); // Start spinning up the shooter so it is ready to shoot on the next step.
@@ -455,7 +461,7 @@ public class PinkAuto extends LinearOpMode {
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED:
                                 // Get ready to collect the ring on the trajectory to shoot
-                                Conveyor.flap_close();
+                                Conveyor.top_gate_down(); // Conveyor.flap_close();
                                 Collector.collect();// collectAt(-0.70);
                                 Conveyor.collect(0.90);
                                 Shooter.shootPower(0.835); // Start spinning up the shooter so it is ready to shoot on the next step.
@@ -481,11 +487,11 @@ public class PinkAuto extends LinearOpMode {
                 case AS_SHOOT_SINGLE_FROM_STACK:
                     if(runtime.milliseconds() - markedTime < 1750) { // run this for enough time to shoot
                         Conveyor.collect(HIGH_SHOT_SPINDEXER_POWER);
-                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1560);
+                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
                         double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
 
-                        if (currentShooterVelocity > 1450) {
-                            Conveyor.flap_open();
+                        if (currentShooterVelocity > Presets.TELEOP_HIGH_PID_RPM_TARGET_LOW) {
+                            Conveyor.top_gate_up(); //Conveyor.flap_open();
                             if(ringFound != RingMode.QUAD)
                             {
                                 autoStep = AutonomousSTEPS.AS_DROP_SECOND_WOBBLE_DRIVE;
@@ -535,7 +541,7 @@ public class PinkAuto extends LinearOpMode {
                     Wobble.wobble_arm_down();
                     Wobble.wobble_ungrip();
                     Shooter.dont_shoot();
-                    Conveyor.flap_close();
+                    Conveyor.top_gate_down(); // Conveyor.flap_close();
                     Conveyor.conveyor_stop();
                     autoStep = AutonomousSTEPS.AS_DROP_SECOND_WOBBLE_RELEASE;
                     break; // AS_DROP_FIRST_WOBBLE_DROP
@@ -550,7 +556,7 @@ public class PinkAuto extends LinearOpMode {
                                         autoStep = AutonomousSTEPS.AS_PARK;
                                         break; // SINGLE
                                     case QUAD:
-                                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1560);
+                                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
                                         Wobble.wobble_arm_up();
                                         autoStep = AutonomousSTEPS.AS_QUAD_COLLECT_LAST_DRIVE;
                                         break; // QUAD
@@ -569,7 +575,7 @@ public class PinkAuto extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_RELEASE
 
                 case AS_QUAD_COLLECT_LAST_DRIVE:
-                    Conveyor.flap_close();
+                    Conveyor.top_gate_down(); //Conveyor.flap_close();
                     Collector.collect();
                     Shooter.flap_power_shot();
                     Shooter.flap_custom(0.42);// Good Pos 0.415);
@@ -589,11 +595,11 @@ public class PinkAuto extends LinearOpMode {
                 case AS_QUAD_LAST_SHOOT:
                     if(runtime.milliseconds() - markedTime < 500) { // run this for enough time to shoot
                         Conveyor.collect(HIGH_SHOT_SPINDEXER_POWER);
-                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1560);
+                        Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
                         double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
 
-                        if (currentShooterVelocity > 1440) {
-                            Conveyor.flap_open();
+                        if (currentShooterVelocity > Presets.TELEOP_HIGH_PID_RPM_TARGET_LOW) {
+                            Conveyor.top_gate_up(); //Conveyor.flap_open();
                             autoStep = AutonomousSTEPS.AS_PARK;
                         }
                     } else {

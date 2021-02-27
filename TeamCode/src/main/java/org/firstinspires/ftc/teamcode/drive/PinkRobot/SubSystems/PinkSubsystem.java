@@ -20,6 +20,10 @@ public class PinkSubsystem {
     static double collector_drop_command = Presets.COLLECTOR_HOLDER_HOLD;
     static double wobble_arm_command = Presets.WOBBLE_UP;
     static double wobble_grip_command = Presets.WOBBLE_GRIP;
+    static double top_gate_command = Presets.TOP_GATE_DOWN;
+
+    static double ring_blocker_command = Presets.RING_BROCKER_FOLDED;
+
 
     // Method Which Sends the Motor Powers to the Motors
     public static void set_motor_powers() {
@@ -52,5 +56,7 @@ public class PinkSubsystem {
         robot.collector_drop.setPosition(collector_drop_command);
         robot.wobble_arm.setPosition(wobble_arm_command);
         robot.wobble_grip.setPosition(wobble_grip_command);
+        robot.top_gate.setPosition(top_gate_command);
+        robot.ring_blocker.setPosition(ring_blocker_command);
     }
 }

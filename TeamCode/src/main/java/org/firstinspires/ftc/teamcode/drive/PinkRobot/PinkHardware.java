@@ -29,6 +29,8 @@ public class PinkHardware {
     public Servo collector_drop;
     public Servo wobble_arm;
     public Servo wobble_grip;
+    public Servo top_gate;
+    public Servo ring_blocker;
 
     // Local OpMode Members
     private HardwareMap hwMap = null;
@@ -110,5 +112,8 @@ public class PinkHardware {
         conveyor_flap = hwMap.get(Servo.class, "conveyor_flap");
         wobble_arm = hwMap.get(Servo.class, "wobble_arm");
         wobble_grip = hwMap.get(Servo.class, "wobble_grip");
+        top_gate = hwMap.get(Servo.class, "top_gate");
+        ring_blocker = hwMap.get(Servo.class, "ring_blocker");
+
     }
 }

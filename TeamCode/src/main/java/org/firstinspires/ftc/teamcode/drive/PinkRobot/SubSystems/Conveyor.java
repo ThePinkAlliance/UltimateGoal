@@ -40,4 +40,12 @@ public abstract class Conveyor extends PinkSubsystem{
         //Define Commands
         conveyor_flap_command = Presets.CONVEYOR_FLAP_CLOSE;
     }
+
+    public static void top_gate_down() {
+        top_gate_command = Presets.TOP_GATE_DOWN;
+    }
+
+    public static void top_gate_up() {
+        top_gate_command = Presets.TOP_GATE_UP;
+    }
 }

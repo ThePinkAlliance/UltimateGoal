@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.drive.Pinkopmode;
 
 //FIRST-provided Imports
+import android.view.textclassifier.ConversationAction;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -13,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 //Subsystem Imports
+import org.firstinspires.ftc.teamcode.drive.PinkRobot.Calculations.Presets;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Collector;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Conveyor;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Shooter;
@@ -33,12 +36,13 @@ public class Teleop extends Controls {
     double shootTime = 0;
     double sTimeTemp = 0;
 
-    double HIGH_SHOT_SPINDEXER_POWER  = 0.95;//0.765; // Good Safe Value
+    double HIGH_SHOT_SPINDEXER_POWER  = 1.00;//0.70; // Good Safe Value
 
 //    private double previousHeading = 0;
 //    private double integratedHeading = 0;
     private ElapsedTime runtime = new ElapsedTime();
-    private BNO055IMU imu;
+
+    //private BNO055IMU imu;
 
     private boolean isShootingHigh = false;
 
@@ -46,7 +50,7 @@ public class Teleop extends Controls {
     public void init() {
 
         //imu initialization
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+      /*  BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
@@ -59,6 +63,7 @@ public class Teleop extends Controls {
         // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
+*/
 
         // Initialization of Each Subsystem's Hardware Map and setup of motors
         PinkSubsystem.robot.init(hardwareMap);
@@ -74,7 +79,10 @@ public class Teleop extends Controls {
         //Robot setup for wobble servos and collector
         Wobble.wobble_arm_up();
         Wobble.wobble_grip();
-        Collector.collector_drop();
+        //Collector.collector_drop();
+        Collector.collector_hold();
+        Conveyor.top_gate_down();
+        Conveyor.flap_open();
 //        Scorer.score_rotate_to_position(Presets.SCORER_STOW);
 
         // Telemetry Update to Inform Drivers That the Program is Initialized
@@ -121,10 +129,11 @@ public class Teleop extends Controls {
             Base.drive_stop();
         }
 
-        // Collector Controls and Conveyor.
+                // Collector Controls and Conveyor.
         // Collect if right bumper on base controller is pressed, eject if left bumper on base controller is pressed, otherwise stop the collector
         if (base_right_bumper(false)) {
             Collector.collect();
+            Conveyor.top_gate_down();
         } else if (base_left_bumper(false)) {
             Collector.eject();
         } else {
@@ -133,30 +142,26 @@ public class Teleop extends Controls {
         //Shoot Commands, if bumper or right trigger is used spin up motors
         isShootingHigh = false;
         if(gamepad2.right_bumper || (gamepad2.right_trigger >= 0.2)) {
-            /* if running conveyor based on time instead of PD
-            if(sTimeTemp == 0) {
-                sTimeTemp = 1;
-                shootTime = runtime.milliseconds();
-            } */
+
             //Shoot by pd command passing current velocity and target velocity, shootPower is below, pass a power for the shooter motors to use
             isShootingHigh = true;
-            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1620);
-//            Shooter.shootPower(1);
+            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
             Shooter.flap_open();
             //Power shot code
         } else if (gamepad2.left_bumper) { /// *** POWER SHOT ****
             Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1500);
 //            Shooter.shoot();
             Shooter.flap_power_shot();
+            Conveyor.top_gate_up();
         } else {
             shootTemp = 0;
             Shooter.dont_shoot();
         }
 
-
         // Conveyor and shooter Controls
         // Check for right bumper pressed and within pd thresholds
-        if (gamepad2.right_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1500 && PinkSubsystem.robot.shoot2.getVelocity() < 1700 && shootTemp != 1) {
+        if (gamepad2.right_bumper && PinkSubsystem.robot.shoot2.getVelocity() > Presets.TELEOP_HIGH_PID_RPM_TARGET_LOW &&
+                PinkSubsystem.robot.shoot2.getVelocity() < Presets.TELEOP_HIGH_PID_RPM_TARGET_HIGH && shootTemp != 1) {
             //if right trigger pressed, start shooting.
             if (gamepad2.right_trigger >= 0.2) {
                 shootTemp = 1;
@@ -166,30 +171,44 @@ public class Teleop extends Controls {
             //Uncomment for time instead of pd Also comment shootbypd in shoot section, and first if statement in controls.
 //        if(gamepad2.right_bumper && runtime.milliseconds() - markedTime2 > 2500) {
             //Power shot code
-        } else if (gamepad2.left_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1430 && PinkSubsystem.robot.shoot2.getVelocity() < 1550) {
+        } else if (gamepad2.left_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1425 && PinkSubsystem.robot.shoot2.getVelocity() < 1600) {
             Conveyor.flap_open();
+            //Conveyor.top_gate_up();
             Conveyor.collect(.65);
             //start shooting if shootTemp = 1 from previous code
         } else if (shootTemp == 1) {
             Conveyor.flap_open();
+            Conveyor.top_gate_up();
+            //Conveyor.top_gate_up();
             Conveyor.collect(HIGH_SHOT_SPINDEXER_POWER);
             //if left bumper pressed, eject rings
-        } else if(gamepad1.left_bumper) {
+        } else if(gamepad1.left_bumper) {           // ----- EJECT ALL RINGS FROM BOT
             Conveyor.flap_open();
+            Conveyor.top_gate_up();
             Conveyor.eject();
             //if right bumper is pressed collect rings
-        } else if (gamepad1.right_bumper) {
+        } else if (gamepad1.right_bumper) {         // ----- DRIVER COLLECTION OF RINGS
             Conveyor.collect(1);
             Conveyor.flap_close();
+            Conveyor.top_gate_down();
             //stop conveyor if nothing is pressed
         }else {
-            Conveyor.flap_close();
             if(isShootingHigh == false) {
                 Conveyor.conveyor_stop();
+                Conveyor.flap_close();
+            } else {
+                Conveyor.flap_open();       // ------ Let the rings go into the spindexer
+                Conveyor.collect(1.0);
             }
         }
 
-
+        // Ring Blocker
+        if(gamepad2.dpad_down == true || shootTemp == 1)
+        {
+            Collector.ringblocker_down();
+        } else {
+            Collector.ringblocker_up();
+        }
 
         //Wobble controls
         //Gamepad 2 X is grip, B is release, A is down, Y is up
@@ -209,9 +228,9 @@ public class Teleop extends Controls {
 
 
 
-        if (gamepad2.dpad_down) {
+        if (gamepad1.dpad_down) {
             telemTemp = 0;
-        } else if (gamepad2.dpad_up) {
+        } else if (gamepad1.dpad_up) {
             telemTemp = 1;
         }
 
