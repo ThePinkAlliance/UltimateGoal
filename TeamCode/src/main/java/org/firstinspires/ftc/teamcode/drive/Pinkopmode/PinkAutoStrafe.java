@@ -68,7 +68,7 @@ public class PinkAutoStrafe extends LinearOpMode {
 
 
     // Starting Ring mode... None, will be adjusted later
-    public static RingMode ringFound = RingMode.QUAD;
+    public static RingMode ringFound = RingMode.NONE;
     public static StartingPosition startingFieldPosition = StartingPosition.SP_CORNER_RED;
     public static AutonomousSTEPS autoStep = AutonomousSTEPS.AS_DROP_FIRST_WOBBLE_DRIVE;
 
@@ -100,7 +100,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC_SHOOT_HIGH_WOB_X = -2;
     public static double RC_SHOOT_HIGH_WOB_Y = -36;
     public static double RC_SHOOT_HIGH_WOB_HEADING = -3;
-    public static double RCQ_SHOOT_HIGH_WOB_HEADING = 3;
+    public static double RCQ_SHOOT_HIGH_WOB_HEADING = 0;
 
     public static double RC0_SHOOT_HIGH_WOB_TAN_END = 15;
     public static double RC1_SHOOT_HIGH_WOB_TAN_END = 180; // Different Tangent for second pos but same x/y/heading
@@ -114,9 +114,9 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC_COLLECT_MID_WOB_HEADING = 0;
     public static double RC_COLLECT_MID_WOB_TAN_END = 190;
 
-    public static double RCQ_COLLECT_MID_WOB_X = -38.5;
-    public static double RCQ_COLLECT_MID_WOB_Y = -29.5;
-    public static double RCQ_COLLECT_MID_WOB_HEADING = 7;
+    public static double RCQ_COLLECT_MID_WOB_X = -36.5;
+    public static double RCQ_COLLECT_MID_WOB_Y = -26.5;
+    public static double RCQ_COLLECT_MID_WOB_HEADING = 3;
     public static double RCQ_COLLECT_MID_WOB_TAN_END = 210;
 
     public static double RC0_COLLECT_MID_WOB_TAN_BEGIN = 25;
@@ -129,9 +129,9 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC1_SHOOT_SINGLE_STACK_TAN_END = 25;
     public static double RC1_SHOOT_SINGLE_STACK_TAN_BEGIN = 0;
 
-    public static double RCQ_STRAFE_RIGHT_X = RCQ_COLLECT_MID_WOB_X;
-    public static double RCQ_STRAFE_RIGHT_Y = RCQ_COLLECT_MID_WOB_Y - 15;
-    public static double RCQ_STRAFE_RIGHT_HEADING = 7;
+    public static double RCQ_STRAFE_RIGHT_X = RCQ_COLLECT_MID_WOB_X -2;
+    public static double RCQ_STRAFE_RIGHT_Y = RCQ_COLLECT_MID_WOB_Y - 13;
+    public static double RCQ_STRAFE_RIGHT_HEADING = 0;
     public static double RCQ_STRAFE_RIGHT_TAN_END = -45;
 
 
@@ -160,7 +160,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RCQ_DROP_SECOND_WOB_TAN_BEGIN = -205;
 
     public static double RCQ_STRAFE_RIGHT = 14;
-    public static double RCQ_COLLECT_FORWARD = 30;
+    public static double RCQ_COLLECT_FORWARD = 28;
     public static double RCQ_COLLECT_LAST_FORWARD = 8;
 
     public static double RC0_SECOND_PARK_X = 5;
@@ -226,6 +226,7 @@ public class PinkAutoStrafe extends LinearOpMode {
             if (tfod != null) {
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                 if (updatedRecognitions != null) {
+                    numRings = "none";
                     for (Recognition r: updatedRecognitions) {
                         numRings = r.getLabel().toLowerCase();
                         telemetry.addData("obj", r.getLabel());
@@ -362,7 +363,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_DRIVE:
 
                 case AS_SHOOT_FIRST_3_SHOOT:
-                    if(runtime.milliseconds() - markedTime < 1700) { // run this for enough time to shoot
+                    if(runtime.milliseconds() - markedTime < 1500) { // run this for enough time to shoot
                         if(ringFound == RingMode.QUAD) {
                             Conveyor.collect(HIGH_SHOT_SPINDEXER_POWER);
                         } else {
@@ -436,7 +437,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                 case AS_COLLECT_CENTER_LIFT:
                     double liftdelay = 0;
                     if(ringFound == RingMode.QUAD) {
-                        liftdelay = 450;
+                        liftdelay = 400;
                     } else {
                         liftdelay = 1000;
                     }
@@ -469,7 +470,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_RELEASE
 
                 case AS_COLLECT_QUAD_RING_STRAFE:
-                    if(runtime.milliseconds() - markedTime > 200) {
+                    if(runtime.milliseconds() - markedTime > 150) {
                         // Get ready to collect the ring on the trajectory to shoot
                         Conveyor.top_gate_down(); //Conveyor.flap_close();
                         Collector.collectAt(-0.6);
@@ -552,7 +553,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                             Conveyor.flap_open();
                             Conveyor.top_gate_up();
                             if(ringFound != RingMode.QUAD) {
-                                if (runtime.milliseconds() - markedTime > 3000)
+                                if (runtime.milliseconds() - markedTime > 2500)
                                 {
                                     Collector.collect_stop();
                                     autoStep = AutonomousSTEPS.AS_DROP_SECOND_WOBBLE_DRIVE;

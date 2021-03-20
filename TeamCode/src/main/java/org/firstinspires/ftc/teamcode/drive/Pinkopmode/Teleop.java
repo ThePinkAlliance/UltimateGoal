@@ -37,35 +37,12 @@ public class Teleop extends Controls {
     double sTimeTemp = 0;
 
     double HIGH_SHOT_SPINDEXER_POWER  = 1.00;//0.70; // Good Safe Value
-
-//    private double previousHeading = 0;
-//    private double integratedHeading = 0;
     private ElapsedTime runtime = new ElapsedTime();
-
-    //private BNO055IMU imu;
-
     private boolean isShootingHigh = false;
 
     // Code to Run Once When the Drivers Press Init
     public void init() {
-
-        //imu initialization
-      /*  BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-*/
-
-        // Initialization of Each Subsystem's Hardware Map and setup of motors
+     // Initialization of Each Subsystem's Hardware Map and setup of motors
         PinkSubsystem.robot.init(hardwareMap);
         PinkSubsystem.robot.rightF_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         PinkSubsystem.robot.rightB_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

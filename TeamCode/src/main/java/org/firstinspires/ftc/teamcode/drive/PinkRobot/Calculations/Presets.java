@@ -24,11 +24,15 @@ public class Presets {
     public static final double SHOOTER_STOP_POWER = 0;
     public static final double SHOOTER_FLAP_CLOSE = 0.22;
 
-    public static final double SHOOTER_FLAP_OPEN = 0.402; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
-    public static final double SHOOTER_FLAP_POWER_SHOT = .420;// Short Flap .415; // .41 is good ideal value
+    // Under 16ft shooting values
+    // Flap 0.392 -
+    // RPM 1450
 
-    public static final double SHOOTER_FLAP_OPEN_AUTO = .402; // Short .395 //increase in numbers is down; decrease in numbers is up.
-    public static final double SHOOTER_FLAP_OPEN_AUTO_FAR = .410; // Short .405; //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_OPEN = 0.401; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_POWER_SHOT = SHOOTER_FLAP_OPEN - 0.008;// Short Flap .415; // .41 is good ideal value
+
+    public static final double SHOOTER_FLAP_OPEN_AUTO = SHOOTER_FLAP_OPEN - 0.001; // Short .395 //increase in numbers is down; decrease in numbers is up.
+  // public static final double SHOOTER_FLAP_OPEN_AUTO_FAR = .410; // Short .405; //increase in numbers is down; decrease in numbers is up.
 
     //Wobble Presets
     public static final double WOBBLE_UP = 0.30; //.32;
@@ -46,12 +50,15 @@ public class Presets {
     public static final double RING_BROCKER_DOWN = 0.80;
 
     // TeleOp
-    public static final double TELEOP_HIGH_PID_RPM_TARGET = 1850;
+    public static final double TELEOP_HIGH_PID_RPM_TARGET = 2100;
     public static final double TELEOP_HIGH_PID_RPM_TARGET_LOW = TELEOP_HIGH_PID_RPM_TARGET - 100;
     public static final double TELEOP_HIGH_PID_RPM_TARGET_HIGH = TELEOP_HIGH_PID_RPM_TARGET + 100;
 
+    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET = 1700;
+    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET_LOW = TELEOP_POWERSHOT_PID_RPM_TARGET - 100;
+    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET_HIGH = TELEOP_POWERSHOT_PID_RPM_TARGET + 100;
 
-
+    public static final double TELEOP_AUTOAIM_POS = -10.0;
     //Hook Presets
     public static final double HOOK_DOWN = .5;
     public static final double HOOK_UP = 1;

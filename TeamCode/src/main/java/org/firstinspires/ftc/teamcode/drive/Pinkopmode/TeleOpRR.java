@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive.Pinkopmode;
 
 //FIRST-provided Imports
+import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
@@ -16,6 +17,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 //Imu Imports
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -23,6 +25,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 //Subsystem Imports
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.PinkRobot.Calculations.Presets;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Collector;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Conveyor;
 import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Shooter;
@@ -40,7 +43,6 @@ import java.util.Arrays;
 
 // Class for Player-Controlled Period of the Game Which Binds Controls to Subsystems
 @TeleOp(name = "TeleOpRR", group = "TeleOpRR")
-@Disabled
 public class TeleOpRR extends Controls {
 
     //Variables
@@ -68,6 +70,34 @@ public class TeleOpRR extends Controls {
 
     double targetAngle = Math.toRadians(0);
 
+
+    private boolean isShootingHigh = false;
+
+
+
+    // Align to target stuff
+    public static double DRAWING_TARGET_RADIUS = 2;
+
+    // Define 2 states, driver control or alignment control
+    enum Mode {
+        NORMAL_CONTROL,
+        ALIGN_TO_POINT
+    }
+
+    private Mode currentMode = Mode.NORMAL_CONTROL;
+
+    // Declare a PIDF Controller to regulate heading
+    // Use the same gains as SampleMecanumDrive's heading controller
+    private PIDFController headingController = new PIDFController(SampleMecanumDrive.HEADING_PID);
+
+    // Declare a target vector you'd like your bot to align with
+    // Can be any x/y coordinate of your choosing
+    private double TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POS;
+    private Vector2d targetPosition = new Vector2d(74, TargetHeadingYPosition);
+
+
+
+
     // Code to Run Once When the Drivers Press Init
     public void init() {
         DriveConstants.MAX_VEL = 120;
@@ -76,26 +106,16 @@ public class TeleOpRR extends Controls {
         //DriveConstants.MAX_ANG_ACCEL = 360;
         drive = new SampleMecanumDrive(hardwareMap);
 
-        shootingTrajectory = drive.trajectoryBuilder(new Pose2d())
-                // This spline is limited to 15 in/s and will be slower
-                .splineTo(
-                        new Vector2d(30, 30), 0,
-                        new MinVelocityConstraint(
-                                Arrays.asList(
-                                        new AngularVelocityConstraint(240),
-                                        new MecanumVelocityConstraint(35, DriveConstants.TRACK_WIDTH)
-                                )
-                        ),
-                        new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
-                .build();
-
-      /*  shootingTrajectory = drive.trajectoryBuilder(new Pose2d())
-                // This spline is limited to 15 in/s and will be slower
-                .lineTo(new Vector2d(24,24 ))
-                .build();
-*/
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Retrieve our pose from the PoseStorage.currentPose static field
+        // See AutoTransferPose.java for further details
+        PoseStorage.currentPose = new Pose2d(0,-12);
+        drive.getLocalizer().setPoseEstimate(PoseStorage.currentPose);
+
+        // Set input bounds for the heading controller
+        // Automatically handles overflow
+        headingController.setInputBounds(-Math.PI, Math.PI);
 
         //imu initialization
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -126,7 +146,10 @@ public class TeleOpRR extends Controls {
         //Robot setup for wobble servos and collector
         Wobble.wobble_arm_up();
         Wobble.wobble_grip();
-        Collector.collector_drop();
+        //Collector.collector_drop();
+        Collector.collector_hold();
+        Conveyor.top_gate_down();
+        Conveyor.flap_open();
 //        Scorer.score_rotate_to_position(Presets.SCORER_STOW);
 
         // Telemetry Update to Inform Drivers That the Program is Initialized
@@ -146,6 +169,35 @@ public class TeleOpRR extends Controls {
         } else {
             initTrajectory = false;
         }
+
+        if (gamepad2.left_stick_y > .1  ||
+                gamepad2.left_stick_y < .1  ||
+                gamepad2.left_stick_x > .1  ||
+                gamepad2.left_stick_x < -.1)
+        {
+
+            TargetHeadingYPosition -= gamepad2.left_stick_x / 20.0;
+
+            targetPosition = new Vector2d(74, TargetHeadingYPosition);
+        }
+
+        if(gamepad2.left_stick_button == true)
+        {
+            TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POS;
+
+            targetPosition = new Vector2d(74, TargetHeadingYPosition);
+        }
+
+        // Reset Robot Pose (Initial Shooting Position)
+        if(gamepad1.y == true)
+        {
+            PoseStorage.currentPose = new Pose2d(0,-12);
+            drive.getLocalizer().setPoseEstimate(PoseStorage.currentPose);
+
+            TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POS;
+            targetPosition = new Vector2d(74, TargetHeadingYPosition);
+        }
+        telemetry.addData("X Heading", TargetHeadingYPosition);
             // Drive Train Control
         //If any movement occurs on base controller, use math to power motor appropriately
         if (gamepad1.left_stick_y > .1  ||
@@ -155,116 +207,119 @@ public class TeleOpRR extends Controls {
                 gamepad1.right_stick_x > .1 ||
                 gamepad1.right_stick_x < -.1) {
 
-            //r is the hypotenuse of (x,y) coordinate of left stick, robotAngle = angleTheta of (x,y) coordinate of left stick. rightX = turning speed
-            double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-            double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-            double rightX = gamepad1.right_stick_x;
+            // Read pose
+            Pose2d poseEstimate = drive.getLocalizer().getPoseEstimate();
 
-            //Equations below is motor speed for each wheel
-            double v1 = r * Math.cos(robotAngle) + rightX;
-            double v2 = r * Math.sin(robotAngle) + rightX;
-            double v3 = r * Math.sin(robotAngle) - rightX;
-            double v4 = r * Math.cos(robotAngle) - rightX;
+            // Declare a drive direction
+            // Pose representing desired x, y, and angular velocity
+            Pose2d driveDirection = new Pose2d();
 
-            //If not turning give each wheel full power
-            if (gamepad1.right_stick_x == 0) {
-                v1 += v1 / 3;
-                v2 += v2 / 3;
-                v3 += v3 / 3;
-                v4 += v4 / 3;
+            telemetry.addData("mode", currentMode);
+
+
+            switch (currentMode) {
+                case NORMAL_CONTROL:
+                    // Switch into alignment mode if `a` is pressed
+                    if (initTrajectory) {
+                        currentMode = Mode.ALIGN_TO_POINT;
+                    }
+
+                    // Standard teleop control
+                    // Convert gamepad input into desired pose velocity
+                    driveDirection = new Pose2d(
+                            -gamepad1.left_stick_y,
+                            -gamepad1.left_stick_x,
+                            -gamepad1.right_stick_x
+                    );
+                    break;
+                case ALIGN_TO_POINT:
+                    // Switch back into normal driver control mode if `b` is pressed
+                    if (!initTrajectory) {
+                        currentMode = Mode.NORMAL_CONTROL;
+                    }
+
+                    // Create a vector from the gamepad x/y inputs which is the field relative movement
+                    // Then, rotate that vector by the inverse of that heading for field centric control
+                    Vector2d fieldFrameInput = new Vector2d(
+                            -gamepad1.left_stick_y,
+                            -gamepad1.left_stick_x
+                    );
+                    Vector2d robotFrameInput = fieldFrameInput.rotated(-poseEstimate.getHeading());
+
+                    // Difference between the target vector and the bot's position
+                    Vector2d difference = targetPosition.minus(poseEstimate.vec());
+                    // Obtain the target angle for feedback and derivative for feedforward
+                    double theta = difference.angle();
+
+                    // Not technically omega because its power. This is the derivative of atan2
+                    double thetaFF = -fieldFrameInput.rotated(-Math.PI / 2).dot(difference) / (difference.norm() * difference.norm());
+
+                    // Set the target heading for the heading controller to our desired angle
+                    headingController.setTargetPosition(theta);
+
+                    // Set desired angular velocity to the heading controller output + angular
+                    // velocity feedforward
+                    double headingInput = (headingController.update(poseEstimate.getHeading())
+                            * DriveConstants.kV + thetaFF)
+                            * DriveConstants.TRACK_WIDTH;
+
+                    // Combine the field centric x/y velocity with our derived angular velocity
+                    driveDirection = new Pose2d(
+                            robotFrameInput,
+                            headingInput
+                    );
+
+
+                    break;
             }
 
-            //Base subsystem drive command passing variables from math above
-            //Base.drive_by_command(-v1, -v2, -v3, -v4);
+            drive.setWeightedDrivePower(driveDirection);
 
-            if(X_button_pressed == false)
-            {
-                drive.setWeightedDrivePower(
-                        new Pose2d(
-                                -gamepad1.left_stick_y,
-                                -gamepad1.left_stick_x,
-                                -gamepad1.right_stick_x
-                        )
-                );
-            }
+            // Update the heading controller with our current heading
+            headingController.update(poseEstimate.getHeading());
+
+
+
         } else {
-            //If no movement on base controller, stop base
-            //Base.drive_stop();
-
-                if (X_button_pressed == false)
-                {
-                drive.setWeightedDrivePower(
-                        new Pose2d(0.0, 0.0, 0.0
-                        )
-                );
-            }
-        }
-
-        // This will force a drive to trajectory
-        if(X_button_pressed == true)
-        {
-            Pose2d poseEstimate = drive.getPoseEstimate();
-
-           /* shootingTrajectory = drive.trajectoryBuilder(poseEstimate)
-                    .lineTo(targetBVector)
-                    .build();
-
-
-*/
-
-            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            this.imu.getPosition();
-// and save the heading
-            double curHeading = angles.firstAngle;
-
-            drive.turnAsync(Angle.normDelta(targetAngle - Math.toRadians(curHeading)));//poseEstimate.getHeading()));
-
-            /* shootingTrajectory = drive.trajectoryBuilder(poseEstimate)
-                    .splineTo(targetBVector, targetAngle)
-                    .build();
-
-             drive.followTrajectoryAsync(shootingTrajectory);
-*/
-
-            telemetry.addData("X BUTTON PRESSED", curHeading);
+            Base.drive_stop();
         }
 
         drive.update();
+
 
         // Collector Controls and Conveyor.
         // Collect if right bumper on base controller is pressed, eject if left bumper on base controller is pressed, otherwise stop the collector
         if (base_right_bumper(false)) {
             Collector.collect();
+            Conveyor.top_gate_down();
         } else if (base_left_bumper(false)) {
             Collector.eject();
         } else {
             Collector.collect_stop();
         }
         //Shoot Commands, if bumper or right trigger is used spin up motors
+        isShootingHigh = false;
         if(gamepad2.right_bumper || (gamepad2.right_trigger >= 0.2)) {
-            /* if running conveyor based on time instead of PD
-            if(sTimeTemp == 0) {
-                sTimeTemp = 1;
-                shootTime = runtime.milliseconds();
-            } */
+
             //Shoot by pd command passing current velocity and target velocity, shootPower is below, pass a power for the shooter motors to use
-            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1620);
-//            Shooter.shootPower(1);
+            isShootingHigh = true;
+            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
             Shooter.flap_open();
             //Power shot code
         } else if (gamepad2.left_bumper) { /// *** POWER SHOT ****
-            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), 1550);
+            Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_POWERSHOT_PID_RPM_TARGET);
 //            Shooter.shoot();
             Shooter.flap_power_shot();
+            Conveyor.top_gate_up();
         } else {
             shootTemp = 0;
             Shooter.dont_shoot();
         }
 
-
         // Conveyor and shooter Controls
         // Check for right bumper pressed and within pd thresholds
-        if (gamepad2.right_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1500 && PinkSubsystem.robot.shoot2.getVelocity() < 1700 && shootTemp != 1) {
+        if (gamepad2.right_bumper && PinkSubsystem.robot.shoot2.getVelocity() > Presets.TELEOP_HIGH_PID_RPM_TARGET_LOW &&
+                PinkSubsystem.robot.shoot2.getVelocity() < Presets.TELEOP_HIGH_PID_RPM_TARGET_HIGH && shootTemp != 1) {
             //if right trigger pressed, start shooting.
             if (gamepad2.right_trigger >= 0.2) {
                 shootTemp = 1;
@@ -274,27 +329,49 @@ public class TeleOpRR extends Controls {
             //Uncomment for time instead of pd Also comment shootbypd in shoot section, and first if statement in controls.
 //        if(gamepad2.right_bumper && runtime.milliseconds() - markedTime2 > 2500) {
             //Power shot code
-        } else if (gamepad2.left_bumper && PinkSubsystem.robot.shoot2.getVelocity() > 1450 && PinkSubsystem.robot.shoot2.getVelocity() < 1550) {
+        } else if (gamepad2.left_bumper && PinkSubsystem.robot.shoot2.getVelocity() > Presets.TELEOP_POWERSHOT_PID_RPM_TARGET_LOW && PinkSubsystem.robot.shoot2.getVelocity() < Presets.TELEOP_POWERSHOT_PID_RPM_TARGET_HIGH) {
             Conveyor.flap_open();
-            Conveyor.collect(.65);
+            //Conveyor.top_gate_up();
+            Conveyor.collect(.50);
             //start shooting if shootTemp = 1 from previous code
         } else if (shootTemp == 1) {
             Conveyor.flap_open();
+            Conveyor.top_gate_up();
+            //Conveyor.top_gate_up();
             Conveyor.collect(HIGH_SHOT_SPINDEXER_POWER);
             //if left bumper pressed, eject rings
-        } else if(gamepad1.left_bumper) {
+        } else if(gamepad1.left_trigger > 0.01) {           // ----- EJECT ALL RINGS FROM BOT
             Conveyor.flap_open();
+            Conveyor.top_gate_up();
             Conveyor.eject();
             //if right bumper is pressed collect rings
-        } else if (gamepad1.right_bumper) {
+        } else if (gamepad1.right_bumper) {         // ----- DRIVER COLLECTION OF RINGS
             Conveyor.collect(1);
             Conveyor.flap_close();
+            Conveyor.top_gate_down();
             //stop conveyor if nothing is pressed
         }else {
-            Conveyor.flap_close();
-            Conveyor.conveyor_stop();
+            if(isShootingHigh == false) {
+                Conveyor.conveyor_stop();
+                Conveyor.flap_close();
+            } else {
+                Conveyor.flap_open();       // ------ Let the rings go into the spindexer
+                Conveyor.collect(1.0);
+            }
         }
 
+        if(gamepad1.left_bumper)
+        {
+            Collector.eject();
+        }
+
+        // Ring Blocker
+        if(gamepad2.dpad_down == true || shootTemp == 1)
+        {
+            Collector.ringblocker_down();
+        } else {
+            Collector.ringblocker_up();
+        }
 
         //Wobble controls
         //Gamepad 2 X is grip, B is release, A is down, Y is up
@@ -307,7 +384,6 @@ public class TeleOpRR extends Controls {
         } else if (gamepad2.y){
             Wobble.wobble_arm_up();
         }
-
         // Set Motor Powers and Servos to Their Commands
         PinkSubsystem.set_motor_powers_no_base();
         PinkSubsystem.set_servo_positions();
@@ -395,3 +471,4 @@ public class TeleOpRR extends Controls {
     } */
 
 }
+
