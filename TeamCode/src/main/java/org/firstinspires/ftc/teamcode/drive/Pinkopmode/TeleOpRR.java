@@ -66,14 +66,7 @@ public class TeleOpRR extends Controls {
     Trajectory shootingTrajectory;
     Boolean initTrajectory = false;
 
-    Vector2d targetBVector = new Vector2d(10.0, 10.0);
-
-    double targetAngle = Math.toRadians(0);
-
-
     private boolean isShootingHigh = false;
-
-
 
     // Align to target stuff
     public static double DRAWING_TARGET_RADIUS = 2;
@@ -94,6 +87,9 @@ public class TeleOpRR extends Controls {
     // Can be any x/y coordinate of your choosing
     private double TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POS;
     private Vector2d targetPosition = new Vector2d(74, TargetHeadingYPosition);
+
+
+    private double TargetHeadingPowerShotPosition = Presets.TELEOP_AUTOAIM_POS;
 
 
 
@@ -170,6 +166,24 @@ public class TeleOpRR extends Controls {
             initTrajectory = false;
         }
 
+        // Driver DPAD is for autoaim of PowerShot
+        // Left PowerShot
+        if(gamepad1.dpad_left == true)
+        {
+            TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POWERSHOT_RED_LEFT;
+            targetPosition = new Vector2d(74, TargetHeadingYPosition);
+        } else
+        if(gamepad1.dpad_up == true)
+        {
+            TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POWERSHOT_RED_MIDDLE;
+            targetPosition = new Vector2d(74, TargetHeadingYPosition);
+        } else
+        if(gamepad1.dpad_right == true)
+        {
+            TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POWERSHOT_RED_RIGHT;
+            targetPosition = new Vector2d(74, TargetHeadingYPosition);
+        }
+
         if (gamepad2.left_stick_y > .1  ||
                 gamepad2.left_stick_y < .1  ||
                 gamepad2.left_stick_x > .1  ||
@@ -181,22 +195,23 @@ public class TeleOpRR extends Controls {
             targetPosition = new Vector2d(74, TargetHeadingYPosition);
         }
 
+        // Reset Target position on Driver left stick click
         if(gamepad2.left_stick_button == true)
         {
             TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POS;
-
             targetPosition = new Vector2d(74, TargetHeadingYPosition);
         }
 
-        // Reset Robot Pose (Initial Shooting Position)
+        // SET Robot Pose (Initial Shooting Position)
         if(gamepad1.y == true)
         {
-            PoseStorage.currentPose = new Pose2d(0,-12);
+            PoseStorage.currentPose = new Pose2d(0,-12); // This is where the robot must be on the field to remember its position
             drive.getLocalizer().setPoseEstimate(PoseStorage.currentPose);
 
             TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POS;
             targetPosition = new Vector2d(74, TargetHeadingYPosition);
         }
+
         telemetry.addData("X Heading", TargetHeadingYPosition);
             // Drive Train Control
         //If any movement occurs on base controller, use math to power motor appropriately

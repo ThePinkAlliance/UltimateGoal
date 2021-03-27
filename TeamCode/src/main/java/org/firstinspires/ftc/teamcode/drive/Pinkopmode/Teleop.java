@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive.Pinkopmode;
 //FIRST-provided Imports
 import android.view.textclassifier.ConversationAction;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -27,6 +28,7 @@ import org.firstinspires.ftc.teamcode.drive.PinkRobot.SubSystems.Wobble;
 
 // Class for Player-Controlled Period of the Game Which Binds Controls to Subsystems
 @TeleOp(name = "TeleOp", group = "TeleOp")
+@Disabled
 public class Teleop extends Controls {
 
     //Variables

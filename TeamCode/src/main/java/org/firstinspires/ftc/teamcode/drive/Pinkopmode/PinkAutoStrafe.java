@@ -86,7 +86,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC0_DROP_FIRST_WOB_TAN_BEGIN = 75; // Spline Tangent where this segment begins o the next position
 
     public static double RC1_DROP_FIRST_WOB_X = 25;
-    public static double RC1_DROP_FIRST_WOB_Y = -32;
+    public static double RC1_DROP_FIRST_WOB_Y = -34;
     public static double RC1_DROP_FIRST_WOB_HEADING = 145;
     public static double RC1_DROP_FIRST_WOB_TAN_END = 45; // Spline Tangent where this segment end
     public static double RC1_DROP_FIRST_WOB_TAN_BEGIN = 190; // Spline Tangent where this segment begins o the next position
@@ -109,7 +109,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC_SHOOT_HIGH_WOB_TAN_BEGIN = 90;
     public static double RCQ_SHOOT_HIGH_WOB_TAN_BEGIN = 100;
 
-    public static double RC_COLLECT_MID_WOB_X = -36.0;
+    public static double RC_COLLECT_MID_WOB_X = -34.85;
     public static double RC_COLLECT_MID_WOB_Y = -22.5;
     public static double RC_COLLECT_MID_WOB_HEADING = 0;
     public static double RC_COLLECT_MID_WOB_TAN_END = 190;
@@ -148,7 +148,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC0_DROP_SECOND_WOB_TAN_BEGIN = -25;
 
     public static double RC1_DROP_SECOND_WOB_X = 17;
-    public static double RC1_DROP_SECOND_WOB_Y = -36;
+    public static double RC1_DROP_SECOND_WOB_Y = -38;
     public static double RC1_DROP_SECOND_WOB_HEADING = 180;
     public static double RC1_DROP_SECOND_WOB_TAN_END = 0;
     public static double RC1_DROP_SECOND_WOB_TAN_BEGIN = 0;
@@ -170,8 +170,8 @@ public class PinkAutoStrafe extends LinearOpMode {
 
     public static double RC1_SECOND_PARK_X = 8;
     public static double RC1_SECOND_PARK_Y = -36;
-    public static double RC1_SECOND_PARK_HEADING = 180;
-    public static double RC1_SECOND_PARK_TAN_END = 0;
+    public static double RC1_SECOND_PARK_HEADING = 0.02;
+    public static double RC1_SECOND_PARK_TAN_END = 90;
 
     public static double RCQ_COLLECT_LAST_X = 6;//-8;
     public static double RCQ_COLLECT_LAST_Y = -40; //-50;
@@ -258,7 +258,7 @@ public class PinkAutoStrafe extends LinearOpMode {
         Collector.collector_drop();
         Collector.collect_stop();
         Shooter.dont_shoot();
-        Shooter.flap_custom(0.6); // Shooter.flap_open()
+        Shooter.flap_custom(1.0); // Shooter.flap_open()
         Conveyor.conveyor_stop();
         Wobble.wobble_grip();
         Wobble.wobble_arm_up();
@@ -336,7 +336,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                             case SP_CORNER_RED:
                                 switch (ringFound) {
                                     case NONE:
-                                        Shooter.flap_custom(Presets.SHOOTER_FLAP_OPEN_AUTO - 0.002);
+                                        Shooter.flap_custom(Presets.SHOOTER_FLAP_OPEN_AUTO);
                                         trajectory = BuildSimpleTrajectory(RC0_DROP_FIRST_WOB_X, RC0_DROP_FIRST_WOB_Y, RC0_DROP_FIRST_WOB_HEADING, RC0_DROP_FIRST_WOB_TAN_BEGIN,
                                                 RC_SHOOT_HIGH_WOB_X, RC_SHOOT_HIGH_WOB_Y, RC_SHOOT_HIGH_WOB_HEADING, RC0_SHOOT_HIGH_WOB_TAN_END);
                                         break; // NONE
@@ -400,7 +400,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                                 switch (ringFound) {
                                     case NONE:
                                     case SINGLE:
-                                        trajectory = BuildSimpleTrajectory(RC_SHOOT_HIGH_WOB_X, RC_SHOOT_HIGH_WOB_Y, RC_SHOOT_HIGH_WOB_HEADING, RC_SHOOT_HIGH_WOB_TAN_BEGIN,
+                                        trajectory = BuildSimpleTrajectorySlow(RC_SHOOT_HIGH_WOB_X, RC_SHOOT_HIGH_WOB_Y, RC_SHOOT_HIGH_WOB_HEADING, RC_SHOOT_HIGH_WOB_TAN_BEGIN,
                                                 RC_COLLECT_MID_WOB_X, RC_COLLECT_MID_WOB_Y, RC_COLLECT_MID_WOB_HEADING, RC_COLLECT_MID_WOB_TAN_END);
                                         break; // SINGLE
                                     case QUAD:
@@ -545,6 +545,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                         Conveyor.collect(1.00);
                         Collector.eject_slow();
                         Conveyor.flap_open();
+                        Conveyor.top_gate_up();
                         Shooter.flap_custom(Presets.SHOOTER_FLAP_OPEN_AUTO + 0.002);// Presets.SHOOTER_FLAP_OPEN_AUTO_FAR);
                         Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
                         double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
@@ -614,7 +615,12 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break;
 
                 case AS_DROP_SECOND_WOBBLE_DRIVE:
-                    if(runtime.milliseconds() - markedTime > 100) {
+                    double secondWaitTime = 100;
+                    if(ringFound != RingMode.QUAD) // If Not QUAD.... WAIT
+                    {
+                        secondWaitTime = 500;
+                    }
+                    if(runtime.milliseconds() - markedTime > secondWaitTime) {
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED:
                                 switch (ringFound) {
@@ -740,16 +746,22 @@ public class PinkAutoStrafe extends LinearOpMode {
                                     case NONE:
                                         trajectory = BuildSimpleTrajectory(RC0_DROP_SECOND_WOB_X, RC0_DROP_SECOND_WOB_Y, RC0_DROP_SECOND_WOB_HEADING, RC0_DROP_SECOND_WOB_TAN_BEGIN,
                                                 RC0_SECOND_PARK_X, RC0_SECOND_PARK_Y, RC0_SECOND_PARK_HEADING, RC0_SECOND_PARK_TAN_END);
+                                        autoStep = AutonomousSTEPS.AS_AUTONOMOUS_END;
                                         break; // NONE
                                     case SINGLE:
-                                        trajectory = BuildSimpleTrajectory(RC1_DROP_SECOND_WOB_X, RC1_DROP_SECOND_WOB_Y, RC1_DROP_SECOND_WOB_HEADING, RC1_DROP_SECOND_WOB_TAN_BEGIN,
-                                                RC1_SECOND_PARK_X, RC1_SECOND_PARK_Y, RC1_SECOND_PARK_HEADING, RC1_SECOND_PARK_TAN_END);
+                                        Wobble.wobble_arm_up();
+                                        if(runtime.milliseconds() - markedTime > 1500) {
+                                            trajectory = BuildSimpleTrajectory(RC1_DROP_SECOND_WOB_X, RC1_DROP_SECOND_WOB_Y, RC1_DROP_SECOND_WOB_HEADING, RC1_DROP_SECOND_WOB_TAN_BEGIN,
+                                                    RC1_SECOND_PARK_X, RC1_SECOND_PARK_Y, RC1_SECOND_PARK_HEADING, RC1_SECOND_PARK_TAN_END);
+                                            autoStep = AutonomousSTEPS.AS_AUTONOMOUS_END;
+                                        }
                                         break; // SINGLE
                                     case QUAD:
                                         trajectory =
                                                 drive.trajectoryBuilder(new Pose2d(RCQ_COLLECT_LAST_X, RCQ_COLLECT_LAST_Y, Math.toRadians(RCQ_COLLECT_LAST_HEADING)), Math.toRadians(RCQ_COLLECT_LAST_TAN_END))
                                                         .forward(8)
                                                         .build();
+                                        autoStep = AutonomousSTEPS.AS_AUTONOMOUS_END;
                                         //BuildSimpleTrajectory(RCQ_COLLECT_LAST_X, RCQ_COLLECT_LAST_Y, RCQ_COLLECT_LAST_HEADING, 0,
                                         //RCQ_COLLECT_LAST_X + 8, RCQ_COLLECT_LAST_Y, RCQ_COLLECT_LAST_HEADING, 0);
                                         break; // QUAD
@@ -763,7 +775,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                                 break; // SP_CENTER_BLUE
                         } //  switch(startingFieldPosition)
 
-                        autoStep = AutonomousSTEPS.AS_AUTONOMOUS_END;
+
                     }
                     break; // AS_COLLECT_CENTER_WOBBLE:
 
@@ -812,11 +824,35 @@ public class PinkAutoStrafe extends LinearOpMode {
         return newTractory;
     }
 
+    public static Trajectory BuildSimpleTrajectorySlow(double beginX, double beginY, double beginHeadingAngle,  double beginTangentAngle,
+                                                   double endX, double endY, double endHeadingAngle,  double endTangentAngle)
+    {
+        Trajectory newTractory =
+                drive.trajectoryBuilderSlow(new Pose2d(beginX, beginY, Math.toRadians(beginHeadingAngle)), Math.toRadians(beginTangentAngle))
+                        .splineToLinearHeading(new Pose2d(endX, endY, Math.toRadians(endHeadingAngle)), Math.toRadians(endTangentAngle))
+                        .build();
+
+        return newTractory;
+    }
+
     public static Trajectory BuildSplineTrajectory(double beginX, double beginY, double beginHeadingAngle,  double beginTangentAngle,
                                                    double endX, double endY, double endHeadingAngle,  double endTangentAngle)
     {
         Trajectory newTractory =
+
                 drive.trajectoryBuilder(new Pose2d(beginX, beginY, Math.toRadians(beginHeadingAngle)), Math.toRadians(beginTangentAngle))
+                        .splineToSplineHeading(new Pose2d(endX, endY, Math.toRadians(endHeadingAngle)), Math.toRadians(endTangentAngle))
+                        //.splineTo(new Vector2d(endX, endY), Math.toRadians(endTangentAngle))
+                        .build();
+
+        return newTractory;
+    }
+
+    public static Trajectory BuildSplineTrajectorySlow(double beginX, double beginY, double beginHeadingAngle,  double beginTangentAngle,
+                                                   double endX, double endY, double endHeadingAngle,  double endTangentAngle)
+    {
+        Trajectory newTractory =
+                drive.trajectoryBuilderSlow(new Pose2d(beginX, beginY, Math.toRadians(beginHeadingAngle)), Math.toRadians(beginTangentAngle))
                         .splineToSplineHeading(new Pose2d(endX, endY, Math.toRadians(endHeadingAngle)), Math.toRadians(endTangentAngle))
                         //.splineTo(new Vector2d(endX, endY), Math.toRadians(endTangentAngle))
                         .build();

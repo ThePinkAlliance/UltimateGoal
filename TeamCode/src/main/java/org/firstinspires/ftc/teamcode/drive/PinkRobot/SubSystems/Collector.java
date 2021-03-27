@@ -26,7 +26,7 @@ public abstract class Collector extends PinkSubsystem{
     // Method for Ejecting
     public static void eject_slow() {
         // Command assigned to preset value
-        collect_command = Presets.COLLECTOR_EJECT_POWER + 0.10;
+        collect_command = Presets.COLLECTOR_EJECT_POWER - 0.16;
     }
 
     // Method for Stopping the Collector
