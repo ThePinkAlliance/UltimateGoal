@@ -7,7 +7,7 @@ public class Presets {
     public static final double COLLECTOR_EJECT_POWER = 1; // Power Sent to Motor While Ejecting
     public static final double COLLECTOR_STOP_POWER = 0;
 
-    public static final double COLLECTOR_HOLDER_RELEASE = 0.5;
+    public static final double COLLECTOR_HOLDER_RELEASE = 0.45;
     public static final double COLLECTOR_HOLDER_HOLD = 0;
 
     //Conveyor Commands
@@ -28,10 +28,10 @@ public class Presets {
     // Flap 0.392 -
     // RPM 1450
 
-    public static final double SHOOTER_FLAP_OPEN = 0.398; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
-    public static final double SHOOTER_FLAP_POWER_SHOT = SHOOTER_FLAP_OPEN + 0.002;// Short Flap .415; // .41 is good ideal value
+    public static final double SHOOTER_FLAP_OPEN = 0.95; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_POWER_SHOT = SHOOTER_FLAP_OPEN - 0.025;// Short Flap .415; // .41 is good ideal value
 
-    public static final double SHOOTER_FLAP_OPEN_AUTO = SHOOTER_FLAP_OPEN - 0.004; // Short .395 //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_OPEN_AUTO = SHOOTER_FLAP_OPEN; // Short .395 //increase in numbers is down; decrease in numbers is up.
   // public static final double SHOOTER_FLAP_OPEN_AUTO_FAR = .410; // Short .405; //increase in numbers is down; decrease in numbers is up.
 
     //Wobble Presets
@@ -54,9 +54,9 @@ public class Presets {
     public static final double TELEOP_HIGH_PID_RPM_TARGET_LOW = TELEOP_HIGH_PID_RPM_TARGET - 100;
     public static final double TELEOP_HIGH_PID_RPM_TARGET_HIGH = TELEOP_HIGH_PID_RPM_TARGET + 100;
 
-    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET = 1600;
-    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET_LOW = TELEOP_POWERSHOT_PID_RPM_TARGET - 100;
-    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET_HIGH = TELEOP_POWERSHOT_PID_RPM_TARGET + 100;
+    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET = 1625;
+    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET_LOW = TELEOP_POWERSHOT_PID_RPM_TARGET - 500;
+    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET_HIGH = TELEOP_POWERSHOT_PID_RPM_TARGET + 500;
 
     public static final double TELEOP_AUTOAIM_POS = -12.0;
 

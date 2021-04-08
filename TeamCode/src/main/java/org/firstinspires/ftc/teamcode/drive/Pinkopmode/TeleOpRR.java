@@ -347,7 +347,7 @@ public class TeleOpRR extends Controls {
         } else if (gamepad2.left_bumper && PinkSubsystem.robot.shoot2.getVelocity() > Presets.TELEOP_POWERSHOT_PID_RPM_TARGET_LOW && PinkSubsystem.robot.shoot2.getVelocity() < Presets.TELEOP_POWERSHOT_PID_RPM_TARGET_HIGH) {
             Conveyor.flap_open();
             //Conveyor.top_gate_up();
-            Conveyor.collect(.50);
+            Conveyor.collect(.49);
             //start shooting if shootTemp = 1 from previous code
         } else if (shootTemp == 1) {
             Conveyor.flap_open();
