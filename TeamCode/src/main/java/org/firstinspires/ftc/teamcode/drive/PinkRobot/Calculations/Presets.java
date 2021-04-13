@@ -28,10 +28,10 @@ public class Presets {
     // Flap 0.392 -
     // RPM 1450
 
-    public static final double SHOOTER_FLAP_OPEN = 0.95; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_OPEN = 0.971; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
     public static final double SHOOTER_FLAP_POWER_SHOT = SHOOTER_FLAP_OPEN - 0.025;// Short Flap .415; // .41 is good ideal value
 
-    public static final double SHOOTER_FLAP_OPEN_AUTO = SHOOTER_FLAP_OPEN; // Short .395 //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_OPEN_AUTO = SHOOTER_FLAP_OPEN - 0.003; // Short .395 //increase in numbers is down; decrease in numbers is up.
   // public static final double SHOOTER_FLAP_OPEN_AUTO_FAR = .410; // Short .405; //increase in numbers is down; decrease in numbers is up.
 
     //Wobble Presets

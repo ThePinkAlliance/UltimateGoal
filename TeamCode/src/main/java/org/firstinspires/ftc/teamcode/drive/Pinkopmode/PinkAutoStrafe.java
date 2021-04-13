@@ -148,7 +148,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC0_DROP_SECOND_WOB_TAN_BEGIN = -25;
 
     public static double RC1_DROP_SECOND_WOB_X = 17;
-    public static double RC1_DROP_SECOND_WOB_Y = -36;
+    public static double RC1_DROP_SECOND_WOB_Y = -38;
     public static double RC1_DROP_SECOND_WOB_HEADING = 180;
     public static double RC1_DROP_SECOND_WOB_TAN_END = 0;
     public static double RC1_DROP_SECOND_WOB_TAN_BEGIN = 0;
@@ -263,7 +263,7 @@ public class PinkAutoStrafe extends LinearOpMode {
         Wobble.wobble_grip();
         Wobble.wobble_arm_up();
         PinkSubsystem.set_servo_positions();
-        Conveyor.top_gate_down();
+        Conveyor.top_gate_up();
         Conveyor.flap_open();
         Collector.ringblocker_folded();
 
@@ -324,7 +324,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                         Wobble.wobble_ungrip();
                         Collector.collector_hold();
                         Shooter.shootPower(0.92);
-                        Conveyor.top_gate_down(); //Conveyor.flap_open();
+                        Conveyor.top_gate_up(); //Conveyor.flap_open();
                         autoStep = AutonomousSTEPS.AS_SHOOT_FIRST_3_HIGH_DRIVE;
                     }
                     break; // AS_DROP_FIRST_WOBBLE_RELEASE
@@ -379,13 +379,11 @@ public class PinkAutoStrafe extends LinearOpMode {
                         if(ringFound == RingMode.QUAD) {
                             autoStep = AutonomousSTEPS.AS_COLLECT_CENTER_WOBBLE;
                             Shooter.dont_shoot();
-                            Conveyor.top_gate_down();
                             Conveyor.conveyor_stop();
                         } else {
                             if(runtime.milliseconds() - markedTime > 1950) {
                                 autoStep = AutonomousSTEPS.AS_COLLECT_CENTER_WOBBLE;
-                                Shooter.dont_shoot();
-                                Conveyor.top_gate_down(); //Conveyor.flap_close();
+                                Shooter.dont_shoot();                                //Conveyor.flap_close();
                                 Conveyor.conveyor_stop();
                             }
                         }
@@ -422,6 +420,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break; // AS_COLLECT_CENTER_WOBBLE:
 
                 case AS_COLLECT_CENTER_GRIP:
+                    Conveyor.top_gate_down();
                     if(ringFound == RingMode.QUAD) {
                         Wobble.wobble_grip();
                         autoStep = AutonomousSTEPS.AS_COLLECT_CENTER_LIFT;
@@ -437,9 +436,9 @@ public class PinkAutoStrafe extends LinearOpMode {
                 case AS_COLLECT_CENTER_LIFT:
                     double liftdelay = 0;
                     if(ringFound == RingMode.QUAD) {
-                        liftdelay = 400;
+                        liftdelay = 450;
                     } else {
-                        liftdelay = 500;
+                        liftdelay = 520;
                     }
                     if(runtime.milliseconds() - markedTime > liftdelay) {
                         Wobble.wobble_arm_up();
@@ -470,7 +469,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_RELEASE
 
                 case AS_COLLECT_QUAD_RING_STRAFE:
-                    if(runtime.milliseconds() - markedTime > 150) {
+                    if(runtime.milliseconds() - markedTime > 120) {
                         // Get ready to collect the ring on the trajectory to shoot
                         Conveyor.top_gate_down(); //Conveyor.flap_close();
                         Collector.collectAt(-0.6);
@@ -546,7 +545,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                         Collector.eject_slow();
                         Conveyor.flap_open();
                         Conveyor.top_gate_up();
-                        Shooter.flap_custom(Presets.SHOOTER_FLAP_OPEN_AUTO + 0.002);// Presets.SHOOTER_FLAP_OPEN_AUTO_FAR);
+                        Shooter.flap_custom(Presets.SHOOTER_FLAP_OPEN_AUTO - 0.003);// Presets.SHOOTER_FLAP_OPEN_AUTO_FAR);
                         Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
                         double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
 
