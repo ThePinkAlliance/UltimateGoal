@@ -28,7 +28,7 @@ public class Presets {
     // Flap 0.392 -
     // RPM 1450
 
-    public static final double SHOOTER_FLAP_OPEN = 0.971; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
+    public static final double SHOOTER_FLAP_OPEN = 0.880; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
     public static final double SHOOTER_FLAP_POWER_SHOT = SHOOTER_FLAP_OPEN - 0.025;// Short Flap .415; // .41 is good ideal value
 
     public static final double SHOOTER_FLAP_OPEN_AUTO = SHOOTER_FLAP_OPEN - 0.003; // Short .395 //increase in numbers is down; decrease in numbers is up.
@@ -44,13 +44,20 @@ public class Presets {
     public static final double TOP_GATE_UP = 0.3;
     public static final double TOP_GATE_DOWN = 0.05;
 
+    // Sweeper Servos
+    public static final double SWEEPER_LEFT_STOP = 0.5;
+    public static final double SWEEPER_LEFT_COLLECT = 0.0;
+
+    public static final double SWEEPER_RIGHT_STOP = 0.5;
+    public static final double SWEEPER_RIGHT_COLLECT = 1.0;
+
     // Ring Blocker
     public static final double RING_BROCKER_FOLDED = 0.0;
     public static final double RING_BROCKER_UP = 0.4;
     public static final double RING_BROCKER_DOWN = 0.80;
 
     // TeleOp
-    public static final double TELEOP_HIGH_PID_RPM_TARGET = 2100; // Good Value 2100;
+    public static final double TELEOP_HIGH_PID_RPM_TARGET = 2200; // Good Value 2100;
     public static final double TELEOP_HIGH_PID_RPM_TARGET_LOW = TELEOP_HIGH_PID_RPM_TARGET - 100;
     public static final double TELEOP_HIGH_PID_RPM_TARGET_HIGH = TELEOP_HIGH_PID_RPM_TARGET + 100;
 

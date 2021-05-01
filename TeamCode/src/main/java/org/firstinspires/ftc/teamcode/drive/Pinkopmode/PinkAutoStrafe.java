@@ -97,7 +97,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RCQ_DROP_FIRST_WOB_TAN_END = 0; // Spline Tangent where this segment end
     public static double RCQ_DROP_FIRST_WOB_TAN_BEGIN = 190; // Spline Tangent where this segment begins o the next position
 
-    public static double RC_SHOOT_HIGH_WOB_X = -2;
+    public static double RC_SHOOT_HIGH_WOB_X = -5;
     public static double RC_SHOOT_HIGH_WOB_Y = -36;
     public static double RC_SHOOT_HIGH_WOB_HEADING = -1;
     public static double RCQ_SHOOT_HIGH_WOB_HEADING = 0;
@@ -106,13 +106,13 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC1_SHOOT_HIGH_WOB_TAN_END = 180; // Different Tangent for second pos but same x/y/heading
     public static double RCQ_SHOOT_HIGH_WOB_TAN_END = 180;
 
-    public static double RC_SHOOT_HIGH_WOB_TAN_BEGIN = 90;
+    public static double RC_SHOOT_HIGH_WOB_TAN_BEGIN = 80;
     public static double RCQ_SHOOT_HIGH_WOB_TAN_BEGIN = 100;
 
     public static double RC_COLLECT_MID_WOB_X = -34.85;
-    public static double RC_COLLECT_MID_WOB_Y = -22.5;
+    public static double RC_COLLECT_MID_WOB_Y = -23.5;
     public static double RC_COLLECT_MID_WOB_HEADING = 0;
-    public static double RC_COLLECT_MID_WOB_TAN_END = 190;
+    public static double RC_COLLECT_MID_WOB_TAN_END = 200;
 
     public static double RCQ_COLLECT_MID_WOB_X = -36.5;
     public static double RCQ_COLLECT_MID_WOB_Y = -26.5;
@@ -123,9 +123,9 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC1_COLLECT_MID_WOB_TAN_BEGIN = -75; // Different Tangent to next position since now going to collect single ring
     public static double RCQ_COLLECT_MID_WOB_TAN_BEGIN = -75;
 
-    public static double RC1_SHOOT_SINGLE_STACK_X = 0;//RC_SHOOT_HIGH_WOB_X;
+    public static double RC1_SHOOT_SINGLE_STACK_X = -4;//RC_SHOOT_HIGH_WOB_X;
     public static double RC1_SHOOT_SINGLE_STACK_Y = RC_SHOOT_HIGH_WOB_Y;
-    public static double RC1_SHOOT_SINGLE_STACK_HEADING = RC_SHOOT_HIGH_WOB_HEADING;
+    public static double RC1_SHOOT_SINGLE_STACK_HEADING = -5;
     public static double RC1_SHOOT_SINGLE_STACK_TAN_END = 25;
     public static double RC1_SHOOT_SINGLE_STACK_TAN_BEGIN = 0;
 
@@ -160,7 +160,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RCQ_DROP_SECOND_WOB_TAN_BEGIN = -205;
 
     public static double RCQ_STRAFE_RIGHT = 14;
-    public static double RCQ_COLLECT_FORWARD = 28;
+    public static double RCQ_COLLECT_FORWARD = 21;
     public static double RCQ_COLLECT_LAST_FORWARD = 8;
 
     public static double RC0_SECOND_PARK_X = 5;
@@ -258,7 +258,7 @@ public class PinkAutoStrafe extends LinearOpMode {
         Collector.collector_drop();
         Collector.collect_stop();
         Shooter.dont_shoot();
-        Shooter.flap_custom(1.0); // Shooter.flap_open()
+        Shooter.flap_custom(0.0); // Shooter.flap_open() // Don't touch flap yet
         Conveyor.conveyor_stop();
         Wobble.wobble_grip();
         Wobble.wobble_arm_up();
@@ -314,7 +314,7 @@ public class PinkAutoStrafe extends LinearOpMode {
 
                 case AS_DROP_FIRST_WOBBLE_DROP:
                     Wobble.wobble_arm_down();
-                    Collector.collector_hold();
+                    Collector.collector_drop();
                     Shooter.flap_custom(Presets.SHOOTER_FLAP_OPEN_AUTO); // Shooter.flap_open()
                     autoStep = AutonomousSTEPS.AS_DROP_FIRST_WOBBLE_RELEASE;
                     break; // AS_DROP_FIRST_WOBBLE_DROP
@@ -322,7 +322,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                 case AS_DROP_FIRST_WOBBLE_RELEASE:
                     if(runtime.milliseconds() - markedTime > 350) {
                         Wobble.wobble_ungrip();
-                        Collector.collector_hold();
+                        Collector.collector_drop();
                         Shooter.shootPower(0.92);
                         Conveyor.top_gate_up(); //Conveyor.flap_open();
                         autoStep = AutonomousSTEPS.AS_SHOOT_FIRST_3_HIGH_DRIVE;

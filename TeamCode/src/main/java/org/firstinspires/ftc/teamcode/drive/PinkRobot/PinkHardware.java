@@ -32,6 +32,9 @@ public class PinkHardware {
     public Servo top_gate;
     public Servo ring_blocker;
 
+    public Servo sweeper_left;
+    public Servo sweeper_right;
+
     // Local OpMode Members
     private HardwareMap hwMap = null;
 
@@ -115,5 +118,7 @@ public class PinkHardware {
         top_gate = hwMap.get(Servo.class, "top_gate");
         ring_blocker = hwMap.get(Servo.class, "ring_blocker");
 
+        sweeper_left = hwMap.get(Servo.class, "sweeper_left");
+        sweeper_right = hwMap.get(Servo.class, "sweeper_right");
     }
 }

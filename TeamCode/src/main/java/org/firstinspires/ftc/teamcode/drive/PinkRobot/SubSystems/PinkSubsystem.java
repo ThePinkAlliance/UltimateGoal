@@ -21,6 +21,8 @@ public class PinkSubsystem {
     static double wobble_arm_command = Presets.WOBBLE_UP;
     static double wobble_grip_command = Presets.WOBBLE_GRIP;
     static double top_gate_command = Presets.TOP_GATE_DOWN;
+    static double sweeper_left_command = Presets.SWEEPER_LEFT_STOP;
+    static double sweeper_right_command = Presets.SWEEPER_RIGHT_STOP;
 
     static double ring_blocker_command = Presets.RING_BROCKER_FOLDED;
 
@@ -58,5 +60,8 @@ public class PinkSubsystem {
         robot.wobble_grip.setPosition(wobble_grip_command);
         robot.top_gate.setPosition(top_gate_command);
         robot.ring_blocker.setPosition(ring_blocker_command);
+
+        robot.sweeper_left.setPosition(sweeper_left_command);
+        robot.sweeper_right.setPosition(sweeper_right_command);
     }
 }

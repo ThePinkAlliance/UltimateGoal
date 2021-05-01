@@ -146,6 +146,7 @@ public class TeleOpRR extends Controls {
         Collector.collector_hold();
         Conveyor.top_gate_down();
         Conveyor.flap_open();
+        Collector.SweepersCollect(false);
 //        Scorer.score_rotate_to_position(Presets.SCORER_STOW);
 
         // Telemetry Update to Inform Drivers That the Program is Initialized
@@ -168,7 +169,7 @@ public class TeleOpRR extends Controls {
 
         // Driver DPAD is for autoaim of PowerShot
         // Left PowerShot
-        if(gamepad1.dpad_left == true)
+        /*if(gamepad1.dpad_left == true)
         {
             TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POWERSHOT_RED_LEFT;
             targetPosition = new Vector2d(74, TargetHeadingYPosition);
@@ -182,6 +183,15 @@ public class TeleOpRR extends Controls {
         {
             TargetHeadingYPosition = Presets.TELEOP_AUTOAIM_POWERSHOT_RED_RIGHT;
             targetPosition = new Vector2d(74, TargetHeadingYPosition);
+        }*/
+
+        if(gamepad1.dpad_up == true)
+        {
+            Collector.collector_drop();
+        } else
+        if(gamepad1.dpad_down == true)
+        {
+            Collector.collector_hold();
         }
 
         if (gamepad2.left_stick_y > .1  ||
@@ -306,11 +316,14 @@ public class TeleOpRR extends Controls {
         // Collect if right bumper on base controller is pressed, eject if left bumper on base controller is pressed, otherwise stop the collector
         if (base_right_bumper(false)) {
             Collector.collect();
+            Collector.SweepersCollect(true);
             Conveyor.top_gate_down();
         } else if (base_left_bumper(false)) {
             Collector.eject();
+            Collector.SweepersCollect(false);
         } else {
             Collector.collect_stop();
+            Collector.SweepersCollect(false);
         }
         //Shoot Commands, if bumper or right trigger is used spin up motors
         isShootingHigh = false;
@@ -378,6 +391,7 @@ public class TeleOpRR extends Controls {
         if(gamepad1.left_bumper)
         {
             Collector.eject();
+            Collector.SweepersCollect(false);
         }
 
         // Ring Blocker
@@ -445,6 +459,7 @@ public class TeleOpRR extends Controls {
         Shooter.dont_shoot();
         Conveyor.conveyor_stop();
         Collector.collect_stop();
+        Collector.SweepersCollect(false);
 
         // Set Motor Powers and Servos to Their Commands
         PinkSubsystem.set_motor_powers();

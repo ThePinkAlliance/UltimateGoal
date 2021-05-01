@@ -17,6 +17,16 @@ public abstract class Collector extends PinkSubsystem{
         collect_command = power;
     }
 
+    public static void SweepersCollect(boolean collect) {
+        if(collect)
+        {
+            sweeper_left_command = Presets.SWEEPER_LEFT_COLLECT;
+            sweeper_right_command = Presets.SWEEPER_RIGHT_COLLECT;
+        } else {
+            sweeper_left_command = Presets.SWEEPER_LEFT_STOP;
+            sweeper_right_command = Presets.SWEEPER_RIGHT_STOP;
+        }
+    }
     // Method for Ejecting
     public static void eject() {
         // Command assigned to preset value
@@ -47,6 +57,7 @@ public abstract class Collector extends PinkSubsystem{
 
     public static void ringblocker_up()
     {
+        ring_blocker_command = Presets.RING_BROCKER_UP;
         ring_blocker_command = Presets.RING_BROCKER_UP;
     }
 
