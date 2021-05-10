@@ -40,6 +40,11 @@ public abstract class Shooter extends PinkSubsystem {
         shooter_flap_command = Presets.SHOOTER_FLAP_OPEN;
     }
 
+
+    public static void flap_open_offset(double offset) {
+        shooter_flap_command = Presets.SHOOTER_FLAP_OPEN_TELEOP + offset;
+    }
+
     public static void flap_power_shot() {
         shooter_flap_command = Presets.SHOOTER_FLAP_POWER_SHOT;
     }

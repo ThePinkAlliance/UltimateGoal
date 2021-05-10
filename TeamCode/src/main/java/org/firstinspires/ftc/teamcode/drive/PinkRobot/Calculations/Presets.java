@@ -29,7 +29,10 @@ public class Presets {
     // RPM 1450
 
     public static final double SHOOTER_FLAP_OPEN = 0.880; // Short Flap .395; //increase in numbers is down; decrease in numbers is up.
-    public static final double SHOOTER_FLAP_POWER_SHOT = SHOOTER_FLAP_OPEN - 0.025;// Short Flap .415; // .41 is good ideal value
+    public static final double SHOOTER_FLAP_POWER_SHOT = SHOOTER_FLAP_OPEN - 0.015;// Short Flap .415; // .41 is good ideal value
+
+
+    public static final double SHOOTER_FLAP_OPEN_TELEOP = 0.870;
 
     public static final double SHOOTER_FLAP_OPEN_AUTO = SHOOTER_FLAP_OPEN - 0.003; // Short .395 //increase in numbers is down; decrease in numbers is up.
   // public static final double SHOOTER_FLAP_OPEN_AUTO_FAR = .410; // Short .405; //increase in numbers is down; decrease in numbers is up.
@@ -61,8 +64,8 @@ public class Presets {
     public static final double TELEOP_HIGH_PID_RPM_TARGET_LOW = TELEOP_HIGH_PID_RPM_TARGET - 100;
     public static final double TELEOP_HIGH_PID_RPM_TARGET_HIGH = TELEOP_HIGH_PID_RPM_TARGET + 100;
 
-    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET = 1625;
-    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET_LOW = TELEOP_POWERSHOT_PID_RPM_TARGET - 500;
+    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET = 1650;
+    public static final double TELEOP_POWERSHOT_PID_RPM_TARGET_LOW = TELEOP_POWERSHOT_PID_RPM_TARGET - 250;
     public static final double TELEOP_POWERSHOT_PID_RPM_TARGET_HIGH = TELEOP_POWERSHOT_PID_RPM_TARGET + 500;
 
     public static final double TELEOP_AUTOAIM_POS = -12.0;

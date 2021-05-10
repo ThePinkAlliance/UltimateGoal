@@ -148,7 +148,7 @@ public class PinkAutoStrafe extends LinearOpMode {
     public static double RC0_DROP_SECOND_WOB_TAN_BEGIN = -25;
 
     public static double RC1_DROP_SECOND_WOB_X = 17;
-    public static double RC1_DROP_SECOND_WOB_Y = -38;
+    public static double RC1_DROP_SECOND_WOB_Y = -36.5;
     public static double RC1_DROP_SECOND_WOB_HEADING = 180;
     public static double RC1_DROP_SECOND_WOB_TAN_END = 0;
     public static double RC1_DROP_SECOND_WOB_TAN_BEGIN = 0;
@@ -320,7 +320,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_DROP
 
                 case AS_DROP_FIRST_WOBBLE_RELEASE:
-                    if(runtime.milliseconds() - markedTime > 350) {
+                    if(runtime.milliseconds() - markedTime > 300) {
                         Wobble.wobble_ungrip();
                         Collector.collector_drop();
                         Shooter.shootPower(0.92);
@@ -363,7 +363,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_DRIVE:
 
                 case AS_SHOOT_FIRST_3_SHOOT:
-                    if(runtime.milliseconds() - markedTime < 1400) { // run this for enough time to shoot
+                    if(runtime.milliseconds() - markedTime < 1350) { // run this for enough time to shoot
                         if(ringFound == RingMode.QUAD) {
                             Conveyor.collect(HIGH_SHOT_SPINDEXER_POWER);
                         } else {
@@ -381,7 +381,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                             Shooter.dont_shoot();
                             Conveyor.conveyor_stop();
                         } else {
-                            if(runtime.milliseconds() - markedTime > 1950) {
+                            if(runtime.milliseconds() - markedTime > 1850) {
                                 autoStep = AutonomousSTEPS.AS_COLLECT_CENTER_WOBBLE;
                                 Shooter.dont_shoot();                                //Conveyor.flap_close();
                                 Conveyor.conveyor_stop();
@@ -540,7 +540,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break;
 
                 case AS_SHOOT_SINGLE_FROM_STACK:
-                    if(runtime.milliseconds() - markedTime < 1550) { // run this for enough time to shoot
+                    if(runtime.milliseconds() - markedTime < 1500) { // run this for enough time to shoot
                         Conveyor.collect(1.00);
                         Collector.eject_slow();
                         Conveyor.flap_open();
@@ -553,13 +553,13 @@ public class PinkAutoStrafe extends LinearOpMode {
                             Conveyor.flap_open();
                             Conveyor.top_gate_up();
                             if(ringFound != RingMode.QUAD) {
-                                if (runtime.milliseconds() - markedTime > 2000)
+                                if (runtime.milliseconds() - markedTime > 1950)
                                 {
                                     Collector.collect_stop();
                                     autoStep = AutonomousSTEPS.AS_DROP_SECOND_WOBBLE_DRIVE;
                                 }
                             } else {
-                                if (runtime.milliseconds() - markedTime > 2000) {
+                                if (runtime.milliseconds() - markedTime > 1950) {
                                     autoStep = AutonomousSTEPS.AS_COLLECT_LAST_QUAD_STRAIGHT_DRIVE;
                                 }
                             }
@@ -579,7 +579,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break;
 
                 case AS_COLLECT_LAST_QUAD_STRAIGHT_DRIVE:
-                    if(runtime.milliseconds() - markedTime > 1000) { // run this for enough time to shoot
+                    if(runtime.milliseconds() - markedTime > 950) { // run this for enough time to shoot
                             Collector.collect();
                             Conveyor.collect(1.0);
                             Shooter.shootPower(0.9);
@@ -594,8 +594,8 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break;
 
                 case AS_COLLECT_LAST_QUAD_STRAIGHT_SHOOT:
-                    if(runtime.milliseconds() - markedTime > 1000) {
-                        if (runtime.milliseconds() - markedTime < 2100) { // run this for enough time to shoot
+                    if(runtime.milliseconds() - markedTime > 950) {
+                        if (runtime.milliseconds() - markedTime < 2050) { // run this for enough time to shoot
                             Conveyor.collect(0.87);
                             Shooter.flap_custom(Presets.SHOOTER_FLAP_OPEN_AUTO - 0.003); // Shooter.flap_open()
                             Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
@@ -671,7 +671,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break; // AS_DROP_FIRST_WOBBLE_DROP
 
                 case AS_DROP_SECOND_WOBBLE_RELEASE:
-                    if(runtime.milliseconds() - markedTime > 200) {
+                    if(runtime.milliseconds() - markedTime > 180) {
                         Wobble.wobble_ungrip();
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED:
@@ -720,7 +720,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break; // AS_QUAD_LAST_SHOOT_DRIVE
 
                 case AS_QUAD_LAST_SHOOT:
-                    if(runtime.milliseconds() - markedTime < 500) { // run this for enough time to shoot
+                    if(runtime.milliseconds() - markedTime < 450) { // run this for enough time to shoot
                         Conveyor.collect(1);
                         Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
                         double currentShooterVelocity = PinkSubsystem.robot.shoot2.getVelocity();
@@ -738,7 +738,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                     break; // AS_QUAD_LAST_SHOOT
 
                 case AS_PARK:
-                    if(runtime.milliseconds() - markedTime > 300) {
+                    if(runtime.milliseconds() - markedTime > 280) {
                         switch (startingFieldPosition) {
                             case SP_CORNER_RED:
                                 switch (ringFound) {
@@ -749,7 +749,7 @@ public class PinkAutoStrafe extends LinearOpMode {
                                         break; // NONE
                                     case SINGLE:
                                         Wobble.wobble_arm_up();
-                                        if(runtime.milliseconds() - markedTime > 1500) {
+                                        if(runtime.milliseconds() - markedTime > 1450) {
                                             trajectory = BuildSimpleTrajectorySlow(RC1_DROP_SECOND_WOB_X, RC1_DROP_SECOND_WOB_Y, RC1_DROP_SECOND_WOB_HEADING, RC1_DROP_SECOND_WOB_TAN_BEGIN,
                                                     RC1_SECOND_PARK_X, RC1_SECOND_PARK_Y, RC1_SECOND_PARK_HEADING, RC1_SECOND_PARK_TAN_END);
                                             autoStep = AutonomousSTEPS.AS_AUTONOMOUS_END;

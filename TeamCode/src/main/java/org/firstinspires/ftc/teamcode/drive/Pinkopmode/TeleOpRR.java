@@ -90,7 +90,7 @@ public class TeleOpRR extends Controls {
 
 
     private double TargetHeadingPowerShotPosition = Presets.TELEOP_AUTOAIM_POS;
-
+    private double flatPositionOffet = 0.0; // adjusted by the driver
 
 
 
@@ -147,6 +147,7 @@ public class TeleOpRR extends Controls {
         Conveyor.top_gate_down();
         Conveyor.flap_open();
         Collector.SweepersCollect(false);
+        Shooter.flap_open_offset(flatPositionOffet);
 //        Scorer.score_rotate_to_position(Presets.SCORER_STOW);
 
         // Telemetry Update to Inform Drivers That the Program is Initialized
@@ -192,6 +193,14 @@ public class TeleOpRR extends Controls {
         if(gamepad1.dpad_down == true)
         {
             Collector.collector_hold();
+        } else
+        if(gamepad1.dpad_left == true)
+        {
+            flatPositionOffet += 0.001;
+        } else
+        if(gamepad1.dpad_right == true)
+        {
+            flatPositionOffet -= 0.001;
         }
 
         if (gamepad2.left_stick_y > .1  ||
@@ -332,7 +341,7 @@ public class TeleOpRR extends Controls {
             //Shoot by pd command passing current velocity and target velocity, shootPower is below, pass a power for the shooter motors to use
             isShootingHigh = true;
             Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_HIGH_PID_RPM_TARGET);
-            Shooter.flap_open();
+            Shooter.flap_open_offset(flatPositionOffet);
             //Power shot code
         } else if (gamepad2.left_bumper) { /// *** POWER SHOT ****
             Shooter.shoot_by_pd(PinkSubsystem.robot.shoot2.getVelocity(), Presets.TELEOP_POWERSHOT_PID_RPM_TARGET);
